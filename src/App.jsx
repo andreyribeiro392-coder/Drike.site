@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from "react";
 
 export default function LegalStreamingCatalog() {
@@ -9,7 +8,7 @@ export default function LegalStreamingCatalog() {
     title: "Drike Originals",
     subtitle: "Streaming com visual premium e catálogo legal.",
     description:
-      "Versão mais sofisticada do Drike, com busca, capas, descrições e player para obras abertas, gratuitas ou licenciadas.",
+      "Versão atualizada do Drike com busca, capas, descrições e player para obras abertas, gratuitas ou licenciadas.",
   };
 
   const movies = [
@@ -117,8 +116,6 @@ export default function LegalStreamingCatalog() {
         "Use esta parte para projetos próprios, trailers de anime autoral ou títulos realmente licenciados.",
       poster:
         "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
-      trailer: "#",
-      embed: "#",
       category: "Anime",
     },
     {
@@ -132,8 +129,6 @@ export default function LegalStreamingCatalog() {
         "Reserve esta seção para obras com contrato, parceria ou autorização clara de exibição.",
       poster:
         "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop",
-      trailer: "#",
-      embed: "#",
       category: "Anime",
     },
   ];
@@ -168,7 +163,7 @@ export default function LegalStreamingCatalog() {
         movie.genre.toLowerCase().includes(term) ||
         movie.description.toLowerCase().includes(term)
     );
-  }, [movies, query]);
+  }, [query]);
 
   const accent = "from-red-600 via-rose-500 to-orange-400";
 
@@ -206,7 +201,7 @@ export default function LegalStreamingCatalog() {
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
             <div>
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-red-400/20 bg-red-500/10 px-4 py-2 text-sm text-red-100 backdrop-blur">
-                <Sparkles className="h-4 w-4" />
+                <span>✨</span>
                 {featured.subtitle}
               </div>
               <h1 className="max-w-3xl text-5xl font-extrabold tracking-tight md:text-7xl">{featured.title}</h1>
@@ -214,7 +209,7 @@ export default function LegalStreamingCatalog() {
 
               <div className="mt-8 max-w-xl">
                 <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur">
-                  <Search className="h-5 w-5 text-zinc-400" />
+                  <span className="text-zinc-400">🔎</span>
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -264,7 +259,7 @@ export default function LegalStreamingCatalog() {
                     onClick={() => setSelectedMovie(movies[0])}
                     className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 font-semibold text-black transition hover:scale-[1.02]"
                   >
-                    <Play className="h-5 w-5 fill-black" />
+                    <span>▶</span>
                     Dar play
                   </button>
                 </div>
@@ -278,17 +273,17 @@ export default function LegalStreamingCatalog() {
         <section className="mb-10 grid gap-4 md:grid-cols-3">
           {[
             {
-              icon: <Film className="h-5 w-5 text-red-400" />,
+              icon: "🎬",
               title: "Capas e visual premium",
               text: "Cada filme agora tem poster grande, descrição e botão de play para uma experiência mais moderna.",
             },
             {
-              icon: <Search className="h-5 w-5 text-red-400" />,
+              icon: "🔎",
               title: "Pesquisa integrada",
               text: "A barra de busca ajuda a encontrar filme por nome, gênero ou descrição em segundos.",
             },
             {
-              icon: <Crown className="h-5 w-5 text-red-400" />,
+              icon: "👑",
               title: "Player e planos",
               text: "Estrutura pronta para exibir vídeo, reproduzir obras abertas e mostrar seus planos premium.",
             },
@@ -342,7 +337,7 @@ export default function LegalStreamingCatalog() {
                       onClick={() => setSelectedMovie(movie)}
                       className={`inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r ${accent} px-4 py-3 text-sm font-medium text-white transition hover:opacity-90`}
                     >
-                      <Play className="h-4 w-4 fill-white" />
+                      <span>▶</span>
                       Dar play
                     </button>
                     <a
@@ -445,9 +440,9 @@ export default function LegalStreamingCatalog() {
               </div>
               <button
                 onClick={() => setSelectedMovie(null)}
-                className="rounded-2xl border border-white/10 bg-white/5 p-2 transition hover:bg-white/10"
+                className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 transition hover:bg-white/10"
               >
-                <X className="h-5 w-5" />
+                Fechar ✕
               </button>
             </div>
 
@@ -465,7 +460,7 @@ export default function LegalStreamingCatalog() {
               <img src={selectedMovie.poster} alt={selectedMovie.title} className="h-full max-h-[340px] w-full rounded-[1.5rem] object-cover" />
               <div>
                 <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-300">
-                  <Star className="h-3.5 w-3.5 text-yellow-400" />
+                  <span>⭐</span>
                   {selectedMovie.rating} • {selectedMovie.badge}
                 </div>
                 <h3 className="text-3xl font-bold">{selectedMovie.title}</h3>
