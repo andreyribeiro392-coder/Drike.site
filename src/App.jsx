@@ -327,4 +327,4 @@ description: "Filme de corrida e crime que entrou em domínio público.",
 poster: "https://upload.wikimedia.org/wikipedia/commons/0/0f/TheFastandtheFurious1954.jpg",
 trailer: "https://www.youtube.com/watch?v=7sE3vXyQeE4",
 embed: "https://archive.org/embed/TheFastAndTheFurious1954"
-},
+}
