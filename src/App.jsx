@@ -88,9 +88,129 @@ export default function LegalStreamingCatalog() {
       poster:
         "https://studio.blender.org/static/media/film_spring_poster.6d168364.jpg",
       trailer: "https://www.youtube.com/watch?v=WhWc3b3KhnY",
-      embed: "https://www.youtube.com/embed/WhWc3b3KhnY",
+      embed: "https://www.youtube.com/embed/WhWc3b3KhnY"
     },
-  ];
+    {
+id: 12,
+title: "The General",
+genre: "Guerra / Comédia",
+year: 1926,
+rating: "8.1",
+badge: "Domínio Público",
+description: "Clássico de guerra e comédia com Buster Keaton durante a Guerra Civil Americana.",
+poster: "https://upload.wikimedia.org/wikipedia/commons/3/3a/The_General_%281926%29_poster.jpg",
+trailer: "https://www.youtube.com/watch?v=Rk3n2yYqNqM",
+embed: "https://archive.org/embed/TheGeneral1926"
+},
+{
+id: 13,
+title: "White Zombie",
+genre: "Terror",
+year: 1932,
+rating: "6.4",
+badge: "Domínio Público",
+description: "Um dos primeiros filmes de zumbis da história do cinema.",
+poster: "https://upload.wikimedia.org/wikipedia/commons/3/30/White_Zombie_poster.jpg",
+trailer: "https://www.youtube.com/watch?v=9p0KfC3hJ5E",
+embed: "https://archive.org/embed/whitezombie"
+},
+{
+id: 14,
+title: "Nosferatu",
+genre: "Terror",
+year: 1922,
+rating: "7.9",
+badge: "Domínio Público",
+description: "Clássico do cinema mudo sobre vampiros.",
+poster: "https://upload.wikimedia.org/wikipedia/commons/0/0d/Nosferatu_poster.jpg",
+trailer: "https://www.youtube.com/watch?v=FC6jFoYm3xs",
+embed: "https://archive.org/embed/nosferatu"
+},
+{
+id: 15,
+title: "Steamboat Willie",
+genre: "Desenho / Comédia",
+year: 1928,
+rating: "7.5",
+badge: "Domínio Público",
+description: "Primeiro desenho famoso do Mickey Mouse agora em domínio público.",
+poster: "https://upload.wikimedia.org/wikipedia/commons/0/0c/Steamboat_Willie_poster.jpg",
+trailer: "https://www.youtube.com/watch?v=BBgghnQF6E4",
+embed: "https://archive.org/embed/SteamboatWillie"
+},
+{
+id: 16,
+title: "Gulliver's Travels",
+genre: "Desenho / Aventura",
+year: 1939,
+rating: "6.7",
+badge: "Domínio Público",
+description: "Animação clássica baseada na história de Gulliver.",
+poster: "https://upload.wikimedia.org/wikipedia/commons/8/89/Gullivers_Travels_poster.jpg",
+trailer: "https://www.youtube.com/watch?v=G4cXx5iG5e8",
+embed: "https://archive.org/embed/gulliverstravels1939"
+},
+{
+id: 17,
+title: "The Kid",
+genre: "Comédia",
+year: 1921,
+rating: "8.2",
+badge: "Domínio Público",
+description: "Clássico de Charlie Chaplin sobre um homem e uma criança órfã.",
+poster: "https://upload.wikimedia.org/wikipedia/commons/7/7c/The_Kid_1921_poster.jpg",
+trailer: "https://www.youtube.com/watch?v=QyF3vY8kJ6U",
+embed: "https://archive.org/embed/TheKid1921"
+},
+{
+id: 18,
+title: "Safety Last",
+genre: "Comédia",
+year: 1923,
+rating: "8.1",
+badge: "Domínio Público",
+description: "Comédia famosa pela cena do relógio no prédio.",
+poster: "https://upload.wikimedia.org/wikipedia/commons/4/4d/Safety_Last_poster.jpg",
+trailer: "https://www.youtube.com/watch?v=QEcTjhUN_7U",
+embed: "https://archive.org/embed/SafetyLast1923"
+},
+{
+id: 19,
+title: "The Fast and the Furious",
+genre: "Carros / Crime",
+year: 1954,
+rating: "6.1",
+badge: "Domínio Público",
+description: "Filme clássico sobre corrida e crime.",
+poster: "https://upload.wikimedia.org/wikipedia/commons/0/0f/TheFastandtheFurious1954.jpg",
+trailer: "https://www.youtube.com/watch?v=7sE3vXyQeE4",
+embed: "https://archive.org/embed/TheFastAndTheFurious1954"
+},
+{
+id: 20,
+title: "Detour",
+genre: "Ação / Crime",
+year: 1945,
+rating: "7.4",
+badge: "Domínio Público",
+description: "Clássico noir cheio de suspense.",
+poster: "https://upload.wikimedia.org/wikipedia/commons/3/3f/Detour_poster.jpg",
+trailer: "https://www.youtube.com/watch?v=8cV5rWcF7B8",
+embed: "https://archive.org/embed/Detour1945"
+},
+{
+id: 21,
+title: "The Phantom Creeps",
+genre: "Ação / Sci-fi",
+year: 1939,
+rating: "6.2",
+badge: "Domínio Público",
+description: "Série clássica de ação e ficção científica.",
+poster: "https://upload.wikimedia.org/wikipedia/commons/2/2f/The_Phantom_Creeps.jpg",
+trailer: "https://www.youtube.com/watch?v=7t1KcB7n6E4",
+embed: "https://archive.org/embed/ThePhantomCreeps"
+}
+];
 
   const plans = [
     { name: "Semanal", price: "R$ 15", period: "/semana" },
