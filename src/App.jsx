@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, Play, Star, Crown, X, Film, Sparkles } from "lucide-react";
+import { useMemo, useState } from "react";
 
 export default function LegalStreamingCatalog() {
   const [query, setQuery] = useState("");
