@@ -1,450 +1,392 @@
-import { useMemo, useState } from "react";
-import "./index.css";
+export default function DrikeStreamingApp() {
+  const featured = {
+    title: "Night of the Living Dead",
+    year: 1968,
+    genre: "Terror / Clássico",
+    description:
+      "Uma noite de sobrevivência em um clássico do cinema de domínio público, apresentado aqui em um catálogo com clima cinematográfico.",
+    image:
+      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1600&q=80",
+  };
 
-export default function LegalStreamingCatalog() {
-  const [query, setQuery] = useState("");
-  const [selectedMovie, setSelectedMovie] = useState(null);
-
-  const movies = [
+  const categories = [
     {
-      id: 1,
-      title: "Sita Sings the Blues",
-      genre: "Animação / Musical",
-      year: 2008,
-      rating: "7.6",
-      badge: "CC0",
-      description:
-        "Longa independente com licença aberta, ótimo para um catálogo legal com reprodução permitida.",
-      poster:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Sita_Sings_the_Blues_poster.jpg/800px-Sita_Sings_the_Blues_poster.jpg",
-      trailer: "https://www.youtube.com/watch?v=1QkYOqI3jSM",
-      embed: "https://archive.org/embed/Sita_Sings_the_Blues",
+      name: "Em Alta",
+      movies: [
+        {
+          id: 1,
+          title: "Night of the Living Dead",
+          year: 1968,
+          genre: "Terror",
+          description: "Um clássico absoluto do horror em domínio público.",
+          image: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 2,
+          title: "His Girl Friday",
+          year: 1940,
+          genre: "Romance / Comédia",
+          description: "Diálogos rápidos e carisma em um clássico divertido.",
+          image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 3,
+          title: "Sherlock Jr.",
+          year: 1924,
+          genre: "Aventura / Comédia",
+          description: "Buster Keaton em uma aventura inventiva e leve.",
+          image: "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 4,
+          title: "The General",
+          year: 1926,
+          genre: "Ação / Aventura",
+          description: "Uma locomotiva, perseguições e humor clássico.",
+          image: "https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 5,
+          title: "Plan 9 from Outer Space",
+          year: 1959,
+          genre: "Ficção Científica",
+          description: "Uma ficção científica cult e curiosa.",
+          image: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=900&q=80",
+        },
+      ],
     },
     {
-      id: 2,
-      title: "Big Buck Bunny",
-      genre: "Animação / Comédia",
-      year: 2008,
-      rating: "7.4",
-      badge: "CC BY",
-      description:
-        "Curta aberto muito conhecido, ideal para mostrar qualidade visual e reprodução direta no site.",
-      poster:
-        "https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217",
-      trailer: "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
-      embed: "https://archive.org/embed/BigBuckBunny_328",
+      name: "Ação e Aventura",
+      movies: [
+        {
+          id: 6,
+          title: "The General",
+          year: 1926,
+          genre: "Ação / Aventura",
+          description: "Perseguições e cenas memoráveis no cinema mudo.",
+          image: "https://images.unsplash.com/photo-1514306191717-452ec28c7814?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 7,
+          title: "The Last Man on Earth",
+          year: 1964,
+          genre: "Ação / Ficção",
+          description: "Solidão e sobrevivência em um mundo transformado.",
+          image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 8,
+          title: "Road to Bali",
+          year: 1952,
+          genre: "Aventura",
+          description: "Viagem leve e clássica com tom de aventura.",
+          image: "https://images.unsplash.com/photo-1497032205916-ac775f0649ae?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 9,
+          title: "The Phantom of the Opera",
+          year: 1925,
+          genre: "Drama / Suspense",
+          description: "Visual marcante e clima intenso em um clássico.",
+          image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 10,
+          title: "D.O.A.",
+          year: 1950,
+          genre: "Suspense / Crime",
+          description: "Corrida contra o tempo em um noir envolvente.",
+          image: "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=900&q=80",
+        },
+      ],
     },
     {
-      id: 3,
-      title: "Elephants Dream",
-      genre: "Animação / Sci-fi",
-      year: 2006,
-      rating: "7.0",
-      badge: "CC BY",
-      description:
-        "Primeiro open movie do Blender Studio, excelente para a área de filmes grátis do Drike.",
-      poster:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Elephants_Dream_s1_proog.jpg/800px-Elephants_Dream_s1_proog.jpg",
-      trailer: "https://www.youtube.com/watch?v=bsX0qFGs-KU",
-      embed: "https://archive.org/embed/elephants_dream",
+      name: "Terror",
+      movies: [
+        {
+          id: 11,
+          title: "Night of the Living Dead",
+          year: 1968,
+          genre: "Terror",
+          description: "Um dos maiores clássicos do gênero.",
+          image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 12,
+          title: "Carnival of Souls",
+          year: 1962,
+          genre: "Terror / Mistério",
+          description: "Atmosfera estranha e inesquecível.",
+          image: "https://images.unsplash.com/photo-1505685296765-3a2736de412f?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 13,
+          title: "House on Haunted Hill",
+          year: 1959,
+          genre: "Terror",
+          description: "Casa assombrada, suspense e tensão clássica.",
+          image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 14,
+          title: "Nosferatu",
+          year: 1922,
+          genre: "Terror / Expressionismo",
+          description: "Um ícone sombrio do cinema mundial.",
+          image: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 15,
+          title: "The Brain That Wouldn't Die",
+          year: 1962,
+          genre: "Terror / Ficção",
+          description: "Um terror cult peculiar e memorável.",
+          image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80",
+        },
+      ],
     },
     {
-      id: 4,
-      title: "Sintel",
-      genre: "Animação / Fantasia",
-      year: 2010,
-      rating: "7.5",
-      badge: "CC BY",
-      description:
-        "Curta aberto com visual cinematográfico, ótimo para um catálogo moderno com capa e player.",
-      poster:
-        "https://durian.blender.org/wp-content/uploads/2010/05/poster_01.jpg",
-      trailer: "https://www.youtube.com/watch?v=eRsGyueVLvQ",
-      embed: "https://archive.org/embed/Sintel",
+      name: "Romance e Drama",
+      movies: [
+        {
+          id: 16,
+          title: "Charade",
+          year: 1963,
+          genre: "Romance / Suspense",
+          description: "Elegância, charme e mistério.",
+          image: "https://images.unsplash.com/photo-1542204625-de293a2f8ff2?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 17,
+          title: "His Girl Friday",
+          year: 1940,
+          genre: "Romance / Comédia",
+          description: "Clássico rápido, divertido e carismático.",
+          image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 18,
+          title: "Penny Serenade",
+          year: 1941,
+          genre: "Romance / Drama",
+          description: "Um drama sensível e atemporal.",
+          image: "https://images.unsplash.com/photo-1518131678677-a25a18114956?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 19,
+          title: "Scarlet Street",
+          year: 1945,
+          genre: "Drama / Noir",
+          description: "Desejo, engano e consequências em um noir clássico.",
+          image: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 20,
+          title: "The Stranger",
+          year: 1946,
+          genre: "Drama / Suspense",
+          description: "Tensão psicológica conduzida com elegância.",
+          image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80",
+        },
+      ],
     },
     {
-      id: 5,
-      title: "Tears of Steel",
-      genre: "Sci-fi",
-      year: 2012,
-      rating: "6.6",
-      badge: "CC BY",
-      description:
-        "Filme curto de ficção científica com reprodução aberta e visual forte para o site.",
-      poster:
-        "https://mango.blender.org/wp-content/uploads/2013/05/poster.jpg",
-      trailer: "https://www.youtube.com/watch?v=R6MlUcmOul8",
-      embed: "https://archive.org/embed/TearsOfSteel",
+      name: "Ficção Científica",
+      movies: [
+        {
+          id: 21,
+          title: "Plan 9 from Outer Space",
+          year: 1959,
+          genre: "Ficção Científica",
+          description: "Um cult sci-fi impossível de ignorar.",
+          image: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 22,
+          title: "The Last Man on Earth",
+          year: 1964,
+          genre: "Ficção / Terror",
+          description: "Atmosfera apocalíptica e envolvente.",
+          image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 23,
+          title: "Teenagers from Outer Space",
+          year: 1959,
+          genre: "Ficção Científica",
+          description: "Um clássico cult com energia retrô.",
+          image: "https://images.unsplash.com/photo-1499364615650-ec38552f4f34?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 24,
+          title: "The Brain That Wouldn't Die",
+          year: 1962,
+          genre: "Ficção / Terror",
+          description: "Mistura estranha de horror e sci-fi.",
+          image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 25,
+          title: "Voyage to the Prehistoric Planet",
+          year: 1965,
+          genre: "Ficção / Aventura",
+          description: "Exploração espacial com clima clássico.",
+          image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=900&q=80",
+        },
+      ],
     },
     {
-      id: 6,
-      title: "Spring",
-      genre: "Animação / Fantasia",
-      year: 2019,
-      rating: "7.1",
-      badge: "CC BY 4.0",
-      description:
-        "Curta recente do Blender Studio, perfeito para deixar o Drike com uma cara mais atualizada.",
-      poster:
-        "https://studio.blender.org/static/media/film_spring_poster.6d168364.jpg",
-      trailer: "https://www.youtube.com/watch?v=WhWc3b3KhnY",
-      embed: "https://www.youtube.com/embed/WhWc3b3KhnY"
+      name: "Clássicos Liberados",
+      movies: [
+        {
+          id: 26,
+          title: "Nosferatu",
+          year: 1922,
+          genre: "Clássico / Terror",
+          description: "Visual histórico e sombrio.",
+          image: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 27,
+          title: "Sherlock Jr.",
+          year: 1924,
+          genre: "Clássico / Comédia",
+          description: "Criatividade pura do cinema mudo.",
+          image: "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 28,
+          title: "The Kid",
+          year: 1921,
+          genre: "Drama / Comédia",
+          description: "Emocionante e inesquecível.",
+          image: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 29,
+          title: "Metropolis",
+          year: 1927,
+          genre: "Ficção / Drama",
+          description: "Arquitetura visual impressionante e histórica.",
+          image: "https://images.unsplash.com/photo-1498036882173-b41c28a8ba34?auto=format&fit=crop&w=900&q=80",
+        },
+        {
+          id: 30,
+          title: "The Gold Rush",
+          year: 1925,
+          genre: "Comédia / Aventura",
+          description: "Um marco do cinema clássico.",
+          image: "https://images.unsplash.com/photo-1487180144351-b8472da7d491?auto=format&fit=crop&w=900&q=80",
+        },
+      ],
     },
-    {
-id: 7,
-title: "The General",
-genre: "Guerra / Comédia",
-year: 1926,
-rating: "8.1",
-badge: "Domínio Público",
-description: "Clássico de guerra e comédia com Buster Keaton durante a Guerra Civil Americana.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/3/3a/The_General_%281926%29_poster.jpg",
-trailer: "https://www.youtube.com/watch?v=Rk3n2yYqNqM",
-embed: "https://archive.org/embed/TheGeneral1926"
-},
-{
-id: 8,
-title: "White Zombie",
-genre: "Terror",
-year: 1932,
-rating: "6.4",
-badge: "Domínio Público",
-description: "Um dos primeiros filmes de zumbis da história do cinema.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/3/30/White_Zombie_poster.jpg",
-trailer: "https://www.youtube.com/watch?v=9p0KfC3hJ5E",
-embed: "https://archive.org/embed/whitezombie"
-},
-{
-id: 9,
-title: "Nosferatu",
-genre: "Terror",
-year: 1922,
-rating: "7.9",
-badge: "Domínio Público",
-description: "Clássico do cinema mudo sobre vampiros.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/0/0d/Nosferatu_poster.jpg",
-trailer: "https://www.youtube.com/watch?v=FC6jFoYm3xs",
-embed: "https://archive.org/embed/nosferatu"
-},
-{
-id: 10,
-title: "Steamboat Willie",
-genre: "Desenho / Comédia",
-year: 1928,
-rating: "7.5",
-badge: "Domínio Público",
-description: "Primeiro desenho famoso do Mickey Mouse agora em domínio público.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/0/0c/Steamboat_Willie_poster.jpg",
-trailer: "https://www.youtube.com/watch?v=BBgghnQF6E4",
-embed: "https://archive.org/embed/SteamboatWillie"
-},
-{
-id: 11,
-title: "Gulliver's Travels",
-genre: "Desenho / Aventura",
-year: 1939,
-rating: "6.7",
-badge: "Domínio Público",
-description: "Animação clássica baseada na história de Gulliver.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/8/89/Gullivers_Travels_poster.jpg",
-trailer: "https://www.youtube.com/watch?v=G4cXx5iG5e8",
-embed: "https://archive.org/embed/gulliverstravels1939"
-},
-{
-id: 12,
-title: "The Kid",
-genre: "Comédia",
-year: 1921,
-rating: "8.2",
-badge: "Domínio Público",
-description: "Clássico de Charlie Chaplin sobre um homem e uma criança órfã.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/7/7c/The_Kid_1921_poster.jpg",
-trailer: "https://www.youtube.com/watch?v=QyF3vY8kJ6U",
-embed: "https://archive.org/embed/TheKid1921"
-},
-{
-id: 13,
-title: "Safety Last",
-genre: "Comédia",
-year: 1923,
-rating: "8.1",
-badge: "Domínio Público",
-description: "Comédia famosa pela cena do relógio no prédio.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/4/4d/Safety_Last_poster.jpg",
-trailer: "https://www.youtube.com/watch?v=QEcTjhUN_7U",
-embed: "https://archive.org/embed/SafetyLast1923"
-},
-{
-id: 14,
-title: "The Fast and the Furious",
-genre: "Carros / Crime",
-year: 1954,
-rating: "6.1",
-badge: "Domínio Público",
-description: "Filme clássico sobre corrida e crime.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/0/0f/TheFastandtheFurious1954.jpg",
-trailer: "https://www.youtube.com/watch?v=7sE3vXyQeE4",
-embed: "https://archive.org/embed/TheFastAndTheFurious1954"
-},
-{
-id: 15,
-title: "Detour",
-genre: "Ação / Crime",
-year: 1945,
-rating: "7.4",
-badge: "Domínio Público",
-description: "Clássico noir cheio de suspense.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/3/3f/Detour_poster.jpg",
-trailer: "https://www.youtube.com/watch?v=8cV5rWcF7B8",
-embed: "https://archive.org/embed/Detour1945"
-},
-{
-id: 16,
-title: "The Phantom Creeps",
-genre: "Ação / Sci-fi",
-year: 1939,
-rating: "6.2",
-badge: "Domínio Público",
-description: "Série clássica de ação e ficção científica.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/2/2f/The_Phantom_Creeps.jpg",
-trailer: "https://www.youtube.com/watch?v=7t1KcB7n6E4",
-embed: "https://archive.org/embed/ThePhantomCreeps"
-}
-];
-
-  const plans = [
-    { name: "Semanal", price: "R$ 15", period: "/semana" },
-    { name: "Mensal", price: "R$ 30", period: "/mês" },
-    { name: "Anual", price: "R$ 120", period: "/ano" },
   ];
 
-  const filteredMovies = useMemo(() => {
-    const term = query.toLowerCase().trim();
-    if (!term) return movies;
-    return movies.filter(
-      (movie) =>
-        movie.title.toLowerCase().includes(term) ||
-        movie.genre.toLowerCase().includes(term) ||
-        movie.description.toLowerCase().includes(term)
-    );
-  }, [query]);
-
   return (
-    <div className="site">
-      <header className="hero">
-        <div className="topbar container">
-          <div className="brand">DRIKE</div>
-          <nav className="menu">
-            <a href="#filmes">Filmes</a>
-            <a href="#planos">Planos</a>
-          </nav>
-        </div>
-
-        <div className="container hero-grid">
-          <div>
-            <div className="tag">✨ Streaming com visual premium e catálogo legal</div>
-            <h1>Drike Originals</h1>
-            <p className="hero-text">
-              Versão simples e bonita do Drike com busca, capas, descrições e player para obras abertas, gratuitas ou licenciadas.
-            </p>
-
-            <div className="search-box">
-              <span>🔎</span>
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Pesquisar filmes, gênero ou descrição"
-              />
-            </div>
-
-            <div className="hero-buttons">
-              <a className="btn btn-primary" href="#filmes">Explorar catálogo</a>
-              <a className="btn btn-secondary" href="#planos">Ver planos</a>
-            </div>
+    <div className="min-h-screen bg-[#0b0b0f] text-white">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-gradient-to-b from-black/95 to-black/60 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-8">
+          <div className="flex items-center gap-8">
+            <div className="text-3xl font-black tracking-tight text-red-600">Drike</div>
+            <nav className="hidden gap-6 text-sm text-zinc-200 md:flex">
+              <a href="#" className="transition hover:text-white">Início</a>
+              <a href="#" className="transition hover:text-white">Filmes</a>
+              <a href="#" className="transition hover:text-white">Séries</a>
+              <a href="#" className="transition hover:text-white">Minha Lista</a>
+            </nav>
           </div>
 
-          <div className="featured-card">
-            <div className="featured-label">Em destaque</div>
-            <img src={movies[0].poster} alt={movies[0].title} className="featured-image" />
-            <div className="featured-body">
-              <h2>{movies[0].title}</h2>
-              <p>{movies[0].description}</p>
-              <button className="btn btn-primary" onClick={() => setSelectedMovie(movies[0])}>▶ Dar play</button>
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              placeholder="Buscar"
+              className="hidden rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white outline-none placeholder:text-zinc-400 md:block"
+            />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-700 font-bold">
+              D
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container main-content">
-        <section className="info-grid">
-          <div className="info-card">
-            <div className="info-icon">🎬</div>
-            <h3>Capas e visual premium</h3>
-            <p>Cada filme agora tem poster grande, descrição e botão de play para uma experiência mais moderna.</p>
-          </div>
-          <div className="info-card">
-            <div className="info-icon">🔎</div>
-            <h3>Pesquisa integrada</h3>
-            <p>A barra de busca ajuda a encontrar filme por nome, gênero ou descrição em segundos.</p>
-          </div>
-          <div className="info-card">
-            <div className="info-icon">👑</div>
-            <h3>Player e planos</h3>
-            <p>Estrutura pronta para exibir vídeo, reproduzir obras abertas e mostrar seus planos premium.</p>
-          </div>
-        </section>
+      <section className="relative h-[78vh] min-h-[560px] overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${featured.image})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b0f] via-transparent to-transparent" />
 
-        <section id="filmes" className="section">
-          <div className="section-head">
-            <div>
-              <div className="section-tag">Filmes</div>
-              <h2>Catálogo com capa, descrição e play</h2>
+        <div className="relative z-10 mx-auto flex h-full max-w-7xl items-end px-4 pb-20 pt-28 md:px-8">
+          <div className="max-w-2xl">
+            <div className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.25em] text-red-300">
+              Destaque Drike
             </div>
-            <p>Use apenas obras abertas, grátis ou licenciadas para manter o Drike legal.</p>
-          </div>
-
-          <div className="movie-grid">
-            {filteredMovies.map((movie) => (
-              <article className="movie-card" key={movie.id}>
-                <img src={movie.poster} alt={movie.title} className="movie-poster" />
-                <div className="movie-body">
-                  <div className="movie-top">
-                    <span className="badge">{movie.badge}</span>
-                    <span className="rating">⭐ {movie.rating}</span>
-                  </div>
-                  <h3>{movie.title}</h3>
-                  <div className="movie-meta">{movie.genre} • {movie.year}</div>
-                  <p>{movie.description}</p>
-                  <div className="movie-actions">
-                    <button className="btn btn-primary" onClick={() => setSelectedMovie(movie)}>▶ Dar play</button>
-                    <a className="btn btn-secondary" href={movie.trailer} target="_blank" rel="noreferrer">Ver trailer</a>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section id="planos" className="section">
-          <div className="section-head">
-            <div>
-              <div className="section-tag">Assinaturas</div>
-              <h2>Escolha seu plano</h2>
+            <h1 className="mb-4 text-5xl font-black leading-tight md:text-7xl">
+              {featured.title}
+            </h1>
+            <p className="mb-3 text-lg text-zinc-300">
+              {featured.year} • {featured.genre}
+            </p>
+            <p className="mb-8 max-w-xl text-base leading-7 text-zinc-200 md:text-lg">
+              {featured.description}
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <button className="rounded-md bg-white px-6 py-3 font-semibold text-black transition hover:scale-[1.02]">
+                ▶ Assistir
+              </button>
+              <button className="rounded-md bg-zinc-700/80 px-6 py-3 font-semibold text-white transition hover:bg-zinc-600">
+                Mais informações
+              </button>
             </div>
-            <p>Estrutura visual premium para o Drike.</p>
           </div>
+        </div>
+      </section>
 
-          <div className="plans-grid">
-            {plans.map((plan) => (
-              <div className="plan-card" key={plan.name}>
-                <div className="plan-name">{plan.name}</div>
-                <div className="plan-price">{plan.price} <span>{plan.period}</span></div>
-                <button className="btn btn-primary full">Assinar agora</button>
+      <main className="relative z-20 -mt-24 space-y-10 pb-16">
+        {categories.map((category) => (
+          <section key={category.name} className="px-4 md:px-8">
+            <div className="mx-auto max-w-7xl">
+              <h2 className="mb-4 text-2xl font-bold tracking-tight">{category.name}</h2>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+                {category.movies.map((movie) => (
+                  <article
+                    key={movie.id}
+                    className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/80 shadow-xl transition duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:border-red-500/40"
+                  >
+                    <div className="relative h-56 overflow-hidden bg-zinc-800">
+                      <img
+                        src={movie.image}
+                        alt={movie.title}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-90" />
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <p className="text-xs font-medium uppercase tracking-[0.2em] text-red-300">
+                          {movie.genre}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-2 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="line-clamp-2 text-base font-bold">{movie.title}</h3>
+                        <span className="shrink-0 rounded bg-white/10 px-2 py-1 text-xs text-zinc-300">
+                          {movie.year}
+                        </span>
+                      </div>
+                      <p className="line-clamp-3 text-sm leading-6 text-zinc-400">{movie.description}</p>
+                    </div>
+                  </article>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </div>
+          </section>
+        ))}
       </main>
 
-      <footer className="footer">
-        <div className="container footer-inner">
-          <div>
-            <strong>Drike</strong>
-            <p>Streaming visual premium para obras abertas, gratuitas ou licenciadas.</p>
-          </div>
-          <div>Versão simples e bonita, pronta para funcionar no seu projeto.</div>
-        </div>
+      <footer className="border-t border-white/10 px-4 py-8 text-center text-sm text-zinc-500 md:px-8">
+        © 2026 Drike — Catálogo visual inspirado em plataformas modernas de streaming, com identidade própria.
       </footer>
-
-      {selectedMovie && (
-        <div className="modal-overlay" onClick={() => setSelectedMovie(null)}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div>
-                <h3>{selectedMovie.title}</h3>
-                <p>{selectedMovie.genre} • {selectedMovie.year}</p>
-              </div>
-              <button className="btn btn-secondary" onClick={() => setSelectedMovie(null)}>Fechar ✕</button>
-            </div>
-            <div className="player-wrap">
-              <iframe
-                src={selectedMovie.embed}
-                title={selectedMovie.title}
-                allow="autoplay; fullscreen"
-                allowFullScreen
-              />
-            </div>
-            <div className="modal-body">
-              <img src={selectedMovie.poster} alt={selectedMovie.title} className="modal-poster" />
-              <div>
-                <div className="badge-row">⭐ {selectedMovie.rating} • {selectedMovie.badge}</div>
-                <p>{selectedMovie.description}</p>
-                <a className="btn btn-primary" href={selectedMovie.trailer} target="_blank" rel="noreferrer">Abrir trailer</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
-},
-{
-id: 7,
-title: "Night of the Living Dead",
-genre: "Terror / Ação",
-year: 1968,
-rating: "7.8",
-badge: "Domínio Público",
-description: "Clássico filme de zumbis que caiu em domínio público e pode ser exibido gratuitamente.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Night_of_the_Living_Dead_Film_Poster.jpg",
-trailer: "https://www.youtube.com/watch?v=H91BxkBXttE",
-embed: "https://archive.org/embed/night_of_the_living_dead"
-},
-{
-id: 8,
-title: "The Last Man on Earth",
-genre: "Ação / Ficção científica",
-year: 1964,
-rating: "7.0",
-badge: "Domínio Público",
-description: "Filme pós-apocalíptico baseado no livro I Am Legend.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/6/6b/The_Last_Man_on_Earth_1964.jpg",
-trailer: "https://www.youtube.com/watch?v=YjY0hZC3fVc",
-embed: "https://archive.org/embed/TheLastManOnEarth"
-},
-{
-id: 9,
-title: "The Phantom of the Opera",
-genre: "Drama / Suspense",
-year: 1925,
-rating: "7.5",
-badge: "Domínio Público",
-description: "Clássico do cinema mudo baseado na história do Fantasma da Ópera.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Phantomopera.jpg",
-trailer: "https://www.youtube.com/watch?v=FQ6Lr4s7I8M",
-embed: "https://archive.org/embed/ThePhantomoftheOpera1925"
-},
-{
-id: 10,
-title: "Plan 9 from Outer Space",
-genre: "Ação / Ficção científica",
-year: 1959,
-rating: "6.0",
-badge: "Domínio Público",
-description: "Clássico cult de ficção científica que se tornou domínio público.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/7/70/Plan_9_from_Outer_Space_poster.jpg",
-trailer: "https://www.youtube.com/watch?v=_zZL9FjK1H0",
-embed: "https://archive.org/embed/Plan9FromOuterSpace"
-},
-{
-id: 11,
-title: "The Fast and the Furious",
-genre: "Ação / Crime",
-year: 1954,
-rating: "6.1",
-badge: "Domínio Público",
-description: "Filme de corrida e crime que entrou em domínio público.",
-poster: "https://upload.wikimedia.org/wikipedia/commons/0/0f/TheFastandtheFurious1954.jpg",
-trailer: "https://www.youtube.com/watch?v=7sE3vXyQeE4",
-embed: "https://archive.org/embed/TheFastAndTheFurious1954"
 }
