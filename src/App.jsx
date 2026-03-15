@@ -267,7 +267,7 @@ export default function LegalStreamingCatalog() {
       )}
     </div>
   );
-}
+},
 {
 id: 7,
 title: "Night of the Living Dead",
@@ -279,7 +279,7 @@ description: "Clássico filme de zumbis que caiu em domínio público e pode ser
 poster: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Night_of_the_Living_Dead_Film_Poster.jpg",
 trailer: "https://www.youtube.com/watch?v=H91BxkBXttE",
 embed: "https://archive.org/embed/night_of_the_living_dead"
-}
+},
 {
 id: 8,
 title: "The Last Man on Earth",
@@ -291,7 +291,7 @@ description: "Filme pós-apocalíptico baseado no livro I Am Legend.",
 poster: "https://upload.wikimedia.org/wikipedia/commons/6/6b/The_Last_Man_on_Earth_1964.jpg",
 trailer: "https://www.youtube.com/watch?v=YjY0hZC3fVc",
 embed: "https://archive.org/embed/TheLastManOnEarth"
-}
+},
 {
 id: 9,
 title: "The Phantom of the Opera",
@@ -303,7 +303,7 @@ description: "Clássico do cinema mudo baseado na história do Fantasma da Óper
 poster: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Phantomopera.jpg",
 trailer: "https://www.youtube.com/watch?v=FQ6Lr4s7I8M",
 embed: "https://archive.org/embed/ThePhantomoftheOpera1925"
-}
+},
 {
 id: 10,
 title: "Plan 9 from Outer Space",
@@ -315,7 +315,7 @@ description: "Clássico cult de ficção científica que se tornou domínio púb
 poster: "https://upload.wikimedia.org/wikipedia/commons/7/70/Plan_9_from_Outer_Space_poster.jpg",
 trailer: "https://www.youtube.com/watch?v=_zZL9FjK1H0",
 embed: "https://archive.org/embed/Plan9FromOuterSpace"
-}
+},
 {
 id: 11,
 title: "The Fast and the Furious",
@@ -327,4 +327,4 @@ description: "Filme de corrida e crime que entrou em domínio público.",
 poster: "https://upload.wikimedia.org/wikipedia/commons/0/0f/TheFastandtheFurious1954.jpg",
 trailer: "https://www.youtube.com/watch?v=7sE3vXyQeE4",
 embed: "https://archive.org/embed/TheFastAndTheFurious1954"
-}
+},
