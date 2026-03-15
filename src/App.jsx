@@ -91,7 +91,7 @@ export default function LegalStreamingCatalog() {
       embed: "https://www.youtube.com/embed/WhWc3b3KhnY"
     },
     {
-id: 12,
+id: 7,
 title: "The General",
 genre: "Guerra / Comédia",
 year: 1926,
@@ -103,7 +103,7 @@ trailer: "https://www.youtube.com/watch?v=Rk3n2yYqNqM",
 embed: "https://archive.org/embed/TheGeneral1926"
 },
 {
-id: 13,
+id: 8,
 title: "White Zombie",
 genre: "Terror",
 year: 1932,
@@ -115,7 +115,7 @@ trailer: "https://www.youtube.com/watch?v=9p0KfC3hJ5E",
 embed: "https://archive.org/embed/whitezombie"
 },
 {
-id: 14,
+id: 9,
 title: "Nosferatu",
 genre: "Terror",
 year: 1922,
@@ -127,7 +127,7 @@ trailer: "https://www.youtube.com/watch?v=FC6jFoYm3xs",
 embed: "https://archive.org/embed/nosferatu"
 },
 {
-id: 15,
+id: 10,
 title: "Steamboat Willie",
 genre: "Desenho / Comédia",
 year: 1928,
@@ -139,7 +139,7 @@ trailer: "https://www.youtube.com/watch?v=BBgghnQF6E4",
 embed: "https://archive.org/embed/SteamboatWillie"
 },
 {
-id: 16,
+id: 11,
 title: "Gulliver's Travels",
 genre: "Desenho / Aventura",
 year: 1939,
@@ -151,7 +151,7 @@ trailer: "https://www.youtube.com/watch?v=G4cXx5iG5e8",
 embed: "https://archive.org/embed/gulliverstravels1939"
 },
 {
-id: 17,
+id: 12,
 title: "The Kid",
 genre: "Comédia",
 year: 1921,
@@ -163,7 +163,7 @@ trailer: "https://www.youtube.com/watch?v=QyF3vY8kJ6U",
 embed: "https://archive.org/embed/TheKid1921"
 },
 {
-id: 18,
+id: 13,
 title: "Safety Last",
 genre: "Comédia",
 year: 1923,
@@ -175,7 +175,7 @@ trailer: "https://www.youtube.com/watch?v=QEcTjhUN_7U",
 embed: "https://archive.org/embed/SafetyLast1923"
 },
 {
-id: 19,
+id: 14,
 title: "The Fast and the Furious",
 genre: "Carros / Crime",
 year: 1954,
@@ -187,7 +187,7 @@ trailer: "https://www.youtube.com/watch?v=7sE3vXyQeE4",
 embed: "https://archive.org/embed/TheFastAndTheFurious1954"
 },
 {
-id: 20,
+id: 15,
 title: "Detour",
 genre: "Ação / Crime",
 year: 1945,
@@ -199,7 +199,7 @@ trailer: "https://www.youtube.com/watch?v=8cV5rWcF7B8",
 embed: "https://archive.org/embed/Detour1945"
 },
 {
-id: 21,
+id: 16,
 title: "The Phantom Creeps",
 genre: "Ação / Sci-fi",
 year: 1939,
