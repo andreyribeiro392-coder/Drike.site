@@ -725,7 +725,7 @@ function formatTime(seconds) {
                 />
               </div>
 
-              <button className="header-btn">Login</button>
+              <button className="header-btn">Entrar com Google</button>
               <button className="avatar">👤</button>
             </div>
           </div>
