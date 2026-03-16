@@ -1,7 +1,7 @@
 import { auth, provider } from "./firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import "./style.css";
+import "./index.css";
 
 const posterPool = [
   "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80",
