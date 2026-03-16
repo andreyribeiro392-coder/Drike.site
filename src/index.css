@@ -258,8 +258,16 @@ img {
   margin-bottom: 22px;
 }
 
-.section-head h2 {
-  margin: 8px 0 0;
+.section-head h2{
+  margin:0;
+  font-size:36px;
+  font-weight:900;
+  letter-spacing:-1px;
+  background:linear-gradient(90deg,#22d3ee,#3b82f6,#8b5cf6);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
 }
 
 .movie-grid {
