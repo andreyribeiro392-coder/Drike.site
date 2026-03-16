@@ -758,7 +758,9 @@ function formatTime(seconds) {
 
           <div className="hero-inner">
             <div className="hero-copy">
-              <div className="eyebrow">Experiência premium Drik</div>
+              <div className="eyebrow">
+  {activeHero.type} • {activeHero.genre} • {activeHero.year}
+</div>
              <h1>{activeHero.title}</h1>
 <p>
   {activeHero.description}
