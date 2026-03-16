@@ -553,7 +553,22 @@ function formatTime(seconds) {
         .nav button.active,.nav button:hover{color:#fff}
         .header-right{display:flex;align-items:center;gap:12px}
         .search-mini,.search-wide{position:relative}
-        .search-mini input{width:300px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);padding:12px 16px 12px 40px;color:#fff;outline:none}
+      .search-mini input{
+  width:320px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.08);
+  padding:13px 16px 13px 42px;
+  color:#fff;
+  outline:none;
+  box-shadow:0 10px 25px rgba(0,0,0,.18);
+  transition:.25s;
+}
+.search-mini input:focus{
+  border-color:rgba(34,211,238,.5);
+  background:rgba(255,255,255,.12);
+  box-shadow:0 0 0 4px rgba(34,211,238,.12);
+}
         .search-wide input{width:100%;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.25);padding:16px 16px 16px 44px;color:#fff;outline:none}
         .search-wide{width:420px;max-width:100%}
         .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#a1a1aa}
