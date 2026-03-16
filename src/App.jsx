@@ -759,12 +759,10 @@ function formatTime(seconds) {
           <div className="hero-inner">
             <div className="hero-copy">
               <div className="eyebrow">Experiência premium Drik</div>
-              <h1>Streaming futurista com cinema, séries, animes e desenhos em um só lugar.</h1>
-              <p>
-                Visual sofisticado, navegação rápida, banner rotativo, player elegante, catálogo
-                extenso e uma identidade original feita para impressionar com clima tecnológico de
-                2026.
-              </p>
+             <h1>{activeHero.title}</h1>
+<p>
+  {activeHero.description}
+</p>
 
               <div className="tag-row">
                 <span>{activeHero.type}</span>
