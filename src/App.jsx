@@ -548,9 +548,32 @@ function formatTime(seconds) {
         .header-inner{max-width:1280px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
         .brand{font-size:36px;font-weight:900;letter-spacing:-1px}
         .brand span{background:linear-gradient(90deg,#ef4444,#22d3ee,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
-        .nav{display:flex;gap:18px}
-        .nav button{background:none;border:0;color:#9ca3af;cursor:pointer;font-size:14px;font-weight:600}
-        .nav button.active,.nav button:hover{color:#fff}
+        .nav{
+  display:flex;
+  gap:10px;
+}
+.nav button{
+  background:transparent;
+  border:1px solid transparent;
+  color:#9ca3af;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:700;
+  padding:10px 14px;
+  border-radius:999px;
+  transition:.25s;
+}
+.nav button:hover{
+  color:#fff;
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.08);
+}
+.nav button.active{
+  color:#fff;
+  background:rgba(255,255,255,.12);
+  border-color:rgba(255,255,255,.12);
+  box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
         .header-right{display:flex;align-items:center;gap:12px}
         .search-mini,.search-wide{position:relative}
       .search-mini input{
