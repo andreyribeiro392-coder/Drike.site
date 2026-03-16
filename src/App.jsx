@@ -1,5 +1,6 @@
+import React, { useMemo, useState } from 'react';
+
 export default function DrikeStreamingSite() {
-  const { useMemo, useState } = React;
 
   const catalog = [
     {
