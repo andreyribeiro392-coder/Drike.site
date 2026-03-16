@@ -626,7 +626,11 @@ function formatTime(seconds) {
         .row-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
         .row-scroll::-webkit-scrollbar{display:none}
         .media-card{min-width:250px;max-width:250px;overflow:hidden;border-radius:28px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);box-shadow:0 16px 40px rgba(0,0,0,.3);transition:.25s}
-        .media-card:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(34,211,238,.35)}
+       .media-card:hover{
+  transform:translateY(-10px) scale(1.05);
+  border-color:rgba(34,211,238,.45);
+  box-shadow:0 25px 60px rgba(0,0,0,.6);
+}
         .media-poster{position:relative;height:360px;overflow:hidden}
         .media-poster img{width:100%;height:100%;object-fit:cover;transition:.45s}
         .media-card:hover .media-poster img{transform:scale(1.08)}
