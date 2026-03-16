@@ -716,9 +716,9 @@ function formatTime(seconds) {
         <header className={scrolled ? "header scrolled" : "header top"}>
           <div className="header-inner">
             <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-              <div className="brand">
-                Dri<span>k</span>
-              </div>
+             <div className="brand">
+  DRI<span>K</span>
+</div>
 
               <nav className="nav">
                 {menu.map((item) => (
