@@ -773,14 +773,14 @@ function formatTime(seconds) {
                 <span>Nota {activeHero.note}</span>
               </div>
 
-              <div className="hero-actions">
-                <button className="big-white" onClick={() => setSelectedItem(activeHero)}>
-                  ▶ Assistir Agora
-                </button>
-                <button className="big-glass" onClick={() => setSelectedItem(activeHero)}>
-                  i Mais Informações
-                </button>
-              </div>
+             <div className="hero-actions">
+  <button className="big-white" onClick={() => setSelectedItem(activeHero)}>
+    ▶ Assistir {activeHero.title}
+  </button>
+  <button className="big-glass" onClick={() => setSelectedItem(activeHero)}>
+    ⓘ Ver detalhes
+  </button>
+</div>
 
               <div className="hero-dots">
                 {heroItems.map((hero, index) => (
