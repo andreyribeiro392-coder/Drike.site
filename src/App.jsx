@@ -557,7 +557,21 @@ function formatTime(seconds) {
         .search-wide input{width:100%;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.25);padding:16px 16px 16px 44px;color:#fff;outline:none}
         .search-wide{width:420px;max-width:100%}
         .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#a1a1aa}
-        .header-btn{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;padding:12px 16px;border-radius:999px;cursor:pointer}
+        .header-btn{
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(90deg,#ef4444,#dc2626);
+  color:#fff;
+  padding:12px 18px;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:700;
+  box-shadow:0 10px 25px rgba(239,68,68,.28);
+  transition:.25s;
+}
+.header-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 16px 30px rgba(239,68,68,.38);
+}
         .avatar{width:44px;height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer}
         .hero{position:relative;min-height:90vh;overflow:hidden;padding-top:96px}
         .hero-bg{position:absolute;inset:0}
