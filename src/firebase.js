@@ -1,17 +1,21 @@
-import { initializeApp } from "firebase/app";
+importimport { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCXM-nEcv5HAwXeBVKQ4eSZK8DIzGpRXHE",
-  authDomain: "drik-streaming.firebaseapp.com",
-  projectId: "drik-streaming",
-  storageBucket: "drik-streaming.firebasestorage.app",
-  messagingSenderId: "366702155857",
-  appId: "1:366702155857:web:7a0a922ce0f63c78f50070",
-  measurementId: "G-NVTTBB1PLF"
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJECT_ID.firebaseapp.com",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+  appId: "SEU_APP_ID",
+  measurementId: "SEU_MEASUREMENT_ID",
 };
 
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+
 export const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+  prompt: "select_account",
+});
