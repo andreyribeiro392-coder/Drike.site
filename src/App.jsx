@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import { auth, provider } from "./firebase";
 import { signInWithPopup } from "firebase/auth";
+=======
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 const posterPool = [
@@ -533,6 +536,7 @@ function formatTime(seconds) {
             (item.genre === selectedItem.genre || item.type === selectedItem.type)
         )
         .slice(0, 4)
+<<<<<<< HEAD
     : [];const loginGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
@@ -545,6 +549,9 @@ function formatTime(seconds) {
     alert("Erro ao entrar com Google");
   }
 };
+=======
+    : [];
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
 
   return (
     <>
@@ -561,12 +568,59 @@ function formatTime(seconds) {
         .header-inner{max-width:1280px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
         .brand{font-size:36px;font-weight:900;letter-spacing:-1px}
         .brand span{background:linear-gradient(90deg,#ef4444,#22d3ee,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+<<<<<<< HEAD
         .nav{display:flex;gap:18px}
         .nav button{background:none;border:0;color:#9ca3af;cursor:pointer;font-size:14px;font-weight:600}
         .nav button.active,.nav button:hover{color:#fff}
         .header-right{display:flex;align-items:center;gap:12px}
         .search-mini,.search-wide{position:relative}
         .search-mini input{width:300px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);padding:12px 16px 12px 40px;color:#fff;outline:none}
+=======
+        .nav{
+  display:flex;
+  gap:10px;
+}
+.nav button{
+  background:transparent;
+  border:1px solid transparent;
+  color:#9ca3af;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:700;
+  padding:10px 14px;
+  border-radius:999px;
+  transition:.25s;
+}
+.nav button:hover{
+  color:#fff;
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.08);
+}
+.nav button.active{
+  color:#fff;
+  background:rgba(255,255,255,.12);
+  border-color:rgba(255,255,255,.12);
+  box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
+        .header-right{display:flex;align-items:center;gap:12px}
+        .search-mini,.search-wide{position:relative}
+      .search-mini input{
+  width:320px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.08);
+  padding:13px 16px 13px 42px;
+  color:#fff;
+  outline:none;
+  box-shadow:0 10px 25px rgba(0,0,0,.18);
+  transition:.25s;
+}
+.search-mini input:focus{
+  border-color:rgba(34,211,238,.5);
+  background:rgba(255,255,255,.12);
+  box-shadow:0 0 0 4px rgba(34,211,238,.12);
+}
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
         .search-wide input{width:100%;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.25);padding:16px 16px 16px 44px;color:#fff;outline:none}
         .search-wide{width:420px;max-width:100%}
         .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#a1a1aa}
@@ -639,7 +693,11 @@ function formatTime(seconds) {
         .row-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
         .row-scroll::-webkit-scrollbar{display:none}
         .media-card{min-width:250px;max-width:250px;overflow:hidden;border-radius:28px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);box-shadow:0 16px 40px rgba(0,0,0,.3);transition:.25s}
+<<<<<<< HEAD
         .media-card:hover{
+=======
+       .media-card:hover{
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
   transform:translateY(-10px) scale(1.05);
   border-color:rgba(34,211,238,.45);
   box-shadow:0 25px 60px rgba(0,0,0,.6);
@@ -729,9 +787,15 @@ function formatTime(seconds) {
         <header className={scrolled ? "header scrolled" : "header top"}>
           <div className="header-inner">
             <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+<<<<<<< HEAD
               <div className="brand">
                 Dri<span>k</span>
               </div>
+=======
+             <div className="brand">
+  DRI<span>K</span>
+</div>
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
 
               <nav className="nav">
                 {menu.map((item) => (
@@ -756,7 +820,11 @@ function formatTime(seconds) {
                 />
               </div>
 
+<<<<<<< HEAD
              <button className="header-btn" onClick={loginGoogle}>Entrar com Google</button>
+=======
+              <button className="header-btn">Entrar com Google</button>
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
               <button className="avatar">👤</button>
             </div>
           </div>
@@ -764,6 +832,7 @@ function formatTime(seconds) {
 
         <section className="hero">
           <div className="hero-bg">
+<<<<<<< HEAD
             <img src={activeHero.banner} alt={activeHero.title} />
             <div className="hero-shade" />
             <div className="hero-bottom" />
@@ -778,6 +847,30 @@ function formatTime(seconds) {
                 extenso e uma identidade original feita para impressionar com clima tecnológico de
                 2026.
               </p>
+=======
+  <video
+    src={activeHero.video}
+    autoPlay
+    muted
+    loop
+    playsInline
+    className="hero-video"
+  />
+
+  <div className="hero-shade" />
+  <div className="hero-bottom" />
+</div>
+
+          <div className="hero-inner">
+            <div className="hero-copy">
+              <div className="eyebrow">
+  {activeHero.type} • {activeHero.genre} • {activeHero.year}
+</div>
+             <h1>{activeHero.title}</h1>
+<p>
+  {activeHero.description}
+</p>
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
 
               <div className="tag-row">
                 <span>{activeHero.type}</span>
@@ -786,6 +879,7 @@ function formatTime(seconds) {
                 <span>Nota {activeHero.note}</span>
               </div>
 
+<<<<<<< HEAD
               <div className="hero-actions">
                 <button className="big-white" onClick={() => setSelectedItem(activeHero)}>
                   ▶ Assistir Agora
@@ -794,6 +888,16 @@ function formatTime(seconds) {
                   i Mais Informações
                 </button>
               </div>
+=======
+             <div className="hero-actions">
+  <button className="big-white" onClick={() => setSelectedItem(activeHero)}>
+    ▶ Assistir {activeHero.title}
+  </button>
+  <button className="big-glass" onClick={() => setSelectedItem(activeHero)}>
+    ⓘ Ver detalhes
+  </button>
+</div>
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
 
               <div className="hero-dots">
                 {heroItems.map((hero, index) => (
@@ -965,7 +1069,10 @@ function formatTime(seconds) {
 
             <div>
               <h4>Seções</h4>
+<<<<<<< HEAD
 
+=======
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
               {menu.map((item) => (
                 <div key={item}>{item}</div>
               ))}
@@ -992,4 +1099,8 @@ function formatTime(seconds) {
       </div>
     </>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7

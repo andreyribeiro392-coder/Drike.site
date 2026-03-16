@@ -258,6 +258,7 @@ img {
   margin-bottom: 22px;
 }
 
+<<<<<<< HEAD
 .section-head h2 {
   margin: 8px 0 0;
 }
@@ -270,6 +271,32 @@ img {
   overflow: hidden;
 }
 
+=======
+.section-head h2{
+  margin:0;
+  font-size:36px;
+  font-weight:900;
+  letter-spacing:-1px;
+  background:linear-gradient(90deg,#22d3ee,#3b82f6,#8b5cf6);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+
+.movie-card {
+  overflow: hidden;
+  transition: all .35s ease;
+}
+
+.movie-card:hover {
+  transform: scale(1.05) translateY(-8px);
+  box-shadow: 0 30px 70px rgba(0,0,0,.55);
+  border-color: rgba(255,255,255,0.14);
+}
+
+
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
 .movie-poster {
   width: 100%;
   height: 390px;
@@ -422,4 +449,14 @@ img {
   .movie-actions {
     grid-template-columns: 1fr;
   }
+<<<<<<< HEAD
 }
+=======
+}
+.hero-video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0.45;
+}
+>>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
