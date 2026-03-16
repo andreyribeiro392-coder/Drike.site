@@ -115,7 +115,9 @@ function formatTime(seconds) {
   const mins = Math.floor(seconds / 60);
   const secs = String(Math.floor(seconds % 60)).padStart(2, "0");
   return `${mins}:${secs}`;
-}function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }) {
+}
+
+function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }) {
   const rowRef = useRef(null);
 
   const scrollRow = (direction) => {
@@ -197,7 +199,9 @@ function formatTime(seconds) {
       </div>
     </section>
   );
-}function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems }) {
+}
+
+function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems }) {
   const videoRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -312,9 +316,7 @@ function formatTime(seconds) {
                   </button>
                 </div>
               </div>
-            </div>
-
-            <div className="control-panel">
+            </div>            <div className="control-panel">
               <div className="progress-box">
                 <div>{formatTime(currentTime)}</div>
                 <div>{formatTime(duration)}</div>
@@ -471,7 +473,9 @@ function formatTime(seconds) {
       </div>
     </div>
   );
-}export default function DrikStreamingExperience() {
+}
+
+export default function DrikStreamingExperience() {
   const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState([films[1].id, series[3].id, animes[4].id]);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -525,6 +529,7 @@ function formatTime(seconds) {
   const liveSearchResults = search ? filteredCatalog.slice(0, 12) : [];
   const menu = ["Início", "Filmes", "Séries", "Animes", "Desenhos", "Minha Lista"];
   const activeHero = heroItems[heroIndex];
+
   const relatedItems = selectedItem
     ? allCatalog
         .filter(
@@ -533,19 +538,20 @@ function formatTime(seconds) {
             (item.genre === selectedItem.genre || item.type === selectedItem.type)
         )
         .slice(0, 4)
-    const loginGoogle = async () => {
-c1ce370 (corrige login google)
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
+    : [];
 
-    console.log("Usuário logado:", user.displayName);
-    alert("Bem-vindo " + user.displayName);
-  } catch (error) {
-    console.error(error);
-    alert("Erro ao entrar com Google");
-  }
-};
+  const loginGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      console.log("Usuário logado:", user.displayName);
+      alert("Bem-vindo " + (user.displayName || "usuário"));
+    } catch (error) {
+      console.error("Erro no login com Google:", error);
+      alert("Erro ao entrar com Google");
+    }
+  };
 
   return (
     <>
@@ -562,74 +568,19 @@ c1ce370 (corrige login google)
         .header-inner{max-width:1280px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
         .brand{font-size:36px;font-weight:900;letter-spacing:-1px}
         .brand span{background:linear-gradient(90deg,#ef4444,#22d3ee,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
-        .nav{display:flex;gap:18px}
-        .nav button{background:none;border:0;color:#9ca3af;cursor:pointer;font-size:14px;font-weight:600}
-        .nav button.active,.nav button:hover{color:#fff}
+        .nav{display:flex;gap:10px}
+        .nav button{background:transparent;border:1px solid transparent;color:#9ca3af;cursor:pointer;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px;transition:.25s}
+        .nav button:hover{color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.08)}
+        .nav button.active{color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.12);box-shadow:0 10px 24px rgba(0,0,0,.18)}
         .header-right{display:flex;align-items:center;gap:12px}
         .search-mini,.search-wide{position:relative}
-        .search-mini input{width:300px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);padding:12px 16px 12px 40px;color:#fff;outline:none}
-        .nav{
-  display:flex;
-  gap:10px;
-}
-.nav button{
-  background:transparent;
-  border:1px solid transparent;
-  color:#9ca3af;
-  cursor:pointer;
-  font-size:14px;
-  font-weight:700;
-  padding:10px 14px;
-  border-radius:999px;
-  transition:.25s;
-}
-.nav button:hover{
-  color:#fff;
-  background:rgba(255,255,255,.08);
-  border-color:rgba(255,255,255,.08);
-}
-.nav button.active{
-  color:#fff;
-  background:rgba(255,255,255,.12);
-  border-color:rgba(255,255,255,.12);
-  box-shadow:0 10px 24px rgba(0,0,0,.18);
-}
-        .header-right{display:flex;align-items:center;gap:12px}
-        .search-mini,.search-wide{position:relative}
-      .search-mini input{
-  width:320px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.08);
-  padding:13px 16px 13px 42px;
-  color:#fff;
-  outline:none;
-  box-shadow:0 10px 25px rgba(0,0,0,.18);
-  transition:.25s;
-}
-.search-mini input:focus{
-  border-color:rgba(34,211,238,.5);
-  background:rgba(255,255,255,.12);
-  box-shadow:0 0 0 4px rgba(34,211,238,.12);
-}
+        .search-mini input{width:320px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);padding:13px 16px 13px 42px;color:#fff;outline:none;box-shadow:0 10px 25px rgba(0,0,0,.18);transition:.25s}
+        .search-mini input:focus{border-color:rgba(34,211,238,.5);background:rgba(255,255,255,.12);box-shadow:0 0 0 4px rgba(34,211,238,.12)}
         .search-wide input{width:100%;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.25);padding:16px 16px 16px 44px;color:#fff;outline:none}
         .search-wide{width:420px;max-width:100%}
         .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#a1a1aa}
-        .header-btn{
-  border:1px solid rgba(255,255,255,.12);
-  background:linear-gradient(90deg,#ef4444,#dc2626);
-  color:#fff;
-  padding:12px 18px;
-  border-radius:999px;
-  cursor:pointer;
-  font-weight:700;
-  box-shadow:0 10px 25px rgba(239,68,68,.28);
-  transition:.25s;
-}
-.header-btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 16px 30px rgba(239,68,68,.38);
-}
+        .header-btn{border:1px solid rgba(255,255,255,.12);background:linear-gradient(90deg,#ef4444,#dc2626);color:#fff;padding:12px 18px;border-radius:999px;cursor:pointer;font-weight:700;box-shadow:0 10px 25px rgba(239,68,68,.28);transition:.25s}
+        .header-btn:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(239,68,68,.38)}
         .avatar{width:44px;height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer}
         .hero{position:relative;min-height:90vh;overflow:hidden;padding-top:96px}
         .hero-bg{position:absolute;inset:0}
@@ -659,8 +610,7 @@ c1ce370 (corrige login google)
         .hero-card-content h3{font-size:30px;margin:0 0 10px;font-weight:900}
         .hero-card-content p{margin:0;color:#d4d4d8;line-height:1.7;font-size:14px}
         .hero-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
-        .hero-card-grid div{padding:12px;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#d4d4d8;font-size:14px}
-        .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:10px}
+        .hero-card-grid div{padding:12px;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#d4d4d8;font-size:14px}        .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:10px}
         .stat{border-radius:28px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);padding:20px;backdrop-filter:blur(16px)}
         .stat .label{display:inline-block;padding:6px 10px;border-radius:999px;color:#fff;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px}
         .stat .value{font-size:42px;font-weight:900}
@@ -675,7 +625,8 @@ c1ce370 (corrige login google)
         .search-result .result-tag{display:inline-block;padding:4px 10px;border-radius:999px;color:#fff;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
         .search-result .title{font-size:18px;font-weight:800}
         .search-result .meta{font-size:14px;color:#a1a1aa;margin-top:6px}
-        .search-result .desc{font-size:14px;color:#a1a1aa;line-height:1.6;margin-top:8px}        .section-block{margin-top:38px}
+        .search-result .desc{font-size:14px;color:#a1a1aa;line-height:1.6;margin-top:8px}
+        .section-block{margin-top:38px}
         .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
         .section-head h2{margin:0;font-size:34px}
         .section-head p{margin:6px 0 0;color:#a1a1aa;font-size:14px}
@@ -684,13 +635,7 @@ c1ce370 (corrige login google)
         .row-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
         .row-scroll::-webkit-scrollbar{display:none}
         .media-card{min-width:250px;max-width:250px;overflow:hidden;border-radius:28px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);box-shadow:0 16px 40px rgba(0,0,0,.3);transition:.25s}
-
-        .media-card:hover{
-       .media-card:hover{
-  transform:translateY(-10px) scale(1.05);
-  border-color:rgba(34,211,238,.45);
-  box-shadow:0 25px 60px rgba(0,0,0,.6);
-}
+        .media-card:hover{transform:translateY(-10px) scale(1.05);border-color:rgba(34,211,238,.45);box-shadow:0 25px 60px rgba(0,0,0,.6)}
         .media-poster{position:relative;height:360px;overflow:hidden}
         .media-poster img{width:100%;height:100%;object-fit:cover;transition:.45s}
         .media-card:hover .media-poster img{transform:scale(1.08)}
@@ -779,9 +724,6 @@ c1ce370 (corrige login google)
               <div className="brand">
                 Dri<span>k</span>
               </div>
-             <div className="brand">
-  DRI<span>K</span>
-</div>
 
               <nav className="nav">
                 {menu.map((item) => (
@@ -806,13 +748,10 @@ c1ce370 (corrige login google)
                 />
               </div>
 
-             <button className="header-btn" onClick={loginGoogle}>Entrar com Google</button>
-<button className="avatar">👤</button>
-             <button className="header-btn" onClick={
-}>Entrar com Google</button>
-<button className="avatar">👤</button>
-
-c1ce370 (corrige login google)
+              <button className="header-btn" onClick={loginGoogle}>
+                Entrar com Google
+              </button>
+              <button className="avatar">👤</button>
             </div>
           </div>
         </header>
@@ -834,30 +773,6 @@ c1ce370 (corrige login google)
                 2026.
               </p>
 
-  <video
-    src={activeHero.video}
-    autoPlay
-    muted
-    loop
-    playsInline
-    className="hero-video"
-  />
-
-  <div className="hero-shade" />
-  <div className="hero-bottom" />
-</div>
-
-          <div className="hero-inner">
-            <div className="hero-copy">
-              <div className="eyebrow">
-  {activeHero.type} • {activeHero.genre} • {activeHero.year}
-</div>
-             <h1>{activeHero.title}</h1>
-<p>
-  {activeHero.description}
-</p>
->>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
-
               <div className="tag-row">
                 <span>{activeHero.type}</span>
                 <span>{activeHero.genre}</span>
@@ -873,14 +788,6 @@ c1ce370 (corrige login google)
                   i Mais Informações
                 </button>
               </div>
-             <div className="hero-actions">
-  <button className="big-white" onClick={() => setSelectedItem(activeHero)}>
-    ▶ Assistir {activeHero.title}
-  </button>
-  <button className="big-glass" onClick={() => setSelectedItem(activeHero)}>
-    ⓘ Ver detalhes
-  </button>
-</div>
 
               <div className="hero-dots">
                 {heroItems.map((hero, index) => (
@@ -1078,3 +985,4 @@ c1ce370 (corrige login google)
       </div>
     </>
   );
+}
