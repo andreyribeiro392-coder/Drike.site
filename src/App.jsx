@@ -820,19 +820,14 @@ function formatTime(seconds) {
                 />
               </div>
 
-<<<<<<< HEAD
              <button className="header-btn" onClick={loginGoogle}>Entrar com Google</button>
-=======
-              <button className="header-btn">Entrar com Google</button>
->>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
-              <button className="avatar">👤</button>
+<button className="avatar">👤</button>
             </div>
           </div>
         </header>
 
         <section className="hero">
           <div className="hero-bg">
-<<<<<<< HEAD
             <img src={activeHero.banner} alt={activeHero.title} />
             <div className="hero-shade" />
             <div className="hero-bottom" />
