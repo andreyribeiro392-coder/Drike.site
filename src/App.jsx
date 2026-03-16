@@ -11,8 +11,6 @@ const posterPool = [
   "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80",
   "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80",
   "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
 ];
 
 const heroPool = [
@@ -33,8 +31,6 @@ const trailerPool = [
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4",
 ];
 
 const gradients = [
@@ -117,9 +113,7 @@ function formatTime(seconds) {
   const mins = Math.floor(seconds / 60);
   const secs = String(Math.floor(seconds % 60)).padStart(2, "0");
   return `${mins}:${secs}`;
-}
-
-function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }) {
+}function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }) {
   const rowRef = useRef(null);
 
   const scrollRow = (direction) => {
@@ -152,7 +146,10 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
 
                 <div className="media-top">
                   {item.badge ? (
-                    <span className="badge" style={{ background: gradients[index % gradients.length] }}>
+                    <span
+                      className="badge"
+                      style={{ background: gradients[index % gradients.length] }}
+                    >
                       {item.badge}
                     </span>
                   ) : (
@@ -160,7 +157,7 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
                   )}
 
                   <button
-                    className={isFav ? "icon-btn fav active" : "icon-btn fav"}
+                    className={isFav ? "icon-btn active" : "icon-btn"}
                     onClick={() => onToggleFavorite(item.id)}
                   >
                     ♥
@@ -182,6 +179,7 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
               <div className="media-body">
                 <div className="rating-line">★ {item.note} • {item.quality}</div>
                 <p>{item.description}</p>
+
                 <div className="media-actions">
                   <button className="primary-btn" onClick={() => onOpenDetails(item)}>
                     ▶ Assistir
@@ -197,8 +195,7 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
       </div>
     </section>
   );
-}
-function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems }) {
+}function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems }) {
   const videoRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -280,7 +277,12 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
         <div className="modal-grid">
           <div className="player-col">
             <div className="video-shell">
-              <video ref={videoRef} src={item.video} poster={item.banner} className="video-element" />
+              <video
+                ref={videoRef}
+                src={item.video}
+                poster={item.banner}
+                className="video-element"
+              />
               <div className="video-fade" />
 
               <div className="video-overlay-controls">
@@ -380,7 +382,7 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
                   </select>
                 </div>
 
-                <div className="control-item control-fullscreen">
+                <div className="control-item">
                   <label>Áudio</label>
                   <div className="row-inline">
                     <select value={audio} onChange={(e) => setAudio(e.target.value)}>
@@ -399,8 +401,8 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
                 <div className="next-episode">
                   <strong>Próximo episódio disponível</strong>
                   <p>
-                    Temporada {item.seasons}, episódio {Math.min(2, item.episodes || 2)} pronto para
-                    reprodução.
+                    Temporada {item.seasons}, episódio {Math.min(2, item.episodes || 2)} pronto
+                    para reprodução.
                   </p>
                 </div>
               )}
@@ -412,7 +414,6 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
               <div className="detail-banner">
                 <img src={item.banner} alt={item.title} />
                 <div className="detail-fade" />
-
                 <div className="detail-banner-content">
                   <div className="mini-tags">
                     <span>{item.genre}</span>
@@ -468,445 +469,7 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
       </div>
     </div>
   );
-}
-
-export default function DrikStreamingExperience() {
-  const [search, setSearch] = useState("");
-  const [favorites, setFavorites] = useState([films[1].id, series[3].id, animes[4].id]);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [heroIndex, setHeroIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState("Início");
-  const [scrolled, setScrolled] = useState(false);
-
-  const heroItems = useMemo(() => [films[0], series[6], animes[12], cartoons[8], films[14]], []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % heroItems.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [heroItems.length]);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const filteredCatalog = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return allCatalog;
-    return allCatalog.filter((item) =>
-      [item.title, item.genre, item.type, item.description].join(" ").toLowerCase().includes(term)
-    );
-  }, [search]);
-
-  const toggleFavorite = (id) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const favoritesItems = allCatalog.filter((item) => favorites.includes(item.id));
-  const continueWatching = allCatalog.filter((item) => item.progress >= 20 && item.progress <= 85).slice(0, 6);
-  const recommended = allCatalog.filter((item) => Number(item.note) >= 8.5).slice(0, 16);
-  const popular = allCatalog.filter((item) => item.badge === "Popular" || item.badge === "Top 10").slice(0, 16);
-  const launches = allCatalog.filter((item) => item.year >= 2024).slice(0, 16);
-  const trending = allCatalog.filter((item) => item.badge === "Em Alta" || item.badge === "Top 10").slice(0, 16);
-  const actionFilms = films.filter((item) => item.genre === "Ação").slice(0, 16);
-  const horrorFilms = films.filter((item) => item.genre === "Terror").slice(0, 16);
-  const comedyFilms = films.filter((item) => item.genre === "Comédia").slice(0, 16);
-  const seriesRow = series.slice(0, 16);
-  const animeRow = animes.slice(0, 16);
-  const cartoonRow = cartoons.slice(0, 16);
-  const liveSearchResults = search ? filteredCatalog.slice(0, 10) : [];
-  const menu = ["Início", "Filmes", "Séries", "Animes", "Desenhos", "Minha Lista"];
-  const activeHero = heroItems[heroIndex];
-  const relatedItems = selectedItem
-    ? allCatalog
-        .filter(
-          (item) =>
-            item.id !== selectedItem.id &&
-            (item.genre === selectedItem.genre || item.type === selectedItem.type)
-        )
-        .slice(0, 4)
-    : [];
-
-const posterPool = [
-  "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1497032205916-ac775f0649ae?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1542204625-de293a2f8ff2?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
-];
-
-const heroPool = [
-  "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1498036882173-b41c28a8ba34?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1600&q=80",
-];
-
-const trailerPool = [
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4",
-];
-
-const gradients = [
-  "linear-gradient(135deg,#ef4444,#22d3ee)",
-  "linear-gradient(135deg,#8b5cf6,#06b6d4)",
-  "linear-gradient(135deg,#f97316,#ef4444)",
-  "linear-gradient(135deg,#22c55e,#06b6d4)",
-  "linear-gradient(135deg,#ec4899,#8b5cf6)",
-];
-
-const genreMap = {
-  Filme: ["Ação", "Terror", "Comédia", "Suspense", "Drama", "Ficção Científica"],
-  Série: ["Thriller", "Crime", "Drama", "Sci‑Fi", "Mistério", "Aventura"],
-  Anime: ["Shounen", "Fantasia", "Cyberpunk", "Ação", "Romance", "Sobrenatural"],
-  Desenho: ["Aventura", "Comédia", "Família", "Fantasia", "Sci‑Fi", "Musical"],
-};
-
-const wordBank = {
-  Filme: ["Protocol", "Shadow", "Pulse", "Nova", "Rift", "Velocity", "Frontier", "Vortex", "Crimson", "Neon"],
-  Série: ["Archive", "Signal", "District", "Circuit", "Binary", "Empire", "Vault", "Code", "Mirage", "Zero"],
-  Anime: ["Requiem", "Chronicle", "Phoenix", "Astra", "Blade", "Zenith", "Eclipse", "Shin", "Mecha", "Dream"],
-  Desenho: ["Pixel", "Comet", "Bubble", "Orbit", "Luna", "Rocket", "Prism", "Cloud", "Dash", "Spark"],
-};
-
-function generateItems(type, count, startId) {
-  const typeLabel = type;
-  return Array.from({ length: count }, (_, index) => {
-    const first = wordBank[type][index % wordBank[type].length];
-    const second = wordBank[type][(index + 3) % wordBank[type].length];
-    const genre = genreMap[type][index % genreMap[type].length];
-    const year = 2012 + (index % 14);
-    const note = (7.1 + ((index * 7) % 25) / 10).toFixed(1);
-    const duration = type === "Filme" || type === "Desenho"
-      ? `${95 + (index % 35)} min`
-      : `${1 + (index % 5)} temporada${index % 5 === 0 ? "" : "s"} • ${8 + (index % 12)} episódios`;
-    const badge = index % 9 === 0 ? "Top 10" : index % 7 === 0 ? "Novo" : index % 5 === 0 ? "Popular" : index % 4 === 0 ? "Em Alta" : "";
-
-    return {
-      id: startId + index,
-      title: `${first} ${second}`,
-      type: typeLabel,
-      genre,
-      year,
-      note,
-      duration,
-      badge,
-      image: posterPool[index % posterPool.length],
-      banner: heroPool[index % heroPool.length],
-      video: trailerPool[index % trailerPool.length],
-      progress: (index * 13) % 100,
-      description: `${typeLabel} com estética futurista, atmosfera premium e ritmo cinematográfico. ${first} ${second} mistura ${genre.toLowerCase()}, energia visual e estilo tecnológico do universo Drik.`,
-      fullDescription: `${first} ${second} é um ${typeLabel.toLowerCase()} criado para dar ao catálogo Drik uma aparência de plataforma real. A obra mistura ${genre.toLowerCase()}, acabamento visual sofisticado, trilha intensa e clima moderno de 2026, entregando uma experiência elegante, envolvente e marcante.`,
-      classification: ["10+", "12+", "14+", "16+"][index % 4],
-      quality: ["4K", "1080p", "Ultra HD"][index % 3],
-      audio: ["Português", "Inglês", "Japonês"][index % 3],
-      seasons: type === "Filme" || type === "Desenho" ? null : 1 + (index % 5),
-      episodes: type === "Filme" || type === "Desenho" ? null : 8 + (index % 12),
-    };
-  });
-}
-
-const films = generateItems("Filme", 50, 1);
-const series = generateItems("Série", 50, 1001);
-const animes = generateItems("Anime", 50, 2001);
-const cartoons = generateItems("Desenho", 50, 3001);
-const allCatalog = [...films, ...series, ...animes, ...cartoons];
-
-function formatTime(seconds) {
-  if (!Number.isFinite(seconds)) return "0:00";
-  const mins = Math.floor(seconds / 60);
-  const secs = String(Math.floor(seconds % 60)).padStart(2, "0");
-  return `${mins}:${secs}`;
-}
-
-function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }) {
-  const rowRef = useRef(null);
-
-  const scrollRow = (direction) => {
-    if (!rowRef.current) return;
-    rowRef.current.scrollBy({ left: direction * 900, behavior: "smooth" });
-  };
-
-  return (
-    <section className="section-block">
-      <div className="section-head">
-        <div>
-          <h2>{title}</h2>
-          <p>Descubra seleções com vibe cinematográfica, tecnológica e premium.</p>
-        </div>
-        <div className="row-arrows">
-          <button onClick={() => scrollRow(-1)}>‹</button>
-          <button onClick={() => scrollRow(1)}>›</button>
-        </div>
-      </div>
-
-      <div ref={rowRef} className="row-scroll">
-        {items.map((item, index) => {
-          const isFav = favorites.includes(item.id);
-          return (
-            <article key={item.id} className="media-card">
-              <div className="media-poster">
-                <img src={item.image} alt={item.title} />
-                <div className="media-overlay" />
-                <div className="media-top">
-                  {item.badge ? (
-                    <span className="badge" style={{ background: gradients[index % gradients.length] }}>{item.badge}</span>
-                  ) : <span />}
-                  <button className={isFav ? "icon-btn fav active" : "icon-btn fav"} onClick={() => onToggleFavorite(item.id)}>
-                    ♥
-                  </button>
-                </div>
-                <div className="media-bottom">
-                  <div className="mini-tags">
-                    <span>{item.type}</span>
-                    <span>{item.genre}</span>
-                  </div>
-                  <h3>{item.title}</h3>
-                  <div className="meta-line">{item.year} • {item.duration}</div>
-                </div>
-              </div>
-
-              <div className="media-body">
-                <div className="rating-line">★ {item.note} • {item.quality}</div>
-                <p>{item.description}</p>
-                <div className="media-actions">
-                  <button className="primary-btn" onClick={() => onOpenDetails(item)}>▶ Assistir</button>
-                  <button className="secondary-btn" onClick={() => onOpenDetails(item)}>i Detalhes</button>
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems }) {
-  const videoRef = useRef(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.9);
-  const [speed, setSpeed] = useState(1);
-  const [quality, setQuality] = useState(item.quality || "1080p");
-  const [subtitle, setSubtitle] = useState("Português");
-  const [audio, setAudio] = useState(item.audio || "Português");
-
-  useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, []);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const onLoaded = () => setDuration(video.duration || 0);
-    const onTime = () => setCurrentTime(video.currentTime || 0);
-
-    video.volume = volume;
-    video.playbackRate = speed;
-    video.addEventListener("loadedmetadata", onLoaded);
-    video.addEventListener("timeupdate", onTime);
-    video.play().catch(() => {});
-
-    return () => {
-      video.removeEventListener("loadedmetadata", onLoaded);
-      video.removeEventListener("timeupdate", onTime);
-    };
-  }, [volume, speed]);
-
-  const togglePlay = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.paused) video.play();
-    else video.pause();
-  };
-
-  const seek = (value) => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.currentTime = Number(value);
-    setCurrentTime(Number(value));
-  };
-
-  const skipBy = (delta) => {
-    const video = videoRef.current;
-    if (!video) return;
-    const max = duration || video.duration || 0;
-    video.currentTime = Math.min(Math.max(0, video.currentTime + delta), max);
-  };
-
-  const openFullscreen = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.requestFullscreen) video.requestFullscreen();
-  };
-
-  const isFav = favorites.includes(item.id);
-
-  return (
-    <div className="modal-wrap">
-      <div className="modal-box">
-        <div className="modal-topbar">
-          <div>
-            <div className="eyebrow">Drik Player</div>
-            <h3>{item.title}</h3>
-          </div>
-          <button className="icon-btn" onClick={onClose}>✕</button>
-        </div>
-
-        <div className="modal-grid">
-          <div className="player-col">
-            <div className="video-shell">
-              <video ref={videoRef} src={item.video} poster={item.banner} className="video-element" />
-              <div className="video-fade" />
-              <div className="video-overlay-controls">
-                <div className="overlay-tags">
-                  <span>{item.quality}</span>
-                  <span>{item.type}</span>
-                  <span>{item.classification}</span>
-                </div>
-                <div className="overlay-buttons">
-                  <button className="round-white" onClick={togglePlay}>▶</button>
-                  <button className="round-dark" onClick={() => skipBy(-10)}>«10</button>
-                  <button className="round-dark" onClick={() => skipBy(10)}>10»</button>
-                  <button className={isFav ? "round-dark active" : "round-dark"} onClick={() => onToggleFavorite(item.id)}>♥</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="control-panel">
-              <div className="progress-box">
-                <div>{formatTime(currentTime)}</div>
-                <div>{formatTime(duration)}</div>
-              </div>
-              <input type="range" min="0" max={duration || 0} step="0.1" value={currentTime} onChange={(e) => seek(e.target.value)} className="range" />
-
-              <div className="control-grid">
-                <div className="control-item">
-                  <label>Volume</label>
-                  <input type="range" min="0" max="1" step="0.01" value={volume} onChange={(e) => { const v = Number(e.target.value); setVolume(v); if (videoRef.current) videoRef.current.volume = v; }} className="range" />
-                </div>
-                <div className="control-item">
-                  <label>Qualidade</label>
-                  <select value={quality} onChange={(e) => setQuality(e.target.value)}>
-                    <option>4K</option>
-                    <option>1080p</option>
-                    <option>720p</option>
-                  </select>
-                </div>
-                <div className="control-item">
-                  <label>Velocidade</label>
-                  <select value={speed} onChange={(e) => { const s = Number(e.target.value); setSpeed(s); if (videoRef.current) videoRef.current.playbackRate = s; }}>
-                    <option value={0.75}>0.75x</option>
-                    <option value={1}>1x</option>
-                    <option value={1.25}>1.25x</option>
-                    <option value={1.5}>1.5x</option>
-                    <option value={2}>2x</option>
-                  </select>
-                </div>
-                <div className="control-item">
-                  <label>Legenda</label>
-                  <select value={subtitle} onChange={(e) => setSubtitle(e.target.value)}>
-                    <option>Português</option>
-                    <option>English</option>
-                    <option>Desativada</option>
-                  </select>
-                </div>
-                <div className="control-item control-fullscreen">
-                  <label>Áudio</label>
-                  <div className="row-inline">
-                    <select value={audio} onChange={(e) => setAudio(e.target.value)}>
-                      <option>Português</option>
-                      <option>Inglês</option>
-                      <option>Japonês</option>
-                    </select>
-                    <button className="square-btn" onClick={openFullscreen}>⛶</button>
-                  </div>
-                </div>
-              </div>
-
-              {(item.type === "Série" || item.type === "Anime") && (
-                <div className="next-episode">
-                  <strong>Próximo episódio disponível</strong>
-                  <p>Temporada {item.seasons}, episódio {Math.min(2, item.episodes || 2)} pronto para reprodução.</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <aside className="detail-col">
-            <div className="detail-card">
-              <div className="detail-banner">
-                <img src={item.banner} alt={item.title} />
-                <div className="detail-fade" />
-                <div className="detail-banner-content">
-                  <div className="mini-tags">
-                    <span>{item.genre}</span>
-                    <span>{item.year}</span>
-                    <span>{item.note}</span>
-                  </div>
-                  <h4>{item.title}</h4>
-                </div>
-              </div>
-              <div className="detail-body">
-                <p>{item.fullDescription}</p>
-                <div className="detail-grid">
-                  <div><small>Categoria</small><span>{item.type}</span></div>
-                  <div><small>Duração</small><span>{item.duration}</span></div>
-                  <div><small>Classificação</small><span>{item.classification}</span></div>
-                  <div><small>Áudio</small><span>{audio}</span></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="related-card">
-              <h5>Conteúdos parecidos</h5>
-              {relatedItems.map((related) => (
-                <div key={related.id} className="related-item">
-                  <img src={related.image} alt={related.title} />
-                  <div>
-                    <div className="related-title">{related.title}</div>
-                    <div className="related-meta">{related.genre} • {related.year}</div>
-                    <div className="related-desc">{related.description}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </aside>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function DrikStreamingExperience() {
+}export default function DrikStreamingExperience() {
   const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState([films[1].id, series[3].id, animes[4].id]);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -920,6 +483,7 @@ export default function DrikStreamingExperience() {
     const timer = setInterval(() => {
       setHeroIndex((prev) => (prev + 1) % heroItems.length);
     }, 5000);
+
     return () => clearInterval(timer);
   }, [heroItems.length]);
 
@@ -932,12 +496,10 @@ export default function DrikStreamingExperience() {
   const filteredCatalog = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return allCatalog;
-    return allCatalog.filter((item) => {
-      return [item.title, item.genre, item.type, item.description]
-        .join(" ")
-        .toLowerCase()
-        .includes(term);
-    });
+
+    return allCatalog.filter((item) =>
+      [item.title, item.genre, item.type, item.description].join(" ").toLowerCase().includes(term)
+    );
   }, [search]);
 
   const toggleFavorite = (id) => {
@@ -947,9 +509,7 @@ export default function DrikStreamingExperience() {
   };
 
   const favoritesItems = allCatalog.filter((item) => favorites.includes(item.id));
-  const continueWatching = allCatalog
-    .filter((item) => item.progress >= 20 && item.progress <= 85)
-    .slice(0, 6);
+  const continueWatching = allCatalog.filter((item) => item.progress >= 20 && item.progress <= 85).slice(0, 6);
   const recommended = allCatalog.filter((item) => Number(item.note) >= 8.5).slice(0, 16);
   const popular = allCatalog.filter((item) => item.badge === "Popular" || item.badge === "Top 10").slice(0, 16);
   const launches = allCatalog.filter((item) => item.year >= 2024).slice(0, 16);
@@ -992,8 +552,10 @@ export default function DrikStreamingExperience() {
         .nav button{background:none;border:0;color:#9ca3af;cursor:pointer;font-size:14px;font-weight:600}
         .nav button.active,.nav button:hover{color:#fff}
         .header-right{display:flex;align-items:center;gap:12px}
-        .search-mini{position:relative}
+        .search-mini,.search-wide{position:relative}
         .search-mini input{width:300px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);padding:12px 16px 12px 40px;color:#fff;outline:none}
+        .search-wide input{width:100%;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.25);padding:16px 16px 16px 44px;color:#fff;outline:none}
+        .search-wide{width:420px;max-width:100%}
         .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#a1a1aa}
         .header-btn{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;padding:12px 16px;border-radius:999px;cursor:pointer}
         .avatar{width:44px;height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -1034,8 +596,6 @@ export default function DrikStreamingExperience() {
         .search-panel-head{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
         .search-panel-head h2{margin:0;font-size:34px}
         .search-panel-head p{margin:6px 0 0;color:#a1a1aa;font-size:14px}
-        .search-wide{position:relative;width:420px;max-width:100%}
-        .search-wide input{width:100%;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.25);padding:16px 16px 16px 44px;color:#fff;outline:none}
         .search-results{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
         .search-result{display:flex;gap:16px;text-align:left;border-radius:24px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.2);padding:16px;cursor:pointer}
         .search-result:hover{border-color:rgba(34,211,238,.3);background:rgba(255,255,255,.06)}
@@ -1043,8 +603,7 @@ export default function DrikStreamingExperience() {
         .search-result .result-tag{display:inline-block;padding:4px 10px;border-radius:999px;color:#fff;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
         .search-result .title{font-size:18px;font-weight:800}
         .search-result .meta{font-size:14px;color:#a1a1aa;margin-top:6px}
-        .search-result .desc{font-size:14px;color:#a1a1aa;line-height:1.6;margin-top:8px}
-        .section-block{margin-top:38px}
+        .search-result .desc{font-size:14px;color:#a1a1aa;line-height:1.6;margin-top:8px}        .section-block{margin-top:38px}
         .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
         .section-head h2{margin:0;font-size:34px}
         .section-head p{margin:6px 0 0;color:#a1a1aa;font-size:14px}
@@ -1061,7 +620,7 @@ export default function DrikStreamingExperience() {
         .media-top{position:absolute;left:0;right:0;top:0;display:flex;align-items:flex-start;justify-content:space-between;padding:12px}
         .badge{padding:8px 12px;border-radius:999px;color:#fff;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
         .icon-btn{border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.35);color:#fff;border-radius:999px;width:38px;height:38px;cursor:pointer}
-        .icon-btn.active,.fav.active,.round-dark.active{background:#f43f5e}
+        .icon-btn.active,.round-dark.active{background:#f43f5e}
         .media-bottom{position:absolute;left:0;right:0;bottom:0;padding:16px}
         .media-bottom h3{margin:0;font-size:24px;font-weight:900;line-height:1.1}
         .meta-line{margin-top:8px;font-size:14px;color:#d4d4d8}
@@ -1142,6 +701,7 @@ export default function DrikStreamingExperience() {
               <div className="brand">
                 Dri<span>k</span>
               </div>
+
               <nav className="nav">
                 {menu.map((item) => (
                   <button
@@ -1164,6 +724,7 @@ export default function DrikStreamingExperience() {
                   placeholder="Buscar por nome, gênero ou categoria"
                 />
               </div>
+
               <button className="header-btn">Login</button>
               <button className="avatar">👤</button>
             </div>
@@ -1182,16 +743,18 @@ export default function DrikStreamingExperience() {
               <div className="eyebrow">Experiência premium Drik</div>
               <h1>Streaming futurista com cinema, séries, animes e desenhos em um só lugar.</h1>
               <p>
-                Visual sofisticado, navegação rápida, banner rotativo, player elegante,
-                catálogo extenso e uma identidade original feita para impressionar com
-                clima tecnológico de 2026.
+                Visual sofisticado, navegação rápida, banner rotativo, player elegante, catálogo
+                extenso e uma identidade original feita para impressionar com clima tecnológico de
+                2026.
               </p>
+
               <div className="tag-row">
                 <span>{activeHero.type}</span>
                 <span>{activeHero.genre}</span>
                 <span>{activeHero.year}</span>
                 <span>Nota {activeHero.note}</span>
               </div>
+
               <div className="hero-actions">
                 <button className="big-white" onClick={() => setSelectedItem(activeHero)}>
                   ▶ Assistir Agora
@@ -1200,6 +763,7 @@ export default function DrikStreamingExperience() {
                   i Mais Informações
                 </button>
               </div>
+
               <div className="hero-dots">
                 {heroItems.map((hero, index) => (
                   <button
@@ -1250,6 +814,7 @@ export default function DrikStreamingExperience() {
                 <h2>Busca premium do catálogo</h2>
                 <p>Pesquise por nome, gênero, categoria, anime, desenho, filme ou série em tempo real.</p>
               </div>
+
               <div className="search-wide">
                 <span className="search-icon">⌕</span>
                 <input
@@ -1270,7 +835,10 @@ export default function DrikStreamingExperience() {
                   >
                     <img src={item.image} alt={item.title} />
                     <div>
-                      <div className="result-tag" style={{ background: gradients[index % gradients.length] }}>
+                      <div
+                        className="result-tag"
+                        style={{ background: gradients[index % gradients.length] }}
+                      >
                         {item.type}
                       </div>
                       <div className="title">{item.title}</div>
@@ -1294,7 +862,8 @@ export default function DrikStreamingExperience() {
                   color: "#a1a1aa",
                 }}
               >
-                Digite algo na busca para localizar filmes, séries, animes e desenhos com visual rápido e refinado.
+                Digite algo na busca para localizar filmes, séries, animes e desenhos com visual
+                rápido e refinado.
               </div>
             )}
           </section>
@@ -1311,6 +880,7 @@ export default function DrikStreamingExperience() {
                 <p>Retome exatamente de onde parou com progresso salvo visualmente.</p>
               </div>
             </div>
+
             <div className="continue-grid">
               {continueWatching.map((item, index) => (
                 <button key={item.id} className="continue-card" onClick={() => setSelectedItem(item)}>
@@ -1321,7 +891,9 @@ export default function DrikStreamingExperience() {
                     <div className="continue-bottom">
                       <div className="continue-title">
                         <strong>{item.title}</strong>
-                        <span style={{ background: gradients[index % gradients.length] }}>{item.progress}%</span>
+                        <span style={{ background: gradients[index % gradients.length] }}>
+                          {item.progress}%
+                        </span>
                       </div>
                       <div className="progress-track">
                         <div className="progress-fill" style={{ width: `${item.progress}%` }} />
@@ -1351,18 +923,22 @@ export default function DrikStreamingExperience() {
         <footer className="footer">
           <div className="container footer-grid">
             <div>
-              <div className="brand">Dri<span>k</span></div>
+              <div className="brand">
+                Dri<span>k</span>
+              </div>
               <p>
                 Plataforma demonstrativa de streaming com visual original, experiência premium,
                 player sofisticado e catálogo completo de mock data pronto para impressionar.
               </p>
             </div>
+
             <div>
               <h4>Seções</h4>
               {menu.map((item) => (
                 <div key={item}>{item}</div>
               ))}
             </div>
+
             <div>
               <h4>Resumo</h4>
               <div>200 itens organizados em catálogo premium</div>
@@ -1385,4 +961,3 @@ export default function DrikStreamingExperience() {
     </>
   );
 }
-
