@@ -1,7 +1,6 @@
 import { auth, provider } from "./firebase";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, signOut } from "firebase/auth";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-
 import "./style.css";
 
 const posterPool = [
@@ -60,6 +59,7 @@ const wordBank = {
 };
 
 const CUSTOM_MOVIES_KEY = "drik_custom_movies_v1";
+const FAVORITES_KEY = "drik_favorites_v1";
 
 function generateItems(type, count, startId) {
   return Array.from({ length: count }, (_, index) => {
@@ -68,6 +68,7 @@ function generateItems(type, count, startId) {
     const genre = genreMap[type][index % genreMap[type].length];
     const year = 2012 + (index % 14);
     const note = (7.1 + ((index * 7) % 25) / 10).toFixed(1);
+
     const duration =
       type === "Filme" || type === "Desenho"
         ? `${95 + (index % 35)} min`
@@ -98,7 +99,7 @@ function generateItems(type, count, startId) {
       video: trailerPool[index % trailerPool.length],
       progress: (index * 13) % 100,
       description: `${type} com estética futurista, atmosfera premium e ritmo cinematográfico. ${first} ${second} mistura ${genre.toLowerCase()}, energia visual e estilo tecnológico do universo Drik.`,
-      fullDescription: `${first} ${second} é um ${type.toLowerCase()} criado para dar ao catálogo Drik uma aparência de plataforma real. A obra mistura ${genre.toLowerCase()}, acabamento visual sofisticado, trilha intensa e clima moderno de 2026, entregando uma experiência elegante, envolvente e marcante.`,
+      fullDescription: `${first} ${second} é um ${type.toLowerCase()} criado para dar ao catálogo Drik uma aparência de plataforma real. A obra mistura ${genre.toLowerCase()}, acabamento visual sofisticado, trilha intensa e clima moderno, entregando uma experiência elegante, envolvente e marcante.`,
       classification: ["10+", "12+", "14+", "16+"][index % 4],
       quality: ["4K", "1080p", "Ultra HD"][index % 3],
       audio: ["Português", "Inglês", "Japonês"][index % 3],
@@ -132,6 +133,17 @@ function getSafeCustomCatalog() {
   }
 }
 
+function getSafeFavorites() {
+  try {
+    const saved = localStorage.getItem(FAVORITES_KEY);
+    if (!saved) return [films[1].id, series[3].id, animes[4].id];
+    const parsed = JSON.parse(saved);
+    return Array.isArray(parsed) ? parsed : [films[1].id, series[3].id, animes[4].id];
+  } catch {
+    return [films[1].id, series[3].id, animes[4].id];
+  }
+}
+
 function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }) {
   const rowRef = useRef(null);
 
@@ -140,6 +152,8 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
     rowRef.current.scrollBy({ left: direction * 900, behavior: "smooth" });
   };
 
+  if (!items.length) return null;
+
   return (
     <section className="section-block">
       <div className="section-head">
@@ -147,9 +161,14 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
           <h2>{title}</h2>
           <p>Descubra seleções com vibe cinematográfica, tecnológica e premium.</p>
         </div>
+
         <div className="row-arrows">
-          <button onClick={() => scrollRow(-1)}>‹</button>
-          <button onClick={() => scrollRow(1)}>›</button>
+          <button type="button" onClick={() => scrollRow(-1)}>
+            ‹
+          </button>
+          <button type="button" onClick={() => scrollRow(1)}>
+            ›
+          </button>
         </div>
       </div>
 
@@ -176,6 +195,7 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
                   )}
 
                   <button
+                    type="button"
                     className={isFav ? "icon-btn active" : "icon-btn"}
                     onClick={() => onToggleFavorite(item.id)}
                   >
@@ -188,6 +208,7 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
                     <span>{item.type}</span>
                     <span>{item.genre}</span>
                   </div>
+
                   <h3>{item.title}</h3>
                   <div className="meta-line">
                     {item.year} • {item.duration}
@@ -200,10 +221,19 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
                 <p>{item.description}</p>
 
                 <div className="media-actions">
-                  <button className="primary-btn" onClick={() => onOpenDetails(item)}>
+                  <button
+                    type="button"
+                    className="primary-btn"
+                    onClick={() => onOpenDetails(item)}
+                  >
                     ▶ Assistir
                   </button>
-                  <button className="secondary-btn" onClick={() => onOpenDetails(item)}>
+
+                  <button
+                    type="button"
+                    className="secondary-btn"
+                    onClick={() => onOpenDetails(item)}
+                  >
                     i Detalhes
                   </button>
                 </div>
@@ -227,10 +257,20 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
     return () => {
       document.body.style.overflow = originalOverflow;
     };
   }, []);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -254,15 +294,20 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
   const togglePlay = () => {
     const video = videoRef.current;
     if (!video) return;
-    if (video.paused) video.play();
-    else video.pause();
+
+    if (video.paused) {
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
   };
 
   const seek = (value) => {
     const video = videoRef.current;
     if (!video) return;
-    video.currentTime = Number(value);
-    setCurrentTime(Number(value));
+    const nextValue = Number(value);
+    video.currentTime = nextValue;
+    setCurrentTime(nextValue);
   };
 
   const skipBy = (delta) => {
@@ -281,14 +326,15 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
   const isFav = favorites.includes(item.id);
 
   return (
-    <div className="modal-wrap">
-      <div className="modal-box">
+    <div className="modal-wrap" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
         <div className="modal-topbar">
           <div>
             <div className="eyebrow">Drik Player</div>
             <h3>{item.title}</h3>
           </div>
-          <button className="icon-btn" onClick={onClose}>
+
+          <button type="button" className="icon-btn" onClick={onClose}>
             ✕
           </button>
         </div>
@@ -307,22 +353,26 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
 
               <div className="video-overlay-controls">
                 <div className="overlay-tags">
-                  <span>{item.quality}</span>
+                  <span>{quality}</span>
                   <span>{item.type}</span>
                   <span>{item.classification}</span>
                 </div>
 
                 <div className="overlay-buttons">
-                  <button className="round-white" onClick={togglePlay}>
+                  <button type="button" className="round-white" onClick={togglePlay}>
                     ▶
                   </button>
-                  <button className="round-dark" onClick={() => skipBy(-10)}>
+
+                  <button type="button" className="round-dark" onClick={() => skipBy(-10)}>
                     «10
                   </button>
-                  <button className="round-dark" onClick={() => skipBy(10)}>
+
+                  <button type="button" className="round-dark" onClick={() => skipBy(10)}>
                     10»
                   </button>
+
                   <button
+                    type="button"
                     className={isFav ? "round-dark active" : "round-dark"}
                     onClick={() => onToggleFavorite(item.id)}
                   >
@@ -372,6 +422,7 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
                     <option>4K</option>
                     <option>1080p</option>
                     <option>720p</option>
+                    <option>Ultra HD</option>
                   </select>
                 </div>
 
@@ -410,7 +461,8 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
                       <option>Inglês</option>
                       <option>Japonês</option>
                     </select>
-                    <button className="square-btn" onClick={openFullscreen}>
+
+                    <button type="button" className="square-btn" onClick={openFullscreen}>
                       ⛶
                     </button>
                   </div>
@@ -421,8 +473,8 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
                 <div className="next-episode">
                   <strong>Próximo episódio disponível</strong>
                   <p>
-                    Temporada {item.seasons}, episódio {Math.min(2, item.episodes || 2)} pronto
-                    para reprodução.
+                    Temporada {item.seasons}, episódio{" "}
+                    {Math.min(2, item.episodes || 2)} pronto para reprodução.
                   </p>
                 </div>
               )}
@@ -434,6 +486,7 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
               <div className="detail-banner">
                 <img src={item.banner} alt={item.title} />
                 <div className="detail-fade" />
+
                 <div className="detail-banner-content">
                   <div className="mini-tags">
                     <span>{item.genre}</span>
@@ -489,15 +542,18 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
       </div>
     </div>
   );
-}export default function DrikStreamingExperience() {
+}
+
+export default function DrikStreamingExperience() {
   const [search, setSearch] = useState("");
-  const [favorites, setFavorites] = useState([films[1].id, series[3].id, animes[4].id]);
+  const [favorites, setFavorites] = useState(getSafeFavorites);
   const [selectedItem, setSelectedItem] = useState(null);
   const [heroIndex, setHeroIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("Início");
   const [scrolled, setScrolled] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [customCatalog, setCustomCatalog] = useState([]);
+  const [loggedUser, setLoggedUser] = useState(null);
   const [newMovie, setNewMovie] = useState({
     title: "",
     type: "Filme",
@@ -521,6 +577,10 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
   useEffect(() => {
     setCustomCatalog(getSafeCustomCatalog());
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+  }, [favorites]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -550,11 +610,12 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
     if (!term) return allCatalog;
 
     return allCatalog.filter((item) =>
-      [item.title, item.genre, item.type, item.description].join(" ").toLowerCase().includes(term)
+      [item.title, item.genre, item.type, item.description]
+        .join(" ")
+        .toLowerCase()
+        .includes(term)
     );
-  }, [search, allCatalog]);
-
-  const toggleFavorite = (id) => {
+  }, [search, allCatalog]);  const toggleFavorite = (id) => {
     setFavorites((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
@@ -590,9 +651,12 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
       genre: newMovie.genre.trim(),
       year: Number(newMovie.year) || 2026,
       note: String(newMovie.note || "8.5"),
-      duration: newMovie.type === "Filme" || newMovie.type === "Desenho"
-        ? newMovie.duration || "100 min"
-        : `${newMovie.seasons || 1} temporada${Number(newMovie.seasons || 1) > 1 ? "s" : ""} • ${newMovie.episodes || 8} episódios`,
+      duration:
+        newMovie.type === "Filme" || newMovie.type === "Desenho"
+          ? newMovie.duration || "100 min"
+          : `${newMovie.seasons || 1} temporada${
+              Number(newMovie.seasons || 1) > 1 ? "s" : ""
+            } • ${newMovie.episodes || 8} episódios`,
       badge: newMovie.badge,
       image: newMovie.image || posterPool[0],
       banner: newMovie.banner || heroPool[0],
@@ -646,14 +710,36 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
   };
 
   const favoritesItems = allCatalog.filter((item) => favorites.includes(item.id));
-  const continueWatching = allCatalog.filter((item) => item.progress >= 20 && item.progress <= 85).slice(0, 6);
+  const continueWatching = allCatalog
+    .filter((item) => item.progress >= 20 && item.progress <= 85)
+    .slice(0, 6);
+
   const recommended = allCatalog.filter((item) => Number(item.note) >= 8.5).slice(0, 16);
-  const popular = allCatalog.filter((item) => item.badge === "Popular" || item.badge === "Top 10").slice(0, 16);
+  const popular = allCatalog
+    .filter((item) => item.badge === "Popular" || item.badge === "Top 10")
+    .slice(0, 16);
+
   const launches = allCatalog.filter((item) => item.year >= 2024).slice(0, 16);
-  const trending = allCatalog.filter((item) => item.badge === "Em Alta" || item.badge === "Top 10" || item.badge === "Novo").slice(0, 16);
-  const actionFilms = allCatalog.filter((item) => item.type === "Filme" && item.genre === "Ação").slice(0, 16);
-  const horrorFilms = allCatalog.filter((item) => item.type === "Filme" && item.genre === "Terror").slice(0, 16);
-  const comedyFilms = allCatalog.filter((item) => item.type === "Filme" && item.genre === "Comédia").slice(0, 16);
+
+  const trending = allCatalog
+    .filter(
+      (item) =>
+        item.badge === "Em Alta" || item.badge === "Top 10" || item.badge === "Novo"
+    )
+    .slice(0, 16);
+
+  const actionFilms = allCatalog
+    .filter((item) => item.type === "Filme" && item.genre === "Ação")
+    .slice(0, 16);
+
+  const horrorFilms = allCatalog
+    .filter((item) => item.type === "Filme" && item.genre === "Terror")
+    .slice(0, 16);
+
+  const comedyFilms = allCatalog
+    .filter((item) => item.type === "Filme" && item.genre === "Comédia")
+    .slice(0, 16);
+
   const seriesRow = allCatalog.filter((item) => item.type === "Série").slice(0, 16);
   const animeRow = allCatalog.filter((item) => item.type === "Anime").slice(0, 16);
   const cartoonRow = allCatalog.filter((item) => item.type === "Desenho").slice(0, 16);
@@ -673,16 +759,15 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
 
   const loginGoogle = async () => {
     if (googleLoading) return;
-
     setGoogleLoading(true);
 
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      setLoggedUser(user);
       alert("Bem-vindo " + (user.displayName || "usuário"));
     } catch (error) {
       console.error("Erro no login com Google:", error);
-
       const code = error?.code || "";
 
       if (code.includes("popup-blocked")) {
@@ -701,397 +786,494 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
     }
   };
 
+  const logoutGoogle = async () => {
+    try {
+      await signOut(auth);
+      setLoggedUser(null);
+    } catch {
+      alert("Não foi possível sair da conta agora.");
+    }
+  };
+
+  const visibleSections = {
+    inicio: activeTab === "Início",
+    filmes: activeTab === "Filmes" || activeTab === "Início",
+    series: activeTab === "Séries" || activeTab === "Início",
+    animes: activeTab === "Animes" || activeTab === "Início",
+    desenhos: activeTab === "Desenhos" || activeTab === "Início",
+    lista: activeTab === "Minha Lista" || activeTab === "Início",
+  };
+
   return (
-    <>
-
-      <div className="app-bg">
-        <header className={scrolled ? "header scrolled" : "header top"}>
-          <div className="header-inner">
-            <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-              <div className="brand">
-                Dri<span>k</span>
-              </div>
-
-              <nav className="nav">
-                {menu.map((item) => (
-                  <button
-                    key={item}
-                    className={activeTab === item ? "active" : ""}
-                    onClick={() => setActiveTab(item)}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </nav>
+    <div className="app-bg">
+      <header className={scrolled ? "header scrolled" : "header top"}>
+        <div className="header-inner">
+          <div className="header-left">
+            <div className="brand">
+              Dri<span>k</span>
             </div>
 
-            <div className="header-right">
-              <div className="search-mini">
-                <span className="search-icon">⌕</span>
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar por nome, gênero ou categoria"
-                />
-              </div>
+            <nav className="nav">
+              {menu.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  className={activeTab === item ? "active" : ""}
+                  onClick={() => setActiveTab(item)}
+                >
+                  {item}
+                </button>
+              ))}
+            </nav>
+          </div>
 
-              <button className="header-btn" onClick={loginGoogle} disabled={googleLoading}>
+          <div className="header-right">
+            <div className="search-mini">
+              <span className="search-icon">⌕</span>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar por nome, gênero ou categoria"
+              />
+            </div>
+
+            {!loggedUser ? (
+              <button
+                type="button"
+                className="header-btn"
+                onClick={loginGoogle}
+                disabled={googleLoading}
+              >
                 {googleLoading ? "Entrando..." : "Entrar com Google"}
               </button>
-              <button className="avatar">👤</button>
-            </div>
-          </div>
-        </header>
-
-        <section className="hero">
-          <div className="hero-bg">
-            <img src={activeHero.banner} alt={activeHero.title} />
-            <div className="hero-shade" />
-            <div className="hero-bottom" />
-          </div>
-
-          <div className="hero-inner">
-            <div className="hero-copy">
-              <div className="eyebrow">Experiência premium Drik</div>
-              <h1>Streaming futurista com cinema, séries, animes e desenhos em um só lugar.</h1>
-              <p>
-                Visual sofisticado, navegação rápida, banner rotativo, player elegante, catálogo
-                extenso e uma identidade original feita para impressionar com clima tecnológico.
-              </p>
-
-              <div className="tag-row">
-                <span>{activeHero.type}</span>
-                <span>{activeHero.genre}</span>
-                <span>{activeHero.year}</span>
-                <span>Nota {activeHero.note}</span>
-              </div>
-
-              <div className="hero-actions">
-                <button className="big-white" onClick={() => setSelectedItem(activeHero)}>
-                  ▶ Assistir Agora
-                </button>
-                <button className="big-glass" onClick={() => setSelectedItem(activeHero)}>
-                  i Mais Informações
-                </button>
-              </div>
-
-              <div className="hero-dots">
-                {heroItems.map((hero, index) => (
-                  <button
-                    key={hero.id}
-                    className={heroIndex === index ? "active" : ""}
-                    onClick={() => setHeroIndex(index)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="hero-card">
-              <div className="hero-card-inner">
-                <img src={activeHero.image} alt={activeHero.title} />
-                <div className="hero-card-content">
-                  <h3>{activeHero.title}</h3>
-                  <p>{activeHero.description}</p>
-                  <div className="hero-card-grid">
-                    <div>{activeHero.duration}</div>
-                    <div>{activeHero.quality}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>        <main className="container" style={{ paddingBottom: 80 }}>
-          <section className="stats">
-            {[
-              { label: "Catálogo total", value: allCatalog.length },
-              { label: "Filmes", value: allCatalog.filter((item) => item.type === "Filme").length },
-              { label: "Séries + Animes", value: allCatalog.filter((item) => item.type === "Série" || item.type === "Anime").length },
-              { label: "Desenhos", value: allCatalog.filter((item) => item.type === "Desenho").length },
-            ].map((stat, index) => (
-              <div key={stat.label} className="stat">
-                <div className="label" style={{ background: gradients[index % gradients.length] }}>
-                  {stat.label}
-                </div>
-                <div className="value">{stat.value}</div>
-              </div>
-            ))}
-          </section>
-
-          <section className="search-panel">
-            <div className="search-panel-head">
-              <div>
-                <h2>Busca premium do catálogo</h2>
-                <p>Pesquise por nome, gênero, categoria, anime, desenho, filme ou série em tempo real.</p>
-              </div>
-
-              <div className="search-wide">
-                <span className="search-icon">⌕</span>
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Ex: terror, anime, ação, série..."
-                />
-              </div>
-            </div>
-
-            {search ? (
-              <div className="search-results">
-                {liveSearchResults.map((item, index) => (
-                  <button
-                    key={item.id}
-                    className="search-result"
-                    onClick={() => setSelectedItem(item)}
-                  >
-                    <img src={item.image} alt={item.title} />
-                    <div>
-                      <div
-                        className="result-tag"
-                        style={{ background: gradients[index % gradients.length] }}
-                      >
-                        {item.type}
-                      </div>
-                      <div className="title">{item.title}</div>
-                      <div className="meta">
-                        {item.genre} • {item.year} • Nota {item.note}
-                      </div>
-                      <div className="desc">{item.description}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
             ) : (
-              <div
-                style={{
-                  marginTop: 20,
-                  borderRadius: 24,
-                  border: "1px dashed rgba(255,255,255,.1)",
-                  background: "rgba(0,0,0,.15)",
-                  padding: 28,
-                  textAlign: "center",
-                  color: "#a1a1aa",
-                }}
-              >
-                Digite algo na busca para localizar filmes, séries, animes e desenhos com visual rápido e refinado.
-              </div>
+              <button type="button" className="header-btn secondary" onClick={logoutGoogle}>
+                Sair
+              </button>
             )}
-          </section>
 
-          <section className="admin-panel">
-            <div className="admin-head">
-              <div>
-                <h2>Painel para adicionar filmes</h2>
-                <p>Área pronta para você cadastrar conteúdos sem quebrar o site. Os dados ficam salvos no navegador.</p>
-              </div>
+            <button type="button" className="avatar">
+              {loggedUser?.photoURL ? (
+                <img src={loggedUser.photoURL} alt="Usuário" />
+              ) : (
+                <span>{loggedUser?.displayName?.[0] || "👤"}</span>
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <section className="hero">
+        <div className="hero-bg">
+          <img src={activeHero.banner} alt={activeHero.title} />
+          <div className="hero-shade" />
+          <div className="hero-bottom" />
+        </div>
+
+        <div className="hero-inner">
+          <div className="hero-copy">
+            <div className="eyebrow">Experiência premium Drik</div>
+            <h1>Streaming futurista com cinema, séries, animes e desenhos em um só lugar.</h1>
+            <p>
+              Visual sofisticado, navegação rápida, banner rotativo, player elegante,
+              catálogo extenso e identidade original feita para impressionar.
+            </p>
+
+            <div className="tag-row">
+              <span>{activeHero.type}</span>
+              <span>{activeHero.genre}</span>
+              <span>{activeHero.year}</span>
+              <span>Nota {activeHero.note}</span>
             </div>
 
-            <div className="admin-grid">
-              <div className="admin-field">
-                <label>Título</label>
-                <input
-                  value={newMovie.title}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, title: e.target.value }))}
-                  placeholder="Nome do filme ou série"
-                />
-              </div>
+            <div className="hero-actions">
+              <button
+                type="button"
+                className="big-white"
+                onClick={() => setSelectedItem(activeHero)}
+              >
+                ▶ Assistir Agora
+              </button>
 
-              <div className="admin-field">
-                <label>Tipo</label>
-                <select
-                  value={newMovie.type}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, type: e.target.value }))}
-                >
-                  <option>Filme</option>
-                  <option>Série</option>
-                  <option>Anime</option>
-                  <option>Desenho</option>
-                </select>
-              </div>
-
-              <div className="admin-field">
-                <label>Gênero</label>
-                <input
-                  value={newMovie.genre}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, genre: e.target.value }))}
-                  placeholder="Ação"
-                />
-              </div>
-
-              <div className="admin-field">
-                <label>Ano</label>
-                <input
-                  value={newMovie.year}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, year: e.target.value }))}
-                  placeholder="2026"
-                />
-              </div>
-
-              <div className="admin-field">
-                <label>Nota</label>
-                <input
-                  value={newMovie.note}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, note: e.target.value }))}
-                  placeholder="8.5"
-                />
-              </div>
-
-              <div className="admin-field">
-                <label>Duração</label>
-                <input
-                  value={newMovie.duration}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, duration: e.target.value }))}
-                  placeholder="110 min"
-                />
-              </div>
-
-              <div className="admin-field">
-                <label>Selo</label>
-                <select
-                  value={newMovie.badge}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, badge: e.target.value }))}
-                >
-                  <option>Novo</option>
-                  <option>Popular</option>
-                  <option>Em Alta</option>
-                  <option>Top 10</option>
-                  <option value="">Sem selo</option>
-                </select>
-              </div>
-
-              <div className="admin-field">
-                <label>Classificação</label>
-                <select
-                  value={newMovie.classification}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, classification: e.target.value }))}
-                >
-                  <option>10+</option>
-                  <option>12+</option>
-                  <option>14+</option>
-                  <option>16+</option>
-                </select>
-              </div>
-
-              <div className="admin-field wide">
-                <label>Imagem do card</label>
-                <input
-                  value={newMovie.image}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, image: e.target.value }))}
-                  placeholder="URL da capa"
-                />
-              </div>
-
-              <div className="admin-field wide">
-                <label>Imagem do banner</label>
-                <input
-                  value={newMovie.banner}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, banner: e.target.value }))}
-                  placeholder="URL do banner"
-                />
-              </div>
-
-              <div className="admin-field wide">
-                <label>Vídeo</label>
-                <input
-                  value={newMovie.video}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, video: e.target.value }))}
-                  placeholder="URL do trailer ou filme"
-                />
-              </div>
-
-              <div className="admin-field">
-                <label>Qualidade</label>
-                <select
-                  value={newMovie.quality}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, quality: e.target.value }))}
-                >
-                  <option>4K</option>
-                  <option>1080p</option>
-                  <option>Ultra HD</option>
-                  <option>720p</option>
-                </select>
-              </div>
-
-              <div className="admin-field">
-                <label>Áudio</label>
-                <select
-                  value={newMovie.audio}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, audio: e.target.value }))}
-                >
-                  <option>Português</option>
-                  <option>Inglês</option>
-                  <option>Japonês</option>
-                </select>
-              </div>
-
-              <div className="admin-field">
-                <label>Temporadas</label>
-                <input
-                  value={newMovie.seasons}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, seasons: e.target.value }))}
-                  placeholder="1"
-                />
-              </div>
-
-              <div className="admin-field">
-                <label>Episódios</label>
-                <input
-                  value={newMovie.episodes}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, episodes: e.target.value }))}
-                  placeholder="8"
-                />
-              </div>
-
-              <div className="admin-field wide">
-                <label>Descrição curta</label>
-                <textarea
-                  value={newMovie.description}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, description: e.target.value }))}
-                  placeholder="Descrição curta para o card"
-                />
-              </div>
-
-              <div className="admin-field wide">
-                <label>Descrição completa</label>
-                <textarea
-                  value={newMovie.fullDescription}
-                  onChange={(e) => setNewMovie((prev) => ({ ...prev, fullDescription: e.target.value }))}
-                  placeholder="Descrição completa da obra"
-                />
-              </div>
-            </div>
-
-            <div className="admin-actions">
-              <button className="big-white" onClick={handleAddMovie}>
-                + Adicionar conteúdo
+              <button
+                type="button"
+                className="big-glass"
+                onClick={() => setSelectedItem(activeHero)}
+              >
+                i Mais Informações
               </button>
             </div>
 
-            {customCatalog.length > 0 && (
-              <div className="custom-list">
-                {customCatalog.map((item) => (
-                  <div key={item.id} className="custom-item">
-                    <img src={item.image} alt={item.title} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 800 }}>{item.title}</div>
-                      <div style={{ color: "#a1a1aa", fontSize: 13, marginTop: 4 }}>
-                        {item.type} • {item.genre} • {item.year}
-                      </div>
-                      <div style={{ marginTop: 10 }}>
-                        <button className="danger-btn" onClick={() => handleRemoveMovie(item.id)}>
-                          Remover
-                        </button>
-                      </div>
+            <div className="hero-dots">
+              {heroItems.map((hero, index) => (
+                <button
+                  key={hero.id}
+                  type="button"
+                  className={heroIndex === index ? "active" : ""}
+                  onClick={() => setHeroIndex(index)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="hero-card">
+            <div className="hero-card-inner">
+              <img src={activeHero.image} alt={activeHero.title} />
+              <div className="hero-card-content">
+                <h3>{activeHero.title}</h3>
+                <p>{activeHero.description}</p>
+                <div className="hero-card-grid">
+                  <div>{activeHero.duration}</div>
+                  <div>{activeHero.quality}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="container">
+        <section className="stats">
+          {[
+            { label: "Catálogo total", value: allCatalog.length },
+            {
+              label: "Filmes",
+              value: allCatalog.filter((item) => item.type === "Filme").length,
+            },
+            {
+              label: "Séries + Animes",
+              value: allCatalog.filter(
+                (item) => item.type === "Série" || item.type === "Anime"
+              ).length,
+            },
+            {
+              label: "Desenhos",
+              value: allCatalog.filter((item) => item.type === "Desenho").length,
+            },
+          ].map((stat, index) => (
+            <div key={stat.label} className="stat">
+              <div className="label" style={{ background: gradients[index % gradients.length] }}>
+                {stat.label}
+              </div>
+              <div className="value">{stat.value}</div>
+            </div>
+          ))}
+        </section>
+
+        <section className="search-panel">
+          <div className="search-panel-head">
+            <div>
+              <h2>Busca premium do catálogo</h2>
+              <p>
+                Pesquise por nome, gênero, categoria, anime, desenho, filme ou série em tempo real.
+              </p>
+            </div>
+
+            <div className="search-wide">
+              <span className="search-icon">⌕</span>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Ex: terror, anime, ação, série..."
+              />
+            </div>
+          </div>
+
+          {search ? (
+            <div className="search-results">
+              {liveSearchResults.map((item, index) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="search-result"
+                  onClick={() => setSelectedItem(item)}
+                >
+                  <img src={item.image} alt={item.title} />
+                  <div>
+                    <div
+                      className="result-tag"
+                      style={{ background: gradients[index % gradients.length] }}
+                    >
+                      {item.type}
+                    </div>
+                    <div className="title">{item.title}</div>
+                    <div className="meta">
+                      {item.genre} • {item.year} • Nota {item.note}
+                    </div>
+                    <div className="desc">{item.description}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="search-empty">
+              Digite algo na busca para localizar filmes, séries, animes e desenhos com visual
+              rápido e refinado.
+            </div>
+          )}
+        </section>
+
+        <section className="admin-panel">
+          <div className="admin-head">
+            <div>
+              <h2>Painel para adicionar filmes</h2>
+              <p>
+                Área pronta para você cadastrar conteúdos sem quebrar o site. Os dados ficam salvos
+                no navegador.
+              </p>
+            </div>
+          </div>
+
+          <div className="admin-grid">
+            <div className="admin-field">
+              <label>Título</label>
+              <input
+                value={newMovie.title}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, title: e.target.value }))}
+                placeholder="Nome do filme ou série"
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Tipo</label>
+              <select
+                value={newMovie.type}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, type: e.target.value }))}
+              >
+                <option>Filme</option>
+                <option>Série</option>
+                <option>Anime</option>
+                <option>Desenho</option>
+              </select>
+            </div>
+
+            <div className="admin-field">
+              <label>Gênero</label>
+              <input
+                value={newMovie.genre}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, genre: e.target.value }))}
+                placeholder="Ação"
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Ano</label>
+              <input
+                value={newMovie.year}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, year: e.target.value }))}
+                placeholder="2026"
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Nota</label>
+              <input
+                value={newMovie.note}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, note: e.target.value }))}
+                placeholder="8.5"
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Duração</label>
+              <input
+                value={newMovie.duration}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, duration: e.target.value }))}
+                placeholder="110 min"
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Selo</label>
+              <select
+                value={newMovie.badge}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, badge: e.target.value }))}
+              >
+                <option>Novo</option>
+                <option>Popular</option>
+                <option>Em Alta</option>
+                <option>Top 10</option>
+                <option value="">Sem selo</option>
+              </select>
+            </div>
+
+            <div className="admin-field">
+              <label>Classificação</label>
+              <select
+                value={newMovie.classification}
+                onChange={(e) =>
+                  setNewMovie((prev) => ({ ...prev, classification: e.target.value }))
+                }
+              >
+                <option>10+</option>
+                <option>12+</option>
+                <option>14+</option>
+                <option>16+</option>
+              </select>
+            </div>
+
+            <div className="admin-field wide">
+              <label>Imagem do card</label>
+              <input
+                value={newMovie.image}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, image: e.target.value }))}
+                placeholder="URL da capa"
+              />
+            </div>
+
+            <div className="admin-field wide">
+              <label>Imagem do banner</label>
+              <input
+                value={newMovie.banner}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, banner: e.target.value }))}
+                placeholder="URL do banner"
+              />
+            </div>
+
+            <div className="admin-field wide">
+              <label>Vídeo</label>
+              <input
+                value={newMovie.video}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, video: e.target.value }))}
+                placeholder="URL do trailer ou filme"
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Qualidade</label>
+              <select
+                value={newMovie.quality}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, quality: e.target.value }))}
+              >
+                <option>4K</option>
+                <option>1080p</option>
+                <option>Ultra HD</option>
+                <option>720p</option>
+              </select>
+            </div>
+
+            <div className="admin-field">
+              <label>Áudio</label>
+              <select
+                value={newMovie.audio}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, audio: e.target.value }))}
+              >
+                <option>Português</option>
+                <option>Inglês</option>
+                <option>Japonês</option>
+              </select>
+            </div>
+
+            <div className="admin-field">
+              <label>Temporadas</label>
+              <input
+                value={newMovie.seasons}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, seasons: e.target.value }))}
+                placeholder="1"
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Episódios</label>
+              <input
+                value={newMovie.episodes}
+                onChange={(e) => setNewMovie((prev) => ({ ...prev, episodes: e.target.value }))}
+                placeholder="8"
+              />
+            </div>
+
+            <div className="admin-field wide">
+              <label>Descrição curta</label>
+              <textarea
+                value={newMovie.description}
+                onChange={(e) =>
+                  setNewMovie((prev) => ({ ...prev, description: e.target.value }))
+                }
+                placeholder="Descrição curta para o card"
+              />
+            </div>
+
+            <div className="admin-field wide">
+              <label>Descrição completa</label>
+              <textarea
+                value={newMovie.fullDescription}
+                onChange={(e) =>
+                  setNewMovie((prev) => ({ ...prev, fullDescription: e.target.value }))
+                }
+                placeholder="Descrição completa da obra"
+              />
+            </div>
+          </div>
+
+          <div className="admin-actions">
+            <button type="button" className="big-white" onClick={handleAddMovie}>
+              + Adicionar conteúdo
+            </button>
+          </div>
+
+          {customCatalog.length > 0 && (
+            <div className="custom-list">
+              {customCatalog.map((item) => (
+                <div key={item.id} className="custom-item">
+                  <img src={item.image} alt={item.title} />
+                  <div className="custom-item-body">
+                    <div className="custom-item-title">{item.title}</div>
+                    <div className="custom-item-meta">
+                      {item.type} • {item.genre} • {item.year}
+                    </div>
+                    <div className="custom-item-actions">
+                      <button
+                        type="button"
+                        className="danger-btn"
+                        onClick={() => handleRemoveMovie(item.id)}
+                      >
+                        Remover
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
-          <RowSection title="Em Alta" items={trending} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-          <RowSection title="Lançamentos" items={launches} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-          <RowSection title="Populares" items={popular} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-          <RowSection title="Recomendados para Você" items={recommended} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
+        {visibleSections.inicio && (
+          <>
+            <RowSection
+              title="Em Alta"
+              items={trending}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+              onOpenDetails={setSelectedItem}
+            />
 
+            <RowSection
+              title="Lançamentos"
+              items={launches}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+              onOpenDetails={setSelectedItem}
+            />
+
+            <RowSection
+              title="Populares"
+              items={popular}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+              onOpenDetails={setSelectedItem}
+            />
+
+            <RowSection
+              title="Recomendados para Você"
+              items={recommended}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+              onOpenDetails={setSelectedItem}
+            />
+          </>
+        )}
+
+        {visibleSections.inicio && (
           <section className="section-block">
             <div className="section-head">
               <div>
@@ -1102,11 +1284,17 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
 
             <div className="continue-grid">
               {continueWatching.map((item, index) => (
-                <button key={item.id} className="continue-card" onClick={() => setSelectedItem(item)}>
+                <button
+                  key={item.id}
+                  type="button"
+                  className="continue-card"
+                  onClick={() => setSelectedItem(item)}
+                >
                   <div className="continue-media">
                     <img src={item.banner} alt={item.title} />
                     <div className="continue-shade" />
                     <div className="continue-top-tag">{item.type}</div>
+
                     <div className="continue-bottom">
                       <div className="continue-title">
                         <strong>{item.title}</strong>
@@ -1114,6 +1302,7 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
                           {item.progress}%
                         </span>
                       </div>
+
                       <div className="progress-track">
                         <div className="progress-fill" style={{ width: `${item.progress}%` }} />
                       </div>
@@ -1123,13 +1312,67 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
               ))}
             </div>
           </section>
+        )}
 
-          <RowSection title="Filmes de Ação" items={actionFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-          <RowSection title="Filmes de Terror" items={horrorFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-          <RowSection title="Filmes de Comédia" items={comedyFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-          <RowSection title="Séries" items={seriesRow} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-          <RowSection title="Animes" items={animeRow} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-          <RowSection title="Desenhos" items={cartoonRow} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
+        {visibleSections.filmes && (
+          <>
+            <RowSection
+              title="Filmes de Ação"
+              items={actionFilms}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+              onOpenDetails={setSelectedItem}
+            />
+
+            <RowSection
+              title="Filmes de Terror"
+              items={horrorFilms}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+              onOpenDetails={setSelectedItem}
+            />
+
+            <RowSection
+              title="Filmes de Comédia"
+              items={comedyFilms}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+              onOpenDetails={setSelectedItem}
+            />
+          </>
+        )}
+
+        {visibleSections.series && (
+          <RowSection
+            title="Séries"
+            items={seriesRow}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            onOpenDetails={setSelectedItem}
+          />
+        )}
+
+        {visibleSections.animes && (
+          <RowSection
+            title="Animes"
+            items={animeRow}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            onOpenDetails={setSelectedItem}
+          />
+        )}
+
+        {visibleSections.desenhos && (
+          <RowSection
+            title="Desenhos"
+            items={cartoonRow}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            onOpenDetails={setSelectedItem}
+          />
+        )}
+
+        {visibleSections.lista && (
           <RowSection
             title="Minha Lista"
             items={favoritesItems.length ? favoritesItems : allCatalog.slice(0, 8)}
@@ -1137,46 +1380,46 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails }
             onToggleFavorite={toggleFavorite}
             onOpenDetails={setSelectedItem}
           />
-        </main>
-
-        <footer className="footer">
-          <div className="footer-grid">
-            <div>
-              <div className="brand">
-                Dri<span>k</span>
-              </div>
-              <p>
-                Plataforma demonstrativa de streaming com visual original, experiência premium,
-                player sofisticado e catálogo completo pronto para impressionar.
-              </p>
-            </div>
-
-            <div>
-              <h4>Seções</h4>
-              {menu.map((item) => (
-                <div key={item}>{item}</div>
-              ))}
-            </div>
-
-            <div>
-              <h4>Resumo</h4>
-              <div>Catálogo premium com área própria para adicionar novos conteúdos</div>
-              <div>Player moderno com qualidade, velocidade, legenda e áudio</div>
-              <div>Busca funcional, favoritos, carrosséis e continue assistindo</div>
-            </div>
-          </div>
-        </footer>
-
-        {selectedItem && (
-          <PlayerModal
-            item={selectedItem}
-            onClose={() => setSelectedItem(null)}
-            favorites={favorites}
-            onToggleFavorite={toggleFavorite}
-            relatedItems={relatedItems}
-          />
         )}
-      </div>
-    </>
+      </main>
+
+      <footer className="footer">
+        <div className="footer-grid">
+          <div>
+            <div className="brand">
+              Dri<span>k</span>
+            </div>
+            <p>
+              Plataforma demonstrativa de streaming com visual original, experiência premium,
+              player sofisticado e catálogo completo pronto para impressionar.
+            </p>
+          </div>
+
+          <div>
+            <h4>Seções</h4>
+            {menu.map((item) => (
+              <div key={item}>{item}</div>
+            ))}
+          </div>
+
+          <div>
+            <h4>Resumo</h4>
+            <div>Catálogo premium com área própria para adicionar novos conteúdos</div>
+            <div>Player moderno com qualidade, velocidade, legenda e áudio</div>
+            <div>Busca funcional, favoritos, carrosséis e continue assistindo</div>
+          </div>
+        </div>
+      </footer>
+
+      {selectedItem && (
+        <PlayerModal
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+          favorites={favorites}
+          onToggleFavorite={toggleFavorite}
+          relatedItems={relatedItems}
+        />
+      )}
+    </div>
   );
 }
