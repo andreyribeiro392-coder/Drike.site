@@ -435,3 +435,9 @@ img {
     grid-template-columns: 1fr;
   }
 }
+.hero-video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0.45;
+}
