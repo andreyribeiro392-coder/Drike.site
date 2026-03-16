@@ -536,8 +536,7 @@ function formatTime(seconds) {
             (item.genre === selectedItem.genre || item.type === selectedItem.type)
         )
         .slice(0, 4)
-<<<<<<< HEAD
-    : [];const loginGoogle = async () => {
+    const loginGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
@@ -549,9 +548,6 @@ function formatTime(seconds) {
     alert("Erro ao entrar com Google");
   }
 };
-=======
-    : [];
->>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
 
   return (
     <>
