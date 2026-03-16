@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import { auth, provider } from "./firebase";
 import { signInWithPopup } from "firebase/auth";
-=======
->>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 const posterPool = [
@@ -537,6 +534,7 @@ function formatTime(seconds) {
         )
         .slice(0, 4)
     const loginGoogle = async () => {
+c1ce370 (corrige login google)
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
@@ -564,14 +562,12 @@ function formatTime(seconds) {
         .header-inner{max-width:1280px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
         .brand{font-size:36px;font-weight:900;letter-spacing:-1px}
         .brand span{background:linear-gradient(90deg,#ef4444,#22d3ee,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
-<<<<<<< HEAD
         .nav{display:flex;gap:18px}
         .nav button{background:none;border:0;color:#9ca3af;cursor:pointer;font-size:14px;font-weight:600}
         .nav button.active,.nav button:hover{color:#fff}
         .header-right{display:flex;align-items:center;gap:12px}
         .search-mini,.search-wide{position:relative}
         .search-mini input{width:300px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);padding:12px 16px 12px 40px;color:#fff;outline:none}
-=======
         .nav{
   display:flex;
   gap:10px;
@@ -616,7 +612,6 @@ function formatTime(seconds) {
   background:rgba(255,255,255,.12);
   box-shadow:0 0 0 4px rgba(34,211,238,.12);
 }
->>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
         .search-wide input{width:100%;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.25);padding:16px 16px 16px 44px;color:#fff;outline:none}
         .search-wide{width:420px;max-width:100%}
         .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#a1a1aa}
@@ -689,11 +684,9 @@ function formatTime(seconds) {
         .row-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
         .row-scroll::-webkit-scrollbar{display:none}
         .media-card{min-width:250px;max-width:250px;overflow:hidden;border-radius:28px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);box-shadow:0 16px 40px rgba(0,0,0,.3);transition:.25s}
-<<<<<<< HEAD
+
         .media-card:hover{
-=======
        .media-card:hover{
->>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
   transform:translateY(-10px) scale(1.05);
   border-color:rgba(34,211,238,.45);
   box-shadow:0 25px 60px rgba(0,0,0,.6);
@@ -783,15 +776,12 @@ function formatTime(seconds) {
         <header className={scrolled ? "header scrolled" : "header top"}>
           <div className="header-inner">
             <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-<<<<<<< HEAD
               <div className="brand">
                 Dri<span>k</span>
               </div>
-=======
              <div className="brand">
   DRI<span>K</span>
 </div>
->>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
 
               <nav className="nav">
                 {menu.map((item) => (
@@ -818,6 +808,11 @@ function formatTime(seconds) {
 
              <button className="header-btn" onClick={loginGoogle}>Entrar com Google</button>
 <button className="avatar">👤</button>
+             <button className="header-btn" onClick={
+}>Entrar com Google</button>
+<button className="avatar">👤</button>
+
+c1ce370 (corrige login google)
             </div>
           </div>
         </header>
@@ -838,7 +833,7 @@ function formatTime(seconds) {
                 extenso e uma identidade original feita para impressionar com clima tecnológico de
                 2026.
               </p>
-=======
+
   <video
     src={activeHero.video}
     autoPlay
@@ -870,7 +865,6 @@ function formatTime(seconds) {
                 <span>Nota {activeHero.note}</span>
               </div>
 
-<<<<<<< HEAD
               <div className="hero-actions">
                 <button className="big-white" onClick={() => setSelectedItem(activeHero)}>
                   ▶ Assistir Agora
@@ -879,7 +873,6 @@ function formatTime(seconds) {
                   i Mais Informações
                 </button>
               </div>
-=======
              <div className="hero-actions">
   <button className="big-white" onClick={() => setSelectedItem(activeHero)}>
     ▶ Assistir {activeHero.title}
@@ -888,7 +881,6 @@ function formatTime(seconds) {
     ⓘ Ver detalhes
   </button>
 </div>
->>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
 
               <div className="hero-dots">
                 {heroItems.map((hero, index) => (
@@ -1060,10 +1052,6 @@ function formatTime(seconds) {
 
             <div>
               <h4>Seções</h4>
-<<<<<<< HEAD
-
-=======
->>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
               {menu.map((item) => (
                 <div key={item}>{item}</div>
               ))}
@@ -1090,8 +1078,3 @@ function formatTime(seconds) {
       </div>
     </>
   );
-<<<<<<< HEAD
-}
-=======
-}
->>>>>>> a1bd3e5a06cc24e71dc25270e5140ae38e751de7
