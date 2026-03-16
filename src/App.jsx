@@ -868,34 +868,34 @@ export default function DrikStreamingExperience() {
         .slice(0, 4)
     : [];
 
-  const loginGoogle = async () => {
-    if (googleLoading) return;
-    setGoogleLoading(true);
+ const loginGoogle = async () => {
+  if (googleLoading) return;
+  setGoogleLoading(true);
 
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      setLoggedUser(user);
-      alert("Bem-vindo " + (user.displayName || "usuário"));
-    } catch (error) {
-      console.error("Erro no login com Google:", error);
-      const code = error?.code || "";
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    setLoggedUser(user);
+    alert("Bem-vindo " + (user.displayName || "usuário"));
+  } catch (error) {
+    console.error("Erro completo no login com Google:", error);
 
-      if (code.includes("popup-blocked")) {
-        alert("O navegador bloqueou o popup do Google. Libere o popup e tente de novo.");
-      } else if (code.includes("popup-closed-by-user")) {
-        alert("Você fechou a janela de login antes de concluir.");
-      } else if (code.includes("unauthorized-domain")) {
-        alert("Seu domínio ainda não foi autorizado no Firebase.");
-      } else if (code.includes("operation-not-allowed")) {
-        alert("O login com Google ainda não está ativado no Firebase Authentication.");
-      } else {
-        alert("Erro ao entrar com Google. Verifique o Firebase, domínio autorizado e popup.");
-      }
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
+    const code = error?.code || "sem-codigo";
+    const message = error?.message || "sem-mensagem";
+    const customData = error?.customData
+      ? JSON.stringify(error.customData)
+      : "sem-customData";
+
+    alert(
+      "ERRO FIREBASE:\n\n" +
+      "code: " + code + "\n\n" +
+      "message: " + message + "\n\n" +
+      "customData: " + customData
+    );
+  } finally {
+    setGoogleLoading(false);
+  }
+};
 
   const logoutGoogle = async () => {
     try {
