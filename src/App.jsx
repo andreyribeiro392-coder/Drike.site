@@ -789,10 +789,18 @@ function formatTime(seconds) {
 
         <section className="hero">
           <div className="hero-bg">
-            <img src={activeHero.banner} alt={activeHero.title} />
-            <div className="hero-shade" />
-            <div className="hero-bottom" />
-          </div>
+  <video
+    src={activeHero.video}
+    autoPlay
+    muted
+    loop
+    playsInline
+    className="hero-video"
+  />
+
+  <div className="hero-shade" />
+  <div className="hero-bottom" />
+</div>
 
           <div className="hero-inner">
             <div className="hero-copy">
