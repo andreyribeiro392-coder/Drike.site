@@ -1,1448 +1,1340 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import "./index.css";
+import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { auth, provider } from "./firebase";
-import {
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
 
-const posterPool = [
-  "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1497032205916-ac775f0649ae?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1542204625-de293a2f8ff2?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80",
-];
-
-const heroPool = [
-  "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1498036882173-b41c28a8ba34?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1600&q=80",
-];
-
-const trailerPool = [
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-];
-
-const gradients = [
-  "linear-gradient(135deg,#0f172a,#1d4ed8)",
-  "linear-gradient(135deg,#111827,#2563eb)",
-  "linear-gradient(135deg,#1e293b,#0ea5e9)",
-  "linear-gradient(135deg,#0b1220,#1d4ed8)",
-  "linear-gradient(135deg,#172554,#0284c7)",
-];
-
-const genreMap = {
-  Série: ["Drama", "Crime", "Thriller", "Mistério", "Sci-Fi", "Aventura"],
-  Anime: ["Shounen", "Fantasia", "Ação", "Romance", "Cyberpunk", "Sobrenatural"],
-  Desenho: ["Aventura", "Família", "Comédia", "Fantasia", "Musical", "Sci-Fi"],
+const STORAGE_KEYS = {
+  MOVIES: "drik_movies_v2",
+  FAVORITES: "drik_favorites_v2",
+  HISTORY: "drik_history_v2",
+  CONTINUE: "drik_continue_v2",
+  PROFILE: "drik_profile_v2",
 };
 
-const wordBank = {
-  Série: ["Archive", "Signal", "District", "Circuit", "Binary", "Empire", "Vault", "Code"],
-  Anime: ["Requiem", "Chronicle", "Phoenix", "Astra", "Blade", "Zenith", "Eclipse", "Dream"],
-  Desenho: ["Pixel", "Comet", "Bubble", "Orbit", "Luna", "Rocket", "Prism", "Cloud"],
-};
+const defaultMovies = [
+  {
+    id: 1,
+    title: "Ação Suprema",
+    type: "Filme",
+    category: "Ação",
+    year: 2024,
+    duration: "2h 08min",
+    rating: "16+",
+    cast: "Lucas Vieira, Ana Costa, Rafael Alves",
+    description:
+      "Um ex-agente retorna à ativa para impedir uma organização criminosa de derrubar a cidade em uma única noite.",
+    cover:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
+    banner:
+      "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=1600&q=80",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    videoUrl: "",
+    featured: true,
+    popularity: 98,
+    releaseTag: "Novo",
+  },
+  {
+    id: 2,
+    title: "Noite Sombria",
+    type: "Filme",
+    category: "Terror",
+    year: 2023,
+    duration: "1h 52min",
+    rating: "18+",
+    cast: "Marina Luz, Felipe Rocha, Clara Mota",
+    description:
+      "Uma família se muda para uma casa isolada e logo percebe que há algo observando cada passo deles.",
+    cover:
+      "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=900&q=80",
+    banner:
+      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1600&q=80",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    videoUrl: "",
+    featured: false,
+    popularity: 91,
+    releaseTag: "Em alta",
+  },
+  {
+    id: 3,
+    title: "Velocidade Fatal",
+    type: "Filme",
+    category: "Carros",
+    year: 2025,
+    duration: "2h 01min",
+    rating: "14+",
+    cast: "Diego Ferraz, Bruno Melo, Camila Torres",
+    description:
+      "Pilotos de rua entram em uma disputa mortal onde velocidade e lealdade valem mais do que qualquer prêmio.",
+    cover:
+      "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80",
+    banner:
+      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    videoUrl: "",
+    featured: true,
+    popularity: 95,
+    releaseTag: "Popular",
+  },
+  {
+    id: 4,
+    title: "Romance no Inverno",
+    type: "Filme",
+    category: "Romance",
+    year: 2022,
+    duration: "1h 44min",
+    rating: "12+",
+    cast: "Laura Menezes, Pedro Lima, Sofia Nunes",
+    description:
+      "Duas vidas completamente diferentes se cruzam durante uma temporada gelada que muda tudo para sempre.",
+    cover:
+      "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=900&q=80",
+    banner:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1600&q=80",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    videoUrl: "",
+    featured: false,
+    popularity: 82,
+    releaseTag: "Clássico",
+  },
+  {
+    id: 5,
+    title: "Crônicas de Neon",
+    type: "Série",
+    category: "Ficção",
+    year: 2026,
+    duration: "10 episódios",
+    rating: "16+",
+    cast: "Renan Silva, Giulia Prado, Vitor Ramos",
+    description:
+      "Em um futuro dividido entre tecnologia e caos, um grupo de jovens descobre um segredo capaz de mudar a cidade.",
+    cover:
+      "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?auto=format&fit=crop&w=900&q=80",
+    banner:
+      "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?auto=format&fit=crop&w=1600&q=80",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    videoUrl: "",
+    featured: true,
+    popularity: 99,
+    releaseTag: "Novo",
+  },
+  {
+    id: 6,
+    title: "Lâmina Celestial",
+    type: "Anime",
+    category: "Anime",
+    year: 2025,
+    duration: "24 episódios",
+    rating: "14+",
+    cast: "Elenco original",
+    description:
+      "Um jovem guerreiro desperta um poder antigo e precisa enfrentar monstros, reis e o próprio destino.",
+    cover:
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=900&q=80",
+    banner:
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=1600&q=80",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    videoUrl: "",
+    featured: true,
+    popularity: 97,
+    releaseTag: "Em alta",
+  },
+  {
+    id: 7,
+    title: "Riso Total",
+    type: "Filme",
+    category: "Comédia",
+    year: 2021,
+    duration: "1h 39min",
+    rating: "10+",
+    cast: "João Matos, Livia Reis, Enzo Duarte",
+    description:
+      "Uma sequência de desastres hilários transforma a semana de três amigos em um caos impossível de esquecer.",
+    cover:
+      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80",
+    banner:
+      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1600&q=80",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    videoUrl: "",
+    featured: false,
+    popularity: 75,
+    releaseTag: "Leve",
+  },
+  {
+    id: 8,
+    title: "Distrito Zero",
+    type: "Série",
+    category: "Suspense",
+    year: 2024,
+    duration: "8 episódios",
+    rating: "16+",
+    cast: "Nina Teles, Marcos Leal, Igor Pinto",
+    description:
+      "Depois de um apagão nacional, um grupo tenta sobreviver enquanto segredos perigosos surgem dentro do próprio abrigo.",
+    cover:
+      "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=900&q=80",
+    banner:
+      "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1600&q=80",
+    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    videoUrl: "",
+    featured: false,
+    popularity: 93,
+    releaseTag: "Popular",
+  },
+];
 
-const CUSTOM_MOVIES_KEY = "drik_custom_movies_v3";
-const FAVORITES_KEY = "drik_favorites_v3";
-
-function safeJsonParse(value, fallback) {
+function readStorage(key, fallback) {
   try {
-    const parsed = JSON.parse(value);
-    return parsed ?? fallback;
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
   } catch {
     return fallback;
   }
 }
 
-function formatTime(seconds) {
-  if (!Number.isFinite(seconds)) return "0:00";
-  const mins = Math.floor(seconds / 60);
-  const secs = String(Math.floor(seconds % 60)).padStart(2, "0");
-  return `${mins}:${secs}`;
+function writeStorage(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
 }
 
-function getSafeCustomCatalog() {
-  const saved = localStorage.getItem(CUSTOM_MOVIES_KEY);
-  if (!saved) return [];
-  return Array.isArray(safeJsonParse(saved, [])) ? safeJsonParse(saved, []) : [];
+function slugify(text) {
+  return String(text || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 }
 
-function getSafeFavorites(defaultIds = []) {
-  const saved = localStorage.getItem(FAVORITES_KEY);
-  if (!saved) return defaultIds;
-  const parsed = safeJsonParse(saved, defaultIds);
-  return Array.isArray(parsed) ? parsed : defaultIds;
-}const publicDomainMovies = [
-  {
-    id: 1,
-    title: "Night of the Living Dead",
-    type: "Filme",
-    genre: "Terror",
-    year: 1968,
-    note: "8.6",
-    duration: "96 min",
-    badge: "Clássico",
-    image: posterPool[0],
-    banner: heroPool[0],
-    video: trailerPool[7],
-    progress: 41,
-    description: "Clássico cult de horror com clima sombrio, tensão crescente e estética retrô.",
-    fullDescription:
-      "Um dos filmes de terror mais influentes de todos os tempos, com atmosfera intensa, sobrevivência em grupo e um visual clássico que combina muito com a área de filmes antigos do catálogo.",
-    classification: "16+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 2,
-    title: "Nosferatu",
-    type: "Filme",
-    genre: "Terror",
-    year: 1922,
-    note: "8.4",
-    duration: "94 min",
-    badge: "Clássico",
-    image: posterPool[1],
-    banner: heroPool[1],
-    video: trailerPool[0],
-    progress: 23,
-    description: "Terror expressionista com fotografia marcante, sombra, suspense e visual histórico.",
-    fullDescription:
-      "Uma obra fundamental do cinema silencioso. Ideal para a seção de filmes antigos, trazendo elegância visual, clima gótico e presença forte no catálogo.",
-    classification: "12+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 3,
-    title: "Metropolis",
-    type: "Filme",
-    genre: "Ficção Científica",
-    year: 1927,
-    note: "8.7",
-    duration: "148 min",
-    badge: "Top 10",
-    image: posterPool[2],
-    banner: heroPool[2],
-    video: trailerPool[1],
-    progress: 58,
-    description: "Ficção científica clássica com arquitetura futurista, drama social e identidade visual forte.",
-    fullDescription:
-      "Filme monumental do cinema mudo, perfeito para destacar um catálogo premium com obras antigas de aparência grandiosa e impacto visual.",
-    classification: "12+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 4,
-    title: "The General",
-    type: "Filme",
-    genre: "Aventura",
-    year: 1926,
-    note: "8.3",
-    duration: "75 min",
-    badge: "Popular",
-    image: posterPool[3],
-    banner: heroPool[3],
-    video: trailerPool[2],
-    progress: 36,
-    description: "Aventura clássica com humor físico, perseguição e ritmo leve do cinema antigo.",
-    fullDescription:
-      "Uma produção lendária da era muda, ótima para dar variedade ao catálogo com ação, humor visual e carisma clássico.",
-    classification: "10+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 5,
-    title: "Sherlock Jr.",
-    type: "Filme",
-    genre: "Comédia",
-    year: 1924,
-    note: "8.2",
-    duration: "45 min",
-    badge: "Em Alta",
-    image: posterPool[4],
-    banner: heroPool[4],
-    video: trailerPool[3],
-    progress: 29,
-    description: "Comédia clássica ágil e inventiva com cenas criativas e charme do cinema mudo.",
-    fullDescription:
-      "Um filme curto, elegante e muito importante historicamente, ideal para representar filmes antigos sem depender de obras modernas.",
-    classification: "10+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 6,
-    title: "The Cabinet of Dr. Caligari",
-    type: "Filme",
-    genre: "Suspense",
-    year: 1920,
-    note: "8.1",
-    duration: "67 min",
-    badge: "Clássico",
-    image: posterPool[5],
-    banner: heroPool[5],
-    video: trailerPool[4],
-    progress: 18,
-    description: "Suspense expressionista com cenários marcantes e atmosfera perturbadora.",
-    fullDescription:
-      "Uma referência do expressionismo alemão, excelente para enriquecer a vitrine de filmes antigos com algo visualmente único.",
-    classification: "12+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 7,
-    title: "His Girl Friday",
-    type: "Filme",
-    genre: "Comédia",
-    year: 1940,
-    note: "8.0",
-    duration: "92 min",
-    badge: "Novo",
-    image: posterPool[6],
-    banner: heroPool[0],
-    video: trailerPool[5],
-    progress: 52,
-    description: "Comédia clássica rápida, elegante e cheia de diálogos marcantes.",
-    fullDescription:
-      "Ótima opção para equilibrar terror e ficção com uma obra antiga mais leve, sofisticada e com grande energia narrativa.",
-    classification: "10+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 8,
-    title: "The Last Man on Earth",
-    type: "Filme",
-    genre: "Ficção Científica",
-    year: 1964,
-    note: "7.9",
-    duration: "86 min",
-    badge: "Popular",
-    image: posterPool[7],
-    banner: heroPool[1],
-    video: trailerPool[6],
-    progress: 63,
-    description: "Sci-fi clássico pós-apocalíptico com clima solitário e atmosfera escura.",
-    fullDescription:
-      "Uma escolha muito boa para dar tom sombrio e futurista ao catálogo, combinando ficção científica antiga e suspense.",
-    classification: "14+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-];
-
-function generateItems(type, count, startId) {
-  return Array.from({ length: count }, (_, index) => {
-    const bank = wordBank[type];
-    const first = bank[index % bank.length];
-    const second = bank[(index + 3) % bank.length];
-    const genre = genreMap[type][index % genreMap[type].length];
-    const year = 2014 + (index % 12);
-    const note = (7.4 + ((index * 5) % 20) / 10).toFixed(1);
-
-    return {
-      id: startId + index,
-      title: `${first} ${second}`,
-      type,
-      genre,
-      year,
-      note,
-      duration: `${1 + (index % 5)} temporada${index % 5 === 0 ? "" : "s"} • ${8 + (index % 12)} episódios`,
-      badge:
-        index % 8 === 0
-          ? "Top 10"
-          : index % 6 === 0
-          ? "Novo"
-          : index % 4 === 0
-          ? "Popular"
-          : "",
-      image: posterPool[index % posterPool.length],
-      banner: heroPool[index % heroPool.length],
-      video: trailerPool[index % trailerPool.length],
-      progress: (index * 11) % 100,
-      description: `${type} com visual moderno, card premium e clima forte para o catálogo Drik.`,
-      fullDescription: `${first} ${second} é um ${type.toLowerCase()} criado para preencher o catálogo com visual elegante, navegação forte e identidade original.`,
-      classification: ["10+", "12+", "14+", "16+"][index % 4],
-      quality: ["4K", "1080p", "Ultra HD"][index % 3],
-      audio: ["Português", "Inglês", "Japonês"][index % 3],
-      seasons: 1 + (index % 5),
-      episodes: 8 + (index % 12),
-      isCustom: false,
-    };
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 }
 
-const films = publicDomainMovies;
-const series = generateItems("Série", 40, 1001);
-const animes = generateItems("Anime", 40, 2001);
-const cartoons = generateItems("Desenho", 30, 3001);function RowSection({
-  title,
-  items,
-  favorites,
-  onToggleFavorite,
-  onOpenDetails,
-  sectionRef,
-}) {
-  const rowRef = useRef(null);
+function getRelatedMovies(movie, movies) {
+  if (!movie) return [];
+  return movies
+    .filter((item) => item.id !== movie.id && item.category === movie.category)
+    .slice(0, 6);
+}
 
-  const scrollRow = (direction) => {
-    if (!rowRef.current) return;
-    rowRef.current.scrollBy({
-      left: direction * 820,
-      behavior: "smooth",
-    });
-  };
-
-  if (!items.length) return null;
-
+function getCategories(movies) {
+  const base = ["Todos"];
+  const dynamic = [...new Set(movies.map((m) => m.category).filter(Boolean))];
+  return [...base, ...dynamic];
+}function StarRating({ value = 4.5 }) {
+  const stars = [1, 2, 3, 4, 5];
   return (
-    <section ref={sectionRef} className="section-block">
-      <div className="section-head">
-        <div>
-          <h2>{title}</h2>
-          <p>Seleções com visual premium, navegação lateral e acesso rápido.</p>
-        </div>
+    <div className="stars">
+      {stars.map((star) => (
+        <span key={star} className={value >= star ? "star filled" : "star"}>
+          ★
+        </span>
+      ))}
+      <small>{value.toFixed(1)}</small>
+    </div>
+  );
+}
 
-        <div className="row-arrows">
-          <button type="button" onClick={() => scrollRow(-1)}>
-            ‹
-          </button>
-          <button type="button" onClick={() => scrollRow(1)}>
-            ›
-          </button>
+function MovieCard({
+  movie,
+  onOpenDetails,
+  onPlay,
+  onToggleFavorite,
+  isFavorite,
+  onQuickTrailer,
+}) {
+  return (
+    <article className="movie-card">
+      <div
+        className="movie-cover"
+        style={{ backgroundImage: `url(${movie.cover})` }}
+        onClick={() => onOpenDetails(movie)}
+      >
+        <div className="movie-overlay">
+          <span className="movie-badge">{movie.releaseTag || movie.type}</span>
+
+          <div className="movie-hover-actions">
+            <button onClick={(e) => { e.stopPropagation(); onPlay(movie); }}>
+              ▶ Assistir
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite(movie.id);
+              }}
+            >
+              {isFavorite ? "♥ Favorito" : "+ Minha Lista"}
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onQuickTrailer(movie);
+              }}
+            >
+              Trailer
+            </button>
+          </div>
         </div>
       </div>
 
-      <div ref={rowRef} className="row-scroll">
-        {items.map((item, index) => {
-          const isFav = favorites.includes(item.id);
+      <div className="movie-info">
+        <h3>{movie.title}</h3>
+        <p>
+          {movie.category} • {movie.year} • {movie.rating}
+        </p>
+      </div>
+    </article>
+  );
+}
 
-          return (
-            <article key={item.id} className="media-card globo-card">
-              <div className="media-poster">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  onError={(e) => {
-                    e.currentTarget.src = posterPool[index % posterPool.length];
-                  }}
-                />
-                <div className="media-overlay" />
+function Shelf({
+  title,
+  items,
+  favorites,
+  onOpenDetails,
+  onPlay,
+  onToggleFavorite,
+  onQuickTrailer,
+}) {
+  if (!items.length) return null;
 
-                <div className="media-top">
-                  {item.badge ? (
-                    <span
-                      className="badge"
-                      style={{ background: gradients[index % gradients.length] }}
-                    >
-                      {item.badge}
-                    </span>
-                  ) : (
-                    <span />
-                  )}
+  return (
+    <section className="shelf">
+      <div className="section-head">
+        <h2>{title}</h2>
+        <span>{items.length} títulos</span>
+      </div>
 
-                  <button
-                    type="button"
-                    className={isFav ? "icon-btn active" : "icon-btn"}
-                    onClick={() => onToggleFavorite(item.id)}
-                  >
-                    ♥
-                  </button>
-                </div>
-
-                <div className="media-bottom">
-                  <div className="mini-tags">
-                    <span>{item.type}</span>
-                    <span>{item.genre}</span>
-                  </div>
-                  <h3>{item.title}</h3>
-                  <div className="meta-line">
-                    {item.year} • {item.duration}
-                  </div>
-                </div>
-              </div>
-
-              <div className="media-body">
-                <div className="rating-line">★ {item.note} • {item.quality}</div>
-                <p>{item.description}</p>
-
-                <div className="media-actions">
-                  <button
-                    type="button"
-                    className="primary-btn"
-                    onClick={() => onOpenDetails(item)}
-                  >
-                    ▶ Assistir
-                  </button>
-
-                  <button
-                    type="button"
-                    className="secondary-btn"
-                    onClick={() => onOpenDetails(item)}
-                  >
-                    i Detalhes
-                  </button>
-                </div>
-              </div>
-            </article>
-          );
-        })}
+      <div className="movie-grid">
+        {items.map((movie) => (
+          <MovieCard
+            key={movie.id}
+            movie={movie}
+            onOpenDetails={onOpenDetails}
+            onPlay={onPlay}
+            onToggleFavorite={onToggleFavorite}
+            onQuickTrailer={onQuickTrailer}
+            isFavorite={favorites.includes(movie.id)}
+          />
+        ))}
       </div>
     </section>
   );
 }
 
-function PlayerModal({
-  item,
-  onClose,
-  favorites,
-  onToggleFavorite,
-  relatedItems,
-  onOpenRelated,
-}) {
+function PlayerModal({ movie, open, onClose, onSaveProgress }) {
   const videoRef = useRef(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.9);
-  const [speed, setSpeed] = useState(1);
-  const [quality, setQuality] = useState(item.quality || "1080p");
-  const [subtitle, setSubtitle] = useState("Português");
-  const [audio, setAudio] = useState(item.audio || "Português");
-  const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, []);
-
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === " ") {
-        e.preventDefault();
-        togglePlay();
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const onLoaded = () => setDuration(video.duration || 0);
-    const onTime = () => setCurrentTime(video.currentTime || 0);
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-
-    video.volume = volume;
-    video.playbackRate = speed;
-    video.addEventListener("loadedmetadata", onLoaded);
-    video.addEventListener("timeupdate", onTime);
-    video.addEventListener("play", onPlay);
-    video.addEventListener("pause", onPause);
-
-    video.play().catch(() => setIsPlaying(false));
-
-    return () => {
-      video.removeEventListener("loadedmetadata", onLoaded);
-      video.removeEventListener("timeupdate", onTime);
-      video.removeEventListener("play", onPlay);
-      video.removeEventListener("pause", onPause);
-    };
-  }, [item, volume, speed]);
-
-  const togglePlay = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (video.paused) {
-      video.play().catch(() => {});
-    } else {
-      video.pause();
+    if (!open || !movie || !movie.videoUrl) return;
+    const saved = readStorage(STORAGE_KEYS.CONTINUE, {});
+    const current = saved[movie.id];
+    if (videoRef.current && current?.progress) {
+      videoRef.current.currentTime = current.progress;
     }
-  };
+  }, [open, movie]);
 
-  const seek = (value) => {
-    const video = videoRef.current;
-    if (!video) return;
-    const nextValue = Number(value);
-    video.currentTime = nextValue;
-    setCurrentTime(nextValue);
-  };
+  if (!open || !movie) return null;
 
-  const skipBy = (delta) => {
-    const video = videoRef.current;
-    if (!video) return;
-    const max = duration || video.duration || 0;
-    video.currentTime = Math.min(Math.max(0, video.currentTime + delta), max);
-  };
-
-  const openFullscreen = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.requestFullscreen) video.requestFullscreen();
-  };
-
-  const isFav = favorites.includes(item.id);
+  const hasDirectVideo = movie.videoUrl && !movie.videoUrl.includes("youtube");
 
   return (
-    <div className="modal-wrap" onClick={onClose}>
-      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-topbar">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="player-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="player-top">
           <div>
-            <div className="eyebrow">Drik Player</div>
-            <h3>{item.title}</h3>
+            <h2>{movie.title}</h2>
+            <p>
+              {movie.category} • {movie.year} • {movie.duration} • {movie.rating}
+            </p>
           </div>
-
-          <button type="button" className="icon-btn" onClick={onClose}>
+          <button className="close-btn" onClick={onClose}>
             ✕
           </button>
         </div>
 
-        <div className="modal-grid">
-          <div className="player-col">
-            <div className="video-shell">
-              <video
-                ref={videoRef}
-                src={item.video}
-                poster={item.banner}
-                className="video-element"
-                controls={false}
-              />
-              <div className="video-fade" />
-
-              <div className="video-overlay-controls">
-                <div className="overlay-tags">
-                  <span>{quality}</span>
-                  <span>{item.type}</span>
-                  <span>{item.classification}</span>
-                </div>
-
-                <div className="overlay-buttons">
-                  <button type="button" className="round-white" onClick={togglePlay}>
-                    {isPlaying ? "❚❚" : "▶"}
-                  </button>
-                  <button type="button" className="round-dark" onClick={() => skipBy(-10)}>
-                    «10
-                  </button>
-                  <button type="button" className="round-dark" onClick={() => skipBy(10)}>
-                    10»
-                  </button>
-                  <button
-                    type="button"
-                    className={isFav ? "round-dark active" : "round-dark"}
-                    onClick={() => onToggleFavorite(item.id)}
-                  >
-                    ♥
-                  </button>
-                </div>
-              </div>
+        <div className="player-area">
+          {hasDirectVideo ? (
+            <video
+              ref={videoRef}
+              className="video-player"
+              src={movie.videoUrl}
+              controls
+              autoPlay
+              onTimeUpdate={(e) => {
+                onSaveProgress(movie.id, e.currentTarget.currentTime);
+              }}
+            />
+          ) : movie.trailer ? (
+            <iframe
+              className="video-frame"
+              src={movie.trailer}
+              title={movie.title}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            />
+          ) : (
+            <div className="empty-player">
+              <h3>Nenhum vídeo configurado</h3>
+              <p>Adicione um trailer ou link de vídeo no painel administrativo.</p>
             </div>
-
-            <div className="control-panel">
-              <div className="progress-box">
-                <div>{formatTime(currentTime)}</div>
-                <div>{formatTime(duration)}</div>
-              </div>
-
-              <input
-                type="range"
-                min="0"
-                max={duration || 0}
-                step="0.1"
-                value={currentTime}
-                onChange={(e) => seek(e.target.value)}
-                className="range"
-              />
-
-              <div className="control-grid">
-                <div className="control-item">
-                  <label>Volume</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={volume}
-                    onChange={(e) => {
-                      const v = Number(e.target.value);
-                      setVolume(v);
-                      if (videoRef.current) videoRef.current.volume = v;
-                    }}
-                    className="range"
-                  />
-                </div>
-
-                <div className="control-item">
-                  <label>Qualidade</label>
-                  <select value={quality} onChange={(e) => setQuality(e.target.value)}>
-                    <option>4K</option>
-                    <option>1080p</option>
-                    <option>720p</option>
-                    <option>Ultra HD</option>
-                  </select>
-                </div>
-
-                <div className="control-item">
-                  <label>Velocidade</label>
-                  <select
-                    value={speed}
-                    onChange={(e) => {
-                      const s = Number(e.target.value);
-                      setSpeed(s);
-                      if (videoRef.current) videoRef.current.playbackRate = s;
-                    }}
-                  >
-                    <option value={0.75}>0.75x</option>
-                    <option value={1}>1x</option>
-                    <option value={1.25}>1.25x</option>
-                    <option value={1.5}>1.5x</option>
-                    <option value={2}>2x</option>
-                  </select>
-                </div>                <div className="control-item">
-                  <label>Legenda</label>
-                  <select value={subtitle} onChange={(e) => setSubtitle(e.target.value)}>
-                    <option>Português</option>
-                    <option>English</option>
-                    <option>Desativada</option>
-                  </select>
-                </div>
-
-                <div className="control-item">
-                  <label>Áudio</label>
-                  <div className="row-inline">
-                    <select value={audio} onChange={(e) => setAudio(e.target.value)}>
-                      <option>Português</option>
-                      <option>Inglês</option>
-                      <option>Japonês</option>
-                    </select>
-                    <button type="button" className="square-btn" onClick={openFullscreen}>
-                      ⛶
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {(item.type === "Série" || item.type === "Anime") && (
-                <div className="next-episode">
-                  <strong>Próximo episódio disponível</strong>
-                  <p>
-                    Temporada {item.seasons || 1}, episódio{" "}
-                    {Math.min(2, item.episodes || 2)} pronto para reprodução.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <aside className="detail-col">
-            <div className="detail-card">
-              <div className="detail-banner">
-                <img src={item.banner} alt={item.title} />
-                <div className="detail-fade" />
-                <div className="detail-banner-content">
-                  <div className="mini-tags">
-                    <span>{item.genre}</span>
-                    <span>{item.year}</span>
-                    <span>{item.note}</span>
-                  </div>
-                  <h4>{item.title}</h4>
-                </div>
-              </div>
-
-              <div className="detail-body">
-                <p>{item.fullDescription}</p>
-
-                <div className="detail-grid">
-                  <div>
-                    <small>Categoria</small>
-                    <span>{item.type}</span>
-                  </div>
-                  <div>
-                    <small>Duração</small>
-                    <span>{item.duration}</span>
-                  </div>
-                  <div>
-                    <small>Classificação</small>
-                    <span>{item.classification}</span>
-                  </div>
-                  <div>
-                    <small>Áudio</small>
-                    <span>{audio}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="related-card">
-              <h5>Conteúdos parecidos</h5>
-
-              {relatedItems.map((related) => (
-                <button
-                  key={related.id}
-                  type="button"
-                  className="related-item"
-                  onClick={() => onOpenRelated(related)}
-                >
-                  <img src={related.image} alt={related.title} />
-                  <div>
-                    <div className="related-title">{related.title}</div>
-                    <div className="related-meta">
-                      {related.genre} • {related.year}
-                    </div>
-                    <div className="related-desc">{related.description}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </aside>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-export default function DrikStreamingExperience() {
-  const defaultFavorites = [films[0]?.id, series[1]?.id, animes[2]?.id].filter(Boolean);
+function DetailsModal({
+  movie,
+  open,
+  onClose,
+  onPlay,
+  onToggleFavorite,
+  isFavorite,
+  related,
+}) {
+  if (!open || !movie) return null;
 
-  const [search, setSearch] = useState("");
-  const [favorites, setFavorites] = useState(getSafeFavorites(defaultFavorites));
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [heroIndex, setHeroIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState("Início");
-  const [scrolled, setScrolled] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [customCatalog, setCustomCatalog] = useState([]);
-  const [loggedUser, setLoggedUser] = useState(null);
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="details-modal" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="details-banner"
+          style={{ backgroundImage: `url(${movie.banner || movie.cover})` }}
+        >
+          <div className="details-shade">
+            <button className="close-btn details-close" onClick={onClose}>
+              ✕
+            </button>
 
-  const filmesRef = useRef(null);
-  const seriesRef = useRef(null);
-  const animesRef = useRef(null);
-  const desenhosRef = useRef(null);
-  const listaRef = useRef(null);
+            <div className="details-content">
+              <span className="hero-tag">{movie.type}</span>
+              <h1>{movie.title}</h1>
+              <p className="details-meta">
+                {movie.category} • {movie.year} • {movie.duration} • {movie.rating}
+              </p>
+              <p className="details-description">{movie.description}</p>
 
-  const [newMovie, setNewMovie] = useState({
+              <div className="hero-buttons">
+                <button className="primary-btn" onClick={() => onPlay(movie)}>
+                  ▶ Assistir agora
+                </button>
+                <button
+                  className="secondary-btn"
+                  onClick={() => onToggleFavorite(movie.id)}
+                >
+                  {isFavorite ? "♥ Remover da lista" : "+ Minha Lista"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="details-body">
+          <div className="details-columns">
+            <div>
+              <h3>Sinopse</h3>
+              <p>{movie.description}</p>
+            </div>
+
+            <div>
+              <h3>Informações</h3>
+              <ul className="details-list">
+                <li><strong>Tipo:</strong> {movie.type}</li>
+                <li><strong>Gênero:</strong> {movie.category}</li>
+                <li><strong>Ano:</strong> {movie.year}</li>
+                <li><strong>Duração:</strong> {movie.duration}</li>
+                <li><strong>Classificação:</strong> {movie.rating}</li>
+                <li><strong>Elenco:</strong> {movie.cast}</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3>Avaliação</h3>
+              <StarRating value={4.6} />
+              <p className="mini-note">Baseado em curtidas e engajamento da plataforma.</p>
+            </div>
+          </div>
+
+          {!!related.length && (
+            <div className="related-block">
+              <h3>Filmes relacionados</h3>
+              <div className="related-grid">
+                {related.map((item) => (
+                  <div key={item.id} className="related-card">
+                    <div
+                      className="related-thumb"
+                      style={{ backgroundImage: `url(${item.cover})` }}
+                    />
+                    <div className="related-info">
+                      <strong>{item.title}</strong>
+                      <span>
+                        {item.category} • {item.year}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}function AdminPanel({
+  open,
+  onClose,
+  movies,
+  onAddMovie,
+  onUpdateMovie,
+  onDeleteMovie,
+}) {
+  const emptyForm = {
     title: "",
     type: "Filme",
-    genre: "Ação",
-    year: "2026",
-    note: "8.5",
-    duration: "110 min",
-    badge: "Novo",
-    image: posterPool[0],
-    banner: heroPool[0],
-    video: trailerPool[0],
+    category: "Ação",
+    year: new Date().getFullYear(),
+    duration: "",
+    rating: "14+",
+    cast: "",
     description: "",
-    fullDescription: "",
-    classification: "14+",
-    quality: "1080p",
-    audio: "Português",
-    seasons: "1",
-    episodes: "8",
-  });  useEffect(() => {
-    setCustomCatalog(getSafeCustomCatalog());
-  }, []);
+    cover: "",
+    banner: "",
+    trailer: "",
+    videoUrl: "",
+    featured: false,
+    popularity: 80,
+    releaseTag: "Novo",
+  };
+
+  const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    if (!open) {
+      setForm(emptyForm);
+      setEditingId(null);
+    }
+  }, [open]);
+
+  if (!open) return null;
+
+  async function handleFileChange(e, field) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const base64 = await fileToBase64(file);
+      setForm((prev) => ({ ...prev, [field]: base64 }));
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    const payload = {
+      ...form,
+      id: editingId || Date.now(),
+      year: Number(form.year),
+      popularity: Number(form.popularity),
+    };
+
+    if (editingId) {
+      onUpdateMovie(payload);
+    } else {
+      onAddMovie(payload);
+    }
+
+    setForm(emptyForm);
+    setEditingId(null);
+  }
+
+  function handleEdit(movie) {
+    setEditingId(movie.id);
+    setForm({
+      title: movie.title || "",
+      type: movie.type || "Filme",
+      category: movie.category || "Ação",
+      year: movie.year || new Date().getFullYear(),
+      duration: movie.duration || "",
+      rating: movie.rating || "14+",
+      cast: movie.cast || "",
+      description: movie.description || "",
+      cover: movie.cover || "",
+      banner: movie.banner || "",
+      trailer: movie.trailer || "",
+      videoUrl: movie.videoUrl || "",
+      featured: !!movie.featured,
+      popularity: movie.popularity || 80,
+      releaseTag: movie.releaseTag || "Novo",
+    });
+  }
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-top">
+          <div>
+            <h2>Painel administrativo</h2>
+            <p>Adicione, edite ou remova filmes, séries e animes.</p>
+          </div>
+          <button className="close-btn" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+
+        <div className="admin-layout">
+          <form className="admin-form" onSubmit={handleSubmit}>
+            <h3>{editingId ? "Editar título" : "Adicionar novo título"}</h3>
+
+            <div className="form-grid">
+              <label>
+                Título
+                <input
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  placeholder="Nome do filme"
+                  required
+                />
+              </label>
+
+              <label>
+                Tipo
+                <select
+                  value={form.type}
+                  onChange={(e) => setForm({ ...form, type: e.target.value })}
+                >
+                  <option>Filme</option>
+                  <option>Série</option>
+                  <option>Anime</option>
+                </select>
+              </label>
+
+              <label>
+                Categoria
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                >
+                  <option>Ação</option>
+                  <option>Terror</option>
+                  <option>Comédia</option>
+                  <option>Anime</option>
+                  <option>Romance</option>
+                  <option>Suspense</option>
+                  <option>Carros</option>
+                  <option>Ficção</option>
+                  <option>Drama</option>
+                </select>
+              </label>
+
+              <label>
+                Ano
+                <input
+                  type="number"
+                  value={form.year}
+                  onChange={(e) => setForm({ ...form, year: e.target.value })}
+                  required
+                />
+              </label>
+
+              <label>
+                Duração
+                <input
+                  value={form.duration}
+                  onChange={(e) => setForm({ ...form, duration: e.target.value })}
+                  placeholder="2h 10min ou 12 episódios"
+                />
+              </label>
+
+              <label>
+                Classificação
+                <input
+                  value={form.rating}
+                  onChange={(e) => setForm({ ...form, rating: e.target.value })}
+                  placeholder="14+"
+                />
+              </label>
+
+              <label>
+                Popularidade
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={form.popularity}
+                  onChange={(e) =>
+                    setForm({ ...form, popularity: e.target.value })
+                  }
+                />
+              </label>
+
+              <label>
+                Tag
+                <input
+                  value={form.releaseTag}
+                  onChange={(e) =>
+                    setForm({ ...form, releaseTag: e.target.value })
+                  }
+                  placeholder="Novo, Em alta, Popular"
+                />
+              </label>
+
+              <label className="full">
+                Elenco
+                <input
+                  value={form.cast}
+                  onChange={(e) => setForm({ ...form, cast: e.target.value })}
+                  placeholder="Nomes do elenco"
+                />
+              </label>
+
+              <label className="full">
+                Sinopse
+                <textarea
+                  rows="4"
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                  placeholder="Descreva a história"
+                />
+              </label>
+
+              <label className="full">
+                URL da capa
+                <input
+                  value={form.cover}
+                  onChange={(e) => setForm({ ...form, cover: e.target.value })}
+                  placeholder="https://..."
+                />
+              </label>
+
+              <label className="full">
+                Upload da capa do PC
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "cover")}
+                />
+              </label>
+
+              <label className="full">
+                URL do banner
+                <input
+                  value={form.banner}
+                  onChange={(e) => setForm({ ...form, banner: e.target.value })}
+                  placeholder="https://..."
+                />
+              </label>
+
+              <label className="full">
+                Upload do banner do PC
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "banner")}
+                />
+              </label>
+
+              <label className="full">
+                Trailer (YouTube embed)
+                <input
+                  value={form.trailer}
+                  onChange={(e) => setForm({ ...form, trailer: e.target.value })}
+                  placeholder="https://www.youtube.com/embed/..."
+                />
+              </label>
+
+              <label className="full">
+                Link direto do vídeo
+                <input
+                  value={form.videoUrl}
+                  onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
+                  placeholder="https://...mp4"
+                />
+              </label>
+
+              <label className="checkbox-row full">
+                <input
+                  type="checkbox"
+                  checked={form.featured}
+                  onChange={(e) =>
+                    setForm({ ...form, featured: e.target.checked })
+                  }
+                />
+                Colocar em destaque na home
+              </label>
+            </div>
+
+            <div className="form-actions">
+              <button className="primary-btn" type="submit">
+                {editingId ? "Salvar alterações" : "Adicionar título"}
+              </button>
+
+              <button
+                className="secondary-btn"
+                type="button"
+                onClick={() => {
+                  setForm(emptyForm);
+                  setEditingId(null);
+                }}
+              >
+                Limpar
+              </button>
+            </div>
+
+            {uploading && <p className="mini-note">Processando imagem...</p>}
+
+            {(form.cover || form.banner) && (
+              <div className="preview-box">
+                <h4>Prévia</h4>
+                <div className="preview-grid">
+                  {form.cover && (
+                    <div
+                      className="preview-img"
+                      style={{ backgroundImage: `url(${form.cover})` }}
+                    />
+                  )}
+                  {form.banner && (
+                    <div
+                      className="preview-img banner"
+                      style={{ backgroundImage: `url(${form.banner})` }}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+          </form>
+
+          <div className="admin-list">
+            <h3>Catálogo atual</h3>
+            <div className="admin-items">
+              {movies.map((movie) => (
+                <div key={movie.id} className="admin-item">
+                  <div
+                    className="admin-thumb"
+                    style={{ backgroundImage: `url(${movie.cover})` }}
+                  />
+                  <div className="admin-item-info">
+                    <strong>{movie.title}</strong>
+                    <span>
+                      {movie.type} • {movie.category} • {movie.year}
+                    </span>
+                  </div>
+
+                  <div className="admin-item-actions">
+                    <button onClick={() => handleEdit(movie)}>Editar</button>
+                    <button
+                      className="danger-btn"
+                      onClick={() => onDeleteMovie(movie.id)}
+                    >
+                      Remover
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}export default function App() {
+  const [movies, setMovies] = useState(() =>
+    readStorage(STORAGE_KEYS.MOVIES, defaultMovies)
+  );
+  const [favorites, setFavorites] = useState(() =>
+    readStorage(STORAGE_KEYS.FAVORITES, [])
+  );
+  const [history, setHistory] = useState(() =>
+    readStorage(STORAGE_KEYS.HISTORY, [])
+  );
+  const [continueWatching, setContinueWatching] = useState(() =>
+    readStorage(STORAGE_KEYS.CONTINUE, {})
+  );
+
+  const [user, setUser] = useState(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("Todos");
+  const [sortBy, setSortBy] = useState("popularidade");
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [playerMovie, setPlayerMovie] = useState(null);
+  const [quickTrailerMovie, setQuickTrailerMovie] = useState(null);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    writeStorage(STORAGE_KEYS.MOVIES, movies);
+  }, [movies]);
+
+  useEffect(() => {
+    writeStorage(STORAGE_KEYS.FAVORITES, favorites);
   }, [favorites]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setLoggedUser(user || null);
-    });
+    writeStorage(STORAGE_KEYS.HISTORY, history);
+  }, [history]);
 
-    return () => unsubscribe();
+  useEffect(() => {
+    writeStorage(STORAGE_KEYS.CONTINUE, continueWatching);
+  }, [continueWatching]);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser || null);
+    });
+    return () => unsub();
   }, []);
 
-  const allCatalog = useMemo(() => {
-    return [...customCatalog, ...films, ...series, ...animes, ...cartoons];
-  }, [customCatalog]);
-
-  const heroItems = useMemo(() => {
-    const base = [films[0], series[4], animes[7], cartoons[5], films[2]].filter(Boolean);
-    return customCatalog.length ? [customCatalog[0], ...base.slice(0, 4)] : base;
-  }, [customCatalog]);
-
   useEffect(() => {
-    if (!heroItems.length) return;
-    const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % heroItems.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [heroItems]);
-
-  useEffect(() => {
-    if (heroIndex >= heroItems.length && heroItems.length > 0) {
-      setHeroIndex(0);
-    }
-  }, [heroItems, heroIndex]);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const filteredCatalog = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return allCatalog;
+  const categories = useMemo(() => getCategories(movies), [movies]);
 
-    return allCatalog.filter((item) =>
-      [item.title, item.genre, item.type, item.description, item.fullDescription]
-        .join(" ")
-        .toLowerCase()
-        .includes(term)
-    );
-  }, [search, allCatalog]);
+  const filteredMovies = useMemo(() => {
+    let result = [...movies];
 
-  const saveCustomCatalog = (items) => {
-    setCustomCatalog(items);
-    localStorage.setItem(CUSTOM_MOVIES_KEY, JSON.stringify(items));
-  };
+    if (category !== "Todos") {
+      result = result.filter((movie) => movie.category === category);
+    }
 
-  const toggleFavorite = (id) => {
+    if (search.trim()) {
+      const q = slugify(search);
+      result = result.filter((movie) => {
+        return (
+          slugify(movie.title).includes(q) ||
+          slugify(movie.category).includes(q) ||
+          slugify(movie.description).includes(q) ||
+          slugify(movie.cast).includes(q) ||
+          slugify(movie.type).includes(q)
+        );
+      });
+    }
+
+    if (sortBy === "popularidade") {
+      result.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    } else if (sortBy === "ano") {
+      result.sort((a, b) => (b.year || 0) - (a.year || 0));
+    } else if (sortBy === "titulo") {
+      result.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortBy === "lancamento") {
+      result.sort((a, b) => Number(b.featured) - Number(a.featured));
+    }
+
+    return result;
+  }, [movies, category, search, sortBy]);
+
+  const featuredMovies = useMemo(
+    () => movies.filter((movie) => movie.featured).slice(0, 6),
+    [movies]
+  );
+
+  const heroMovie = featuredMovies[0] || movies[0];
+
+  const favoritesMovies = useMemo(
+    () => movies.filter((movie) => favorites.includes(movie.id)),
+    [movies, favorites]
+  );
+
+  const continueMovies = useMemo(() => {
+    return movies
+      .filter((movie) => continueWatching[movie.id]?.progress > 0)
+      .sort(
+        (a, b) =>
+          (continueWatching[b.id]?.updatedAt || 0) -
+          (continueWatching[a.id]?.updatedAt || 0)
+      );
+  }, [movies, continueWatching]);
+
+  const trendingMovies = useMemo(
+    () => [...movies].sort((a, b) => (b.popularity || 0) - (a.popularity || 0)).slice(0, 8),
+    [movies]
+  );
+
+  const newReleases = useMemo(
+    () => [...movies].sort((a, b) => (b.year || 0) - (a.year || 0)).slice(0, 8),
+    [movies]
+  );
+
+  const animeMovies = useMemo(
+    () => movies.filter((movie) => movie.category === "Anime" || movie.type === "Anime"),
+    [movies]
+  );
+
+  function toggleFavorite(id) {
     setFavorites((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
-  };
+  }
 
-  const handleAddMovie = () => {
-    if (!newMovie.title.trim()) return alert("Digite o título do conteúdo.");
-    if (!newMovie.description.trim()) return alert("Digite uma descrição curta.");
-    if (!newMovie.fullDescription.trim()) return alert("Digite uma descrição completa.");
+  function openDetails(movie) {
+    setSelectedMovie(movie);
+  }
 
-    const itemId = Date.now();
+  function openPlayer(movie) {
+    setPlayerMovie(movie);
+    setHistory((prev) => {
+      const next = [movie.id, ...prev.filter((id) => id !== movie.id)];
+      return next.slice(0, 20);
+    });
+  }
 
-    const isSeriesType = newMovie.type === "Série" || newMovie.type === "Anime";
+  function saveProgress(movieId, progress) {
+    setContinueWatching((prev) => ({
+      ...prev,
+      [movieId]: {
+        progress,
+        updatedAt: Date.now(),
+      },
+    }));
+  }
 
-    const payload = {
-      id: itemId,
-      title: newMovie.title.trim(),
-      type: newMovie.type,
-      genre: newMovie.genre.trim(),
-      year: Number(newMovie.year) || 2026,
-      note: String(newMovie.note || "8.5"),
-      duration: isSeriesType
-        ? `${newMovie.seasons || 1} temporada${Number(newMovie.seasons || 1) > 1 ? "s" : ""} • ${newMovie.episodes || 8} episódios`
-        : newMovie.duration || "100 min",
-      badge: newMovie.badge || "Novo",
-      image: newMovie.image || posterPool[0],
-      banner: newMovie.banner || heroPool[0],
-      video: newMovie.video || trailerPool[0],
-      progress: 0,
-      description: newMovie.description.trim(),
-      fullDescription: newMovie.fullDescription.trim(),
-      classification: newMovie.classification,
-      quality: newMovie.quality,
-      audio: newMovie.audio,
-      seasons: isSeriesType ? Number(newMovie.seasons || 1) : null,
-      episodes: isSeriesType ? Number(newMovie.episodes || 8) : null,
-      isCustom: true,
-    };
+  function handleAddMovie(movie) {
+    setMovies((prev) => [movie, ...prev]);
+  }
 
-    const updated = [payload, ...customCatalog];
-    saveCustomCatalog(updated);
+  function handleUpdateMovie(updatedMovie) {
+    setMovies((prev) =>
+      prev.map((movie) => (movie.id === updatedMovie.id ? updatedMovie : movie))
+    );
+  }
 
-    setNewMovie({
-      title: "",
-      type: "Filme",
-      genre: "Ação",
-      year: "2026",
-      note: "8.5",
-      duration: "110 min",
-      badge: "Novo",
-      image: posterPool[0],
-      banner: heroPool[0],
-      video: trailerPool[0],
-      description: "",
-      fullDescription: "",
-      classification: "14+",
-      quality: "1080p",
-      audio: "Português",
-      seasons: "1",
-      episodes: "8",
+  function handleDeleteMovie(id) {
+    setMovies((prev) => prev.filter((movie) => movie.id !== id));
+    setFavorites((prev) => prev.filter((favId) => favId !== id));
+
+    setContinueWatching((prev) => {
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
     });
 
-    alert("Conteúdo adicionado com sucesso.");
-  };  const handleRemoveMovie = (id) => {
-    const updated = customCatalog.filter((item) => item.id !== id);
-    saveCustomCatalog(updated);
-  };
+    if (selectedMovie?.id === id) setSelectedMovie(null);
+    if (playerMovie?.id === id) setPlayerMovie(null);
+  }
 
-  const scrollToSection = (tab) => {
-    setActiveTab(tab);
-
-    const refs = {
-      Filmes: filmesRef,
-      Séries: seriesRef,
-      Animes: animesRef,
-      Desenhos: desenhosRef,
-      "Minha Lista": listaRef,
-    };
-
-    if (tab === "Início") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-
-    const targetRef = refs[tab];
-    if (targetRef?.current) {
-      setTimeout(() => {
-        targetRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-    }
-  };
-
-  const loginGoogle = async () => {
-    if (googleLoading) return;
-    setGoogleLoading(true);
-
+  async function handleGoogleLogin() {
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      setLoggedUser(user);
-      alert("Bem-vindo " + (user.displayName || "usuário"));
+      setGoogleLoading(true);
+      await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error("Erro no login com Google:", error);
       const code = error?.code || "";
-
-      if (code.includes("popup-blocked")) {
-        alert("O navegador bloqueou o popup do Google. Libere o popup e tente de novo.");
-      } else if (code.includes("popup-closed-by-user")) {
+      if (code.includes("popup-closed-by-user")) {
         alert("Você fechou a janela de login antes de concluir.");
       } else if (code.includes("unauthorized-domain")) {
         alert("Seu domínio ainda não foi autorizado no Firebase.");
       } else if (code.includes("operation-not-allowed")) {
         alert("O login com Google ainda não está ativado no Firebase Authentication.");
-      } else if (code.includes("network-request-failed")) {
-        alert("Falha de rede. Verifique sua internet e tente novamente.");
       } else {
-        alert("Erro ao entrar com Google. Verifique Firebase, domínio autorizado e popup.");
+        alert("Erro ao entrar com Google. Verifique Firebase, domínio e autenticação.");
       }
     } finally {
       setGoogleLoading(false);
     }
-  };
+  }
 
-  const logoutGoogle = async () => {
+  async function handleLogout() {
     try {
       await signOut(auth);
-      setLoggedUser(null);
     } catch {
       alert("Não foi possível sair da conta agora.");
     }
-  };
+  }
 
-  const favoritesItems = allCatalog.filter((item) => favorites.includes(item.id));
-  const continueWatching = allCatalog
-    .filter((item) => item.progress >= 20 && item.progress <= 85)
-    .slice(0, 6);
+  const related = getRelatedMovies(selectedMovie, movies);
 
-  const recommended = allCatalog.filter((item) => Number(item.note) >= 8.2).slice(0, 16);
-  const popular = allCatalog
-    .filter((item) => ["Popular", "Top 10", "Clássico"].includes(item.badge))
-    .slice(0, 16);
+  const historyMovies = useMemo(
+    () => history.map((id) => movies.find((movie) => movie.id === id)).filter(Boolean),
+    [history, movies]
+  );
 
-  const launches = allCatalog
-    .filter((item) => item.year >= 2020 || item.isCustom)
-    .slice(0, 16);
+  return (
+    <div className="app-shell">
+      <header className={`topbar ${scrolled ? "scrolled" : ""}`}>
+        <div className="brand-row">
+          <div className="brand-logo">DRIK</div>
 
-  const trending = allCatalog
-    .filter((item) => ["Em Alta", "Top 10", "Novo", "Clássico"].includes(item.badge))
-    .slice(0, 16);
+          <nav className="main-nav">
+            <a href="#inicio">Início</a>
+            <a href="#em-alta">Em alta</a>
+            <a href="#catalogo">Catálogo</a>
+            <a href="#animes">Animes</a>
+            <a href="#minha-lista">Minha lista</a>
+          </nav>
+        </div>
 
-  const actionFilms = allCatalog
-    .filter((item) => item.type === "Filme" && ["Aventura", "Ação"].includes(item.genre))
-    .slice(0, 16);
-
-  const horrorFilms = allCatalog
-    .filter((item) => item.type === "Filme" && item.genre === "Terror")
-    .slice(0, 16);
-
-  const comedyFilms = allCatalog
-    .filter((item) => item.type === "Filme" && item.genre === "Comédia")
-    .slice(0, 16);
-
-  const seriesRow = allCatalog.filter((item) => item.type === "Série").slice(0, 16);
-  const animeRow = allCatalog.filter((item) => item.type === "Anime").slice(0, 16);
-  const cartoonRow = allCatalog.filter((item) => item.type === "Desenho").slice(0, 16);
-
-  const liveSearchResults = search ? filteredCatalog.slice(0, 12) : [];
-  const menu = ["Início", "Filmes", "Séries", "Animes", "Desenhos", "Minha Lista"];
-  const activeHero = heroItems[heroIndex] || films[0];
-
-  const relatedItems = selectedItem
-    ? allCatalog
-        .filter(
-          (item) =>
-            item.id !== selectedItem.id &&
-            (item.genre === selectedItem.genre || item.type === selectedItem.type)
-        )
-        .slice(0, 4)
-    : [];  return (
-    <div className="app-bg globoplay-theme">
-      <header className={scrolled ? "header scrolled globoplay-header" : "header top globoplay-header"}>
-        <div className="header-inner">
-          <div className="header-left">
-            <div className="brand">
-              Dri<span>k</span>
-            </div>
-
-            <nav className="nav">
-              {menu.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  className={activeTab === item ? "active" : ""}
-                  onClick={() => scrollToSection(item)}
-                >
-                  {item}
-                </button>
-              ))}
-            </nav>
+        <div className="topbar-actions">
+          <div className="search-area">
+            <input
+              type="text"
+              placeholder="Buscar filmes, séries, animes..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
 
-          <div className="header-right">
-            <div className="search-mini">
-              <span className="search-icon">⌕</span>
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por nome, gênero ou categoria"
-              />
-            </div>
+          <button className="admin-btn" onClick={() => setShowAdmin(true)}>
+            Painel
+          </button>
 
-            {!loggedUser ? (
-              <button type="button" className="header-btn" onClick={loginGoogle} disabled={googleLoading}>
-                {googleLoading ? "Entrando..." : "Entrar com Google"}
-              </button>
-            ) : (
-              <button type="button" className="header-btn secondary" onClick={logoutGoogle}>
+          {user ? (
+            <div className="user-box">
+              <img
+                src={user.photoURL || "https://via.placeholder.com/40"}
+                alt="perfil"
+              />
+              <span>{user.displayName?.split(" ")[0] || "Usuário"}</span>
+              <button className="logout-btn" onClick={handleLogout}>
                 Sair
               </button>
-            )}
-
-            <button type="button" className="avatar">
-              {loggedUser?.photoURL ? (
-                <img src={loggedUser.photoURL} alt="Usuário" />
-              ) : (
-                <span>{loggedUser?.displayName?.[0] || "👤"}</span>
-              )}
+            </div>
+          ) : (
+            <button className="google-btn" onClick={handleGoogleLogin}>
+              {googleLoading ? "Entrando..." : "Entrar com Google"}
             </button>
-          </div>
+          )}
         </div>
       </header>
 
-      <section className="hero globoplay-hero">
-        <div className="hero-bg">
-          <img src={activeHero.banner} alt={activeHero.title} />
-          <div className="hero-shade" />
-          <div className="hero-bottom" />
-        </div>
+      {heroMovie && (
+        <section
+          id="inicio"
+          className="hero-section"
+          style={{ backgroundImage: `url(${heroMovie.banner || heroMovie.cover})` }}
+        >
+          <div className="hero-gradient">
+            <div className="hero-inner">
+              <span className="hero-tag">{heroMovie.releaseTag || "Destaque"}</span>
+              <h1>{heroMovie.title}</h1>
+              <p className="hero-meta">
+                {heroMovie.type} • {heroMovie.category} • {heroMovie.year} •{" "}
+                {heroMovie.duration} • {heroMovie.rating}
+              </p>
+              <p className="hero-description">{heroMovie.description}</p>
 
-        <div className="hero-inner">
-          <div className="hero-copy">
-            <div className="eyebrow">Catálogo Drik</div>
-            <h1>Streaming com visual sofisticado, busca rápida, player moderno e catálogo dinâmico.</h1>
-            <p>
-              Estrutura reforçada, login persistente, hero rotativo corrigido, favoritos salvos, painel admin melhorado
-              e experiência mais próxima de uma plataforma real de filmes e séries.
-            </p>
-
-            <div className="tag-row">
-              <span>{activeHero.type}</span>
-              <span>{activeHero.genre}</span>
-              <span>{activeHero.year}</span>
-              <span>Nota {activeHero.note}</span>
-            </div>
-
-            <div className="hero-actions">
-              <button type="button" className="big-white" onClick={() => setSelectedItem(activeHero)}>
-                ▶ Assistir Agora
-              </button>
-              <button type="button" className="big-glass" onClick={() => setSelectedItem(activeHero)}>
-                i Mais Informações
-              </button>
-            </div>
-
-            <div className="hero-dots">
-              {heroItems.map((hero, index) => (
-                <button
-                  key={hero.id}
-                  type="button"
-                  className={heroIndex === index ? "active" : ""}
-                  onClick={() => setHeroIndex(index)}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="hero-card">
-            <div className="hero-card-inner">
-              <img src={activeHero.image} alt={activeHero.title} />
-              <div className="hero-card-content">
-                <h3>{activeHero.title}</h3>
-                <p>{activeHero.description}</p>
-                <div className="hero-card-grid">
-                  <div>{activeHero.duration}</div>
-                  <div>{activeHero.quality}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <main className="container">
-        <section className="stats">
-          {[
-            { label: "Catálogo total", value: allCatalog.length },
-            { label: "Filmes", value: allCatalog.filter((item) => item.type === "Filme").length },
-            { label: "Séries + Animes", value: allCatalog.filter((item) => item.type === "Série" || item.type === "Anime").length },
-            { label: "Desenhos", value: allCatalog.filter((item) => item.type === "Desenho").length },
-          ].map((stat, index) => (
-            <div key={stat.label} className="stat">
-              <div className="label" style={{ background: gradients[index % gradients.length] }}>
-                {stat.label}
-              </div>
-              <div className="value">{stat.value}</div>
-            </div>
-          ))}
-        </section>
-
-        <section className="search-panel">
-          <div className="search-panel-head">
-            <div>
-              <h2>Busca do catálogo</h2>
-              <p>Pesquise filmes, séries, animes e desenhos em tempo real.</p>
-            </div>
-
-            <div className="search-wide">
-              <span className="search-icon">⌕</span>
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Ex: terror, anime, clássico, série..."
-              />
-            </div>
-          </div>
-
-          {search ? (
-            <div className="search-results">
-              {liveSearchResults.map((item, index) => (
-                <button key={item.id} type="button" className="search-result" onClick={() => setSelectedItem(item)}>
-                  <img src={item.image} alt={item.title} />
-                  <div>
-                    <div className="result-tag" style={{ background: gradients[index % gradients.length] }}>
-                      {item.type}
-                    </div>
-                    <div className="title">{item.title}</div>
-                    <div className="meta">
-                      {item.genre} • {item.year} • Nota {item.note}
-                    </div>
-                    <div className="desc">{item.description}</div>
-                  </div>
+              <div className="hero-buttons">
+                <button className="primary-btn" onClick={() => openPlayer(heroMovie)}>
+                  ▶ Assistir
                 </button>
+                <button
+                  className="secondary-btn"
+                  onClick={() => openDetails(heroMovie)}
+                >
+                  Mais informações
+                </button>
+              </div>
+
+              <div className="hero-stats">
+                <div className="stat-box">
+                  <strong>{movies.length}</strong>
+                  <span>Títulos</span>
+                </div>
+                <div className="stat-box">
+                  <strong>{favorites.length}</strong>
+                  <span>Favoritos</span>
+                </div>
+                <div className="stat-box">
+                  <strong>{featuredMovies.length}</strong>
+                  <span>Destaques</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <main className="main-content">
+        <section className="filters-bar" id="catalogo">
+          <div className="filter-group">
+            <label>Categoria</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              {categories.map((item) => (
+                <option key={item}>{item}</option>
               ))}
-            </div>
-          ) : (
-            <div className="search-empty">Digite algo na busca para encontrar conteúdos do catálogo.</div>
-          )}
-        </section>
-
-        <section className="admin-panel">
-          <div className="admin-head">
-            <div>
-              <h2>Painel para adicionar conteúdos</h2>
-              <p>Cadastre filmes, séries, animes e desenhos sem quebrar o site.</p>
-            </div>
+            </select>
           </div>
 
-          <div className="admin-grid">
-            <div className="admin-field">
-              <label>Título</label>
-              <input value={newMovie.title} onChange={(e) => setNewMovie((prev) => ({ ...prev, title: e.target.value }))} />
-            </div>
-
-            <div className="admin-field">
-              <label>Tipo</label>
-              <select value={newMovie.type} onChange={(e) => setNewMovie((prev) => ({ ...prev, type: e.target.value }))}>
-                <option>Filme</option>
-                <option>Série</option>
-                <option>Anime</option>
-                <option>Desenho</option>
-              </select>
-            </div>
-
-            <div className="admin-field">
-              <label>Gênero</label>
-              <input value={newMovie.genre} onChange={(e) => setNewMovie((prev) => ({ ...prev, genre: e.target.value }))} />
-            </div>
-
-            <div className="admin-field">
-              <label>Ano</label>
-              <input value={newMovie.year} onChange={(e) => setNewMovie((prev) => ({ ...prev, year: e.target.value }))} />
-            </div>
-
-            <div className="admin-field">
-              <label>Nota</label>
-              <input value={newMovie.note} onChange={(e) => setNewMovie((prev) => ({ ...prev, note: e.target.value }))} />
-            </div>
-
-            <div className="admin-field">
-              <label>Duração</label>
-              <input value={newMovie.duration} onChange={(e) => setNewMovie((prev) => ({ ...prev, duration: e.target.value }))} />
-            </div>
-
-            <div className="admin-field">
-              <label>Selo</label>
-              <select value={newMovie.badge} onChange={(e) => setNewMovie((prev) => ({ ...prev, badge: e.target.value }))}>
-                <option>Novo</option>
-                <option>Top 10</option>
-                <option>Popular</option>
-                <option>Clássico</option>
-                <option>Em Alta</option>
-              </select>
-            </div>
-
-            <div className="admin-field">
-              <label>Classificação</label>
-              <select value={newMovie.classification} onChange={(e) => setNewMovie((prev) => ({ ...prev, classification: e.target.value }))}>
-                <option>10+</option>
-                <option>12+</option>
-                <option>14+</option>
-                <option>16+</option>
-                <option>18+</option>
-              </select>
-            </div>
-
-            <div className="admin-field">
-              <label>Qualidade</label>
-              <select value={newMovie.quality} onChange={(e) => setNewMovie((prev) => ({ ...prev, quality: e.target.value }))}>
-                <option>4K</option>
-                <option>1080p</option>
-                <option>720p</option>
-                <option>Ultra HD</option>
-              </select>
-            </div>
-
-            <div className="admin-field">
-              <label>Áudio</label>
-              <select value={newMovie.audio} onChange={(e) => setNewMovie((prev) => ({ ...prev, audio: e.target.value }))}>
-                <option>Português</option>
-                <option>Inglês</option>
-                <option>Japonês</option>
-              </select>
-            </div>
-
-            {(newMovie.type === "Série" || newMovie.type === "Anime") && (
-              <>
-                <div className="admin-field">
-                  <label>Temporadas</label>
-                  <input value={newMovie.seasons} onChange={(e) => setNewMovie((prev) => ({ ...prev, seasons: e.target.value }))} />
-                </div>
-
-                <div className="admin-field">
-                  <label>Episódios</label>
-                  <input value={newMovie.episodes} onChange={(e) => setNewMovie((prev) => ({ ...prev, episodes: e.target.value }))} />
-                </div>
-              </>
-            )}
-
-            <div className="admin-field wide">
-              <label>Imagem do card</label>
-              <input value={newMovie.image} onChange={(e) => setNewMovie((prev) => ({ ...prev, image: e.target.value }))} />
-            </div>
-
-            <div className="admin-field wide">
-              <label>Imagem do banner</label>
-              <input value={newMovie.banner} onChange={(e) => setNewMovie((prev) => ({ ...prev, banner: e.target.value }))} />
-            </div>
-
-            <div className="admin-field wide">
-              <label>Vídeo</label>
-              <input value={newMovie.video} onChange={(e) => setNewMovie((prev) => ({ ...prev, video: e.target.value }))} />
-            </div>
-
-            <div className="admin-field wide">
-              <label>Descrição curta</label>
-              <textarea value={newMovie.description} onChange={(e) => setNewMovie((prev) => ({ ...prev, description: e.target.value }))} />
-            </div>
-
-            <div className="admin-field wide">
-              <label>Descrição completa</label>
-              <textarea value={newMovie.fullDescription} onChange={(e) => setNewMovie((prev) => ({ ...prev, fullDescription: e.target.value }))} />
-            </div>
+          <div className="filter-group">
+            <label>Ordenar por</label>
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="popularidade">Popularidade</option>
+              <option value="ano">Ano</option>
+              <option value="titulo">Título</option>
+              <option value="lancamento">Lançamento</option>
+            </select>
           </div>
-
-          <div className="admin-actions">
-            <button type="button" className="big-white" onClick={handleAddMovie}>
-              + Adicionar conteúdo
-            </button>
-          </div>
-
-          {customCatalog.length > 0 && (
-            <div className="custom-list">
-              {customCatalog.map((item) => (
-                <div key={item.id} className="custom-item">
-                  <img src={item.image} alt={item.title} />
-                  <div className="custom-item-body">
-                    <div className="custom-item-title">{item.title}</div>
-                    <div className="custom-item-meta">
-                      {item.type} • {item.genre} • {item.year}
-                    </div>
-                    <div className="custom-item-actions">
-                      <button type="button" className="danger-btn" onClick={() => handleRemoveMovie(item.id)}>
-                        Remover
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <RowSection title="Em Alta" items={trending} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection title="Lançamentos e Destaques" items={launches} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection title="Populares" items={popular} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection title="Recomendados para Você" items={recommended} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-
-        <section className="section-block">
-          <div className="section-head">
-            <div>
-              <h2>Continue Assistindo</h2>
-              <p>Retome de onde parou com progresso visual.</p>
-            </div>
-          </div>
-
-          <div className="continue-grid">
-            {continueWatching.map((item, index) => (
-              <button key={item.id} type="button" className="continue-card" onClick={() => setSelectedItem(item)}>
-                <div className="continue-media">
-                  <img src={item.banner} alt={item.title} />
-                  <div className="continue-shade" />
-                  <div className="continue-top-tag">{item.type}</div>
-
-                  <div className="continue-bottom">
-                    <div className="continue-title">
-                      <strong>{item.title}</strong>
-                      <span style={{ background: gradients[index % gradients.length] }}>
-                        {item.progress}%
-                      </span>
-                    </div>
-                    <div className="progress-track">
-                      <div className="progress-fill" style={{ width: `${item.progress}%` }} />
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <RowSection sectionRef={filmesRef} title="Filmes" items={films} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection title="Aventura" items={actionFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection title="Terror" items={horrorFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection title="Comédia" items={comedyFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection sectionRef={seriesRef} title="Séries" items={seriesRow} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection sectionRef={animesRef} title="Animes" items={animeRow} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection sectionRef={desenhosRef} title="Desenhos" items={cartoonRow} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection
-          sectionRef={listaRef}
-          title="Minha Lista"
-          items={favoritesItems.length ? favoritesItems : allCatalog.slice(0, 8)}
+        </section>        <Shelf
+          title="Em alta"
+          items={trendingMovies}
           favorites={favorites}
+          onOpenDetails={openDetails}
+          onPlay={openPlayer}
           onToggleFavorite={toggleFavorite}
-          onOpenDetails={setSelectedItem}
+          onQuickTrailer={setQuickTrailerMovie}
         />
+
+        <Shelf
+          title="Lançamentos"
+          items={newReleases}
+          favorites={favorites}
+          onOpenDetails={openDetails}
+          onPlay={openPlayer}
+          onToggleFavorite={toggleFavorite}
+          onQuickTrailer={setQuickTrailerMovie}
+        />
+
+        <section id="animes">
+          <Shelf
+            title="Animes"
+            items={animeMovies}
+            favorites={favorites}
+            onOpenDetails={openDetails}
+            onPlay={openPlayer}
+            onToggleFavorite={toggleFavorite}
+            onQuickTrailer={setQuickTrailerMovie}
+          />
+        </section>
+
+        {continueMovies.length > 0 && (
+          <Shelf
+            title="Continuar assistindo"
+            items={continueMovies}
+            favorites={favorites}
+            onOpenDetails={openDetails}
+            onPlay={openPlayer}
+            onToggleFavorite={toggleFavorite}
+            onQuickTrailer={setQuickTrailerMovie}
+          />
+        )}
+
+        {favoritesMovies.length > 0 && (
+          <section id="minha-lista">
+            <Shelf
+              title="Minha Lista"
+              items={favoritesMovies}
+              favorites={favorites}
+              onOpenDetails={openDetails}
+              onPlay={openPlayer}
+              onToggleFavorite={toggleFavorite}
+              onQuickTrailer={setQuickTrailerMovie}
+            />
+          </section>
+        )}
+
+        {historyMovies.length > 0 && (
+          <Shelf
+            title="Histórico"
+            items={historyMovies}
+            favorites={favorites}
+            onOpenDetails={openDetails}
+            onPlay={openPlayer}
+            onToggleFavorite={toggleFavorite}
+            onQuickTrailer={setQuickTrailerMovie}
+          />
+        )}
+
+        <Shelf
+          title="Todos os títulos filtrados"
+          items={filteredMovies}
+          favorites={favorites}
+          onOpenDetails={openDetails}
+          onPlay={openPlayer}
+          onToggleFavorite={toggleFavorite}
+          onQuickTrailer={setQuickTrailerMovie}
+        />
+
+        <section className="bottom-panels">
+          <div className="info-panel">
+            <h3>Recursos já incluídos</h3>
+            <ul>
+              <li>Busca em tempo real</li>
+              <li>Filtros por categoria</li>
+              <li>Ordenação por popularidade, ano e título</li>
+              <li>Login com Google</li>
+              <li>Minha Lista / Favoritos</li>
+              <li>Histórico</li>
+              <li>Continuar assistindo</li>
+              <li>Painel para adicionar, editar e remover filmes</li>
+              <li>Upload de capa e banner pelo computador</li>
+              <li>Player com trailer ou vídeo direto</li>
+            </ul>
+          </div>
+
+          <div className="info-panel">
+            <h3>O que pode ser ligado depois</h3>
+            <ul>
+              <li>Firebase Firestore para salvar tudo online</li>
+              <li>Firebase Storage para upload real de imagens</li>
+              <li>Comentários</li>
+              <li>Avaliações por estrelas reais</li>
+              <li>Assinaturas</li>
+              <li>Notificações</li>
+              <li>Analytics</li>
+              <li>Página individual por rota</li>
+            </ul>
+          </div>
+        </section>
       </main>
 
-      <footer className="footer">
-        <div className="footer-grid">
-          <div>
-            <div className="brand">
-              Dri<span>k</span>
-            </div>
-            <p>Plataforma demonstrativa com player moderno, favoritos, busca, login Google e painel dinâmico.</p>
-          </div>
-
-          <div>
-            <h4>Seções</h4>
-            {menu.map((item) => (
-              <div key={item}>{item}</div>
-            ))}
-          </div>
-
-          <div>
-            <h4>Melhorias</h4>
-            <div>Login do Google com persistência</div>
-            <div>Hero rotativo corrigido</div>
-            <div>Painel de cadastro mais completo</div>
-            <div>Relacionados clicáveis no player</div>
-          </div>
+      <footer className="site-footer">
+        <div>
+          <strong>DRIK</strong>
+          <p>Sua plataforma de filmes, séries e animes.</p>
+        </div>
+        <div className="footer-links">
+          <span>Em alta</span>
+          <span>Minha lista</span>
+          <span>Lançamentos</span>
+          <span>Suporte</span>
         </div>
       </footer>
 
-      {selectedItem && (
-        <PlayerModal
-          item={selectedItem}
-          onClose={() => setSelectedItem(null)}
-          favorites={favorites}
-          onToggleFavorite={toggleFavorite}
-          relatedItems={relatedItems}
-          onOpenRelated={setSelectedItem}
-        />
-      )}
+      <PlayerModal
+        movie={playerMovie}
+        open={!!playerMovie}
+        onClose={() => setPlayerMovie(null)}
+        onSaveProgress={saveProgress}
+      />
+
+      <DetailsModal
+        movie={selectedMovie}
+        open={!!selectedMovie}
+        onClose={() => setSelectedMovie(null)}
+        onPlay={(movie) => {
+          setSelectedMovie(null);
+          openPlayer(movie);
+        }}
+        onToggleFavorite={toggleFavorite}
+        isFavorite={selectedMovie ? favorites.includes(selectedMovie.id) : false}
+        related={related}
+      />
+
+      <PlayerModal
+        movie={quickTrailerMovie}
+        open={!!quickTrailerMovie}
+        onClose={() => setQuickTrailerMovie(null)}
+        onSaveProgress={saveProgress}
+      />
+
+      <AdminPanel
+        open={showAdmin}
+        onClose={() => setShowAdmin(false)}
+        movies={movies}
+        onAddMovie={handleAddMovie}
+        onUpdateMovie={handleUpdateMovie}
+        onDeleteMovie={handleDeleteMovie}
+      />
     </div>
   );
 }
