@@ -1,83 +1,116 @@
 const categories = useMemo(() => getCategories(movies), [movies]);
 
+useEffect(() => {
+  document.title = "Drike";
+
+  const faviconSvg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="14" fill="#b30000"/>
+      <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle"
+        font-family="Arial, sans-serif" font-size="38" font-weight="700" fill="#ffffff">D</text>
+    </svg>
+  `;
+
+  const faviconUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(faviconSvg)}`;
+
+  let link = document.querySelector("link[rel='icon']");
+  if (!link) {
+    link = document.createElement("link");
+    link.setAttribute("rel", "icon");
+    document.head.appendChild(link);
+  }
+  link.setAttribute("href", faviconUrl);
+}, []);
+
 const filteredMovies = useMemo(() => {
-  let result = [...movies];
+  let result = Array.isArray(movies) ? [...movies] : [];
 
   if (category !== "Todos") {
-    result = result.filter((movie) => movie.category === category);
+    result = result.filter((movie) => (movie?.category || "") === category);
   }
 
   if (search.trim()) {
     const q = slugify(search);
     result = result.filter((movie) => {
       return (
-        slugify(movie.title).includes(q) ||
-        slugify(movie.category).includes(q) ||
-        slugify(movie.description).includes(q) ||
-        slugify(movie.cast).includes(q) ||
-        slugify(movie.type).includes(q)
+        slugify(movie?.title || "").includes(q) ||
+        slugify(movie?.category || "").includes(q) ||
+        slugify(movie?.description || "").includes(q) ||
+        slugify(movie?.cast || "").includes(q) ||
+        slugify(movie?.type || "").includes(q)
       );
     });
   }
 
   if (sortBy === "popularidade") {
-    result.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    result.sort((a, b) => (b?.popularity || 0) - (a?.popularity || 0));
   } else if (sortBy === "ano") {
-    result.sort((a, b) => (b.year || 0) - (a.year || 0));
+    result.sort((a, b) => (b?.year || 0) - (a?.year || 0));
   } else if (sortBy === "titulo") {
-    result.sort((a, b) => a.title.localeCompare(b.title));
+    result.sort((a, b) =>
+      String(a?.title || "").localeCompare(String(b?.title || ""))
+    );
   } else if (sortBy === "lancamento") {
-    result.sort((a, b) => Number(b.featured) - Number(a.featured));
+    result.sort((a, b) => Number(b?.featured) - Number(a?.featured));
   }
 
   return result;
 }, [movies, category, search, sortBy]);
 
 const featuredMovies = useMemo(
-  () => movies.filter((movie) => movie.featured).slice(0, 6),
+  () => (Array.isArray(movies) ? movies.filter((movie) => movie?.featured).slice(0, 6) : []),
   [movies]
 );
 
-const heroMovie = featuredMovies[0] || movies[0];
+const heroMovie = featuredMovies[0] || movies[0] || null;
 
 const favoritesMovies = useMemo(
-  () => movies.filter((movie) => favorites.includes(movie.id)),
+  () =>
+    (Array.isArray(movies) ? movies : []).filter((movie) =>
+      Array.isArray(favorites) ? favorites.includes(movie?.id) : false
+    ),
   [movies, favorites]
 );
 
 const continueMovies = useMemo(() => {
-  return movies
-    .filter((movie) => continueWatching[movie.id]?.progress > 0)
+  return (Array.isArray(movies) ? movies : [])
+    .filter((movie) => (continueWatching?.[movie?.id]?.progress || 0) > 0)
     .sort(
       (a, b) =>
-        (continueWatching[b.id]?.updatedAt || 0) -
-        (continueWatching[a.id]?.updatedAt || 0)
+        (continueWatching?.[b?.id]?.updatedAt || 0) -
+        (continueWatching?.[a?.id]?.updatedAt || 0)
     );
 }, [movies, continueWatching]);
 
 const trendingMovies = useMemo(
   () =>
-    [...movies]
-      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+    [...(Array.isArray(movies) ? movies : [])]
+      .sort((a, b) => (b?.popularity || 0) - (a?.popularity || 0))
       .slice(0, 8),
   [movies]
 );
 
 const newReleases = useMemo(
   () =>
-    [...movies]
-      .sort((a, b) => (b.year || 0) - (a.year || 0))
+    [...(Array.isArray(movies) ? movies : [])]
+      .sort((a, b) => (b?.year || 0) - (a?.year || 0))
       .slice(0, 8),
   [movies]
 );
 
 const animeMovies = useMemo(
   () =>
-    movies.filter(
-      (movie) => movie.category === "Anime" || movie.type === "Anime"
+    (Array.isArray(movies) ? movies : []).filter(
+      (movie) => movie?.category === "Anime" || movie?.type === "Anime"
     ),
   [movies]
 );
+
+function goToHome() {
+  setSelectedMovie(null);
+  window.location.hash = "inicio";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
 function toggleFavorite(id) {
   setFavorites((prev) =>
@@ -86,6 +119,8 @@ function toggleFavorite(id) {
 }
 
 function openDetails(movie) {
+  if (!movie) return;
+
   setSelectedMovie(movie);
   setHistory((prev) => {
     const next = [movie.id, ...prev.filter((id) => id !== movie.id)];
@@ -107,7 +142,7 @@ async function handleAddMovie(movie) {
   try {
     const newMovie = normalizeMovie({
       ...movie,
-      id: movie.id || Date.now(),
+      id: movie?.id || Date.now(),
     });
 
     await setDoc(doc(db, "movies", String(newMovie.id)), newMovie);
@@ -154,7 +189,19 @@ async function handleGoogleLogin() {
     await signInWithPopup(auth, provider);
   } catch (error) {
     console.error("ERRO GOOGLE LOGIN:", error);
-    alert(error?.code || error?.message || "Erro ao entrar com Google.");
+
+    const code = error?.code || "";
+    if (code.includes("popup-closed-by-user")) {
+      alert("Login cancelado antes de concluir.");
+    } else if (code.includes("popup-blocked")) {
+      alert("O navegador bloqueou o popup do Google. Libere popups e tente de novo.");
+    } else if (code.includes("unauthorized-domain")) {
+      alert("Seu domínio da Vercel ainda não foi autorizado no Firebase Authentication.");
+    } else if (code.includes("operation-not-allowed")) {
+      alert("O login com Google ainda não está ativado no Firebase Authentication.");
+    } else {
+      alert(error?.message || "Erro ao entrar com Google.");
+    }
   } finally {
     setGoogleLoading(false);
   }
@@ -172,17 +219,42 @@ const related = getRelatedMovies(selectedMovie, movies);
 
 const historyMovies = useMemo(
   () =>
-    history
-      .map((id) => movies.find((movie) => movie.id === id))
+    (Array.isArray(history) ? history : [])
+      .map((id) => (Array.isArray(movies) ? movies.find((movie) => movie?.id === id) : null))
       .filter(Boolean),
   [history, movies]
 );
 
 return (
-  <div className="app-shell">
+  <div
+    className="app-shell"
+    style={{
+      "--primary": "#d40000",
+      "--primary-2": "#ff2a2a",
+      "--accent-red": "#ff1f1f",
+      "--hero-overlay": "linear-gradient(90deg, rgba(20,0,0,0.96) 0%, rgba(20,0,0,0.78) 45%, rgba(20,0,0,0.2) 100%)",
+      background:
+        "linear-gradient(180deg, #120000 0%, #090909 45%, #050505 100%)",
+      minHeight: "100vh",
+    }}
+  >
     <header className={`topbar ${scrolled ? "scrolled" : ""}`}>
       <div className="brand-row">
-        <div className="brand-logo">DRIK</div>
+        <button
+          type="button"
+          className="brand-logo"
+          onClick={goToHome}
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            color: "#ffffff",
+          }}
+          aria-label="Voltar para o início"
+          title="Voltar para o início"
+        >
+          DRIKE
+        </button>
 
         <nav className="main-nav">
           <a href="#inicio">Início</a>
@@ -212,10 +284,10 @@ return (
         {user ? (
           <div className="user-box">
             <img
-              src={user.photoURL || "https://via.placeholder.com/40"}
+              src={user?.photoURL || "https://via.placeholder.com/40"}
               alt="perfil"
             />
-            <span>{user.displayName?.split(" ")[0] || "Usuário"}</span>
+            <span>{user?.displayName?.split(" ")[0] || "Usuário"}</span>
             <button className="logout-btn" onClick={handleLogout}>
               Sair
             </button>
@@ -233,23 +305,30 @@ return (
         id="inicio"
         className="hero-section"
         style={{
-          backgroundImage: `url(${heroMovie.banner || heroMovie.cover})`,
+          backgroundImage: `url(${heroMovie?.banner || heroMovie?.cover || ""})`,
         }}
       >
-        <div className="hero-gradient">
+        <div
+          className="hero-gradient"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(20,0,0,0.96) 0%, rgba(20,0,0,0.78) 45%, rgba(20,0,0,0.2) 100%)",
+          }}
+        >
           <div className="hero-inner">
             <span className="hero-tag">
-              {heroMovie.releaseTag || "Destaque"}
+              {heroMovie?.releaseTag || "Destaque"}
             </span>
 
-            <h1>{heroMovie.title}</h1>
+            <h1>{heroMovie?.title || "Drike"}</h1>
 
             <p className="hero-meta">
-              {heroMovie.type} • {heroMovie.category} • {heroMovie.year} •{" "}
-              {heroMovie.duration} • {heroMovie.rating}
+              {heroMovie?.type || "Filme"} • {heroMovie?.category || "Categoria"} •{" "}
+              {heroMovie?.year || "2026"} • {heroMovie?.duration || "Duração"} •{" "}
+              {heroMovie?.rating || "Livre"}
             </p>
 
-            <p className="hero-description">{heroMovie.description}</p>
+            <p className="hero-description">{heroMovie?.description || ""}</p>
 
             <div className="hero-buttons">
               <button
@@ -262,12 +341,12 @@ return (
 
             <div className="hero-stats">
               <div className="stat-box">
-                <strong>{movies.length}</strong>
+                <strong>{Array.isArray(movies) ? movies.length : 0}</strong>
                 <span>Títulos</span>
               </div>
 
               <div className="stat-box">
-                <strong>{favorites.length}</strong>
+                <strong>{Array.isArray(favorites) ? favorites.length : 0}</strong>
                 <span>Favoritos</span>
               </div>
 
@@ -290,7 +369,9 @@ return (
             onChange={(e) => setCategory(e.target.value)}
           >
             {categories.map((item) => (
-              <option key={item}>{item}</option>
+              <option key={item} value={item}>
+                {item}
+              </option>
             ))}
           </select>
         </div>
@@ -306,13 +387,15 @@ return (
         </div>
       </section>
 
-      <Shelf
-        title="Em alta"
-        items={trendingMovies}
-        favorites={favorites}
-        onOpenDetails={openDetails}
-        onToggleFavorite={toggleFavorite}
-      />
+      <section id="em-alta">
+        <Shelf
+          title="Em alta"
+          items={trendingMovies}
+          favorites={favorites}
+          onOpenDetails={openDetails}
+          onToggleFavorite={toggleFavorite}
+        />
+      </section>
 
       <Shelf
         title="Lançamentos"
@@ -383,7 +466,7 @@ return (
       related={related}
     />
 
-       {user?.email === ADMIN_EMAIL && (
+    {user?.email === ADMIN_EMAIL && (
       <AdminPanel
         open={showAdmin}
         onClose={() => setShowAdmin(false)}
@@ -413,26 +496,32 @@ function DetailsModal({
       <div className="details-modal" onClick={(e) => e.stopPropagation()}>
         <div
           className="details-banner"
-          style={{ backgroundImage: `url(${movie.banner || movie.cover})` }}
+          style={{ backgroundImage: `url(${movie?.banner || movie?.cover || ""})` }}
         >
-          <div className="details-shade">
+          <div
+            className="details-shade"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(18,0,0,0.18) 0%, rgba(18,0,0,0.76) 55%, rgba(8,0,0,0.95) 100%)",
+            }}
+          >
             <button className="close-btn details-close" onClick={onClose}>
               ✕
             </button>
 
             <div className="details-content">
-              <span className="hero-tag">{movie.type}</span>
-              <h1>{movie.title}</h1>
+              <span className="hero-tag">{movie?.type || "Título"}</span>
+              <h1>{movie?.title || "Sem título"}</h1>
 
               <p className="details-meta">
-                {movie.category} • {movie.year} • {movie.duration} •{" "}
-                {movie.rating}
+                {movie?.category || "Categoria"} • {movie?.year || "Ano"} •{" "}
+                {movie?.duration || "Duração"} • {movie?.rating || "Livre"}
               </p>
 
-              <p className="details-description">{movie.description}</p>
+              <p className="details-description">{movie?.description || ""}</p>
 
               <div className="hero-buttons">
-                {movie.videoUrl ? (
+                {movie?.videoUrl ? (
                   <button
                     className="primary-btn"
                     onClick={() => {
@@ -463,29 +552,29 @@ function DetailsModal({
           <div className="details-columns">
             <div>
               <h3>Sinopse</h3>
-              <p>{movie.description}</p>
+              <p>{movie?.description || ""}</p>
             </div>
 
             <div>
               <h3>Informações</h3>
               <ul className="details-list">
                 <li>
-                  <strong>Tipo:</strong> {movie.type}
+                  <strong>Tipo:</strong> {movie?.type || "-"}
                 </li>
                 <li>
-                  <strong>Gênero:</strong> {movie.category}
+                  <strong>Gênero:</strong> {movie?.category || "-"}
                 </li>
                 <li>
-                  <strong>Ano:</strong> {movie.year}
+                  <strong>Ano:</strong> {movie?.year || "-"}
                 </li>
                 <li>
-                  <strong>Duração:</strong> {movie.duration}
+                  <strong>Duração:</strong> {movie?.duration || "-"}
                 </li>
                 <li>
-                  <strong>Classificação:</strong> {movie.rating}
+                  <strong>Classificação:</strong> {movie?.rating || "-"}
                 </li>
                 <li>
-                  <strong>Elenco:</strong> {movie.cast}
+                  <strong>Elenco:</strong> {movie?.cast || "-"}
                 </li>
               </ul>
             </div>
@@ -499,7 +588,7 @@ function DetailsModal({
             </div>
           </div>
 
-          {!!related.length && (
+          {!!related?.length && (
             <div className="related-block">
               <h3>Filmes relacionados</h3>
               <div className="related-grid">
@@ -507,12 +596,12 @@ function DetailsModal({
                   <div key={item.id} className="related-card">
                     <div
                       className="related-thumb"
-                      style={{ backgroundImage: `url(${item.cover})` }}
+                      style={{ backgroundImage: `url(${item?.cover || ""})` }}
                     />
                     <div className="related-info">
-                      <strong>{item.title}</strong>
+                      <strong>{item?.title || "Sem título"}</strong>
                       <span>
-                        {item.category} • {item.year}
+                        {item?.category || "Categoria"} • {item?.year || "Ano"}
                       </span>
                     </div>
                   </div>
@@ -573,6 +662,9 @@ function AdminPanel({
     try {
       const base64 = await fileToBase64(file);
       setForm((prev) => ({ ...prev, [field]: base64 }));
+    } catch (error) {
+      console.error("Erro ao processar arquivo:", error);
+      alert("Não foi possível processar esse arquivo.");
     } finally {
       setUploading(false);
     }
@@ -584,8 +676,8 @@ function AdminPanel({
     const payload = {
       ...form,
       id: editingId || Date.now(),
-      year: Number(form.year),
-      popularity: Number(form.popularity),
+      year: Number(form.year) || new Date().getFullYear(),
+      popularity: Number(form.popularity) || 0,
     };
 
     if (editingId) {
@@ -601,20 +693,20 @@ function AdminPanel({
   function handleEdit(movie) {
     setEditingId(movie.id);
     setForm({
-      title: movie.title || "",
-      type: movie.type || "Filme",
-      category: movie.category || "Ação",
-      year: movie.year || new Date().getFullYear(),
-      duration: movie.duration || "",
-      rating: movie.rating || "14+",
-      cast: movie.cast || "",
-      description: movie.description || "",
-      cover: movie.cover || "",
-      banner: movie.banner || "",
-      videoUrl: movie.videoUrl || "",
-      featured: !!movie.featured,
-      popularity: movie.popularity || 80,
-      releaseTag: movie.releaseTag || "Novo",
+      title: movie?.title || "",
+      type: movie?.type || "Filme",
+      category: movie?.category || "Ação",
+      year: movie?.year || new Date().getFullYear(),
+      duration: movie?.duration || "",
+      rating: movie?.rating || "14+",
+      cast: movie?.cast || "",
+      description: movie?.description || "",
+      cover: movie?.cover || "",
+      banner: movie?.banner || "",
+      videoUrl: movie?.videoUrl || "",
+      featured: !!movie?.featured,
+      popularity: movie?.popularity || 80,
+      releaseTag: movie?.releaseTag || "Novo",
     });
   }
 
@@ -838,17 +930,18 @@ function AdminPanel({
             <h3>Catálogo atual</h3>
 
             <section className="admin-items">
-              {movies.map((movie) => (
+              {(Array.isArray(movies) ? movies : []).map((movie) => (
                 <article key={movie.id} className="admin-item">
                   <div
                     className="admin-thumb"
-                    style={{ backgroundImage: `url(${movie.cover})` }}
+                    style={{ backgroundImage: `url(${movie?.cover || ""})` }}
                   />
 
                   <header className="admin-item-info">
-                    <strong>{movie.title}</strong>
+                    <strong>{movie?.title || "Sem título"}</strong>
                     <span>
-                      {movie.type} • {movie.category} • {movie.year}
+                      {movie?.type || "Tipo"} • {movie?.category || "Categoria"} •{" "}
+                      {movie?.year || "Ano"}
                     </span>
                   </header>
 
