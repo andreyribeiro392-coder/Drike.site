@@ -1,15 +1,24 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { auth, provider } from "./firebase";
+import {
+  collection,
+  doc,
+  setDoc,
+  deleteDoc,
+  onSnapshot,
+  getDocs,
+} from "firebase/firestore";
+import { auth, provider, db } from "./firebase";
 
 const STORAGE_KEYS = {
-  MOVIES: "drik_movies_v2",
   FAVORITES: "drik_favorites_v2",
   HISTORY: "drik_history_v2",
   CONTINUE: "drik_continue_v2",
   PROFILE: "drik_profile_v2",
 };
+
 const ADMIN_EMAIL = "andreyribeiro392@gmail.com";
+
 const defaultMovies = [
   {
     id: 1,
@@ -222,7 +231,40 @@ function getCategories(movies) {
   const base = ["Todos"];
   const dynamic = [...new Set(movies.map((m) => m.category).filter(Boolean))];
   return [...base, ...dynamic];
-}function StarRating({ value = 4.5 }) {
+}
+
+function normalizeMovie(movie) {
+  return {
+    id: movie.id,
+    title: movie.title || "",
+    type: movie.type || "Filme",
+    category: movie.category || "Ação",
+    year: Number(movie.year) || new Date().getFullYear(),
+    duration: movie.duration || "",
+    rating: movie.rating || "14+",
+    cast: movie.cast || "",
+    description: movie.description || "",
+    cover: movie.cover || "",
+    banner: movie.banner || movie.cover || "",
+    trailer: movie.trailer || "",
+    videoUrl: movie.videoUrl || "",
+    featured: !!movie.featured,
+    popularity: Number(movie.popularity) || 0,
+    releaseTag: movie.releaseTag || "Novo",
+  };
+}
+
+async function seedDefaultMoviesIfNeeded() {
+  const snap = await getDocs(collection(db, "movies"));
+  if (!snap.empty) return;
+
+  for (const movie of defaultMovies) {
+    const normalized = normalizeMovie(movie);
+    await setDoc(doc(db, "movies", String(normalized.id)), normalized);
+  }
+}
+
+function StarRating({ value = 4.5 }) {
   const stars = [1, 2, 3, 4, 5];
   return (
     <div className="stars">
@@ -255,7 +297,12 @@ function MovieCard({
           <span className="movie-badge">{movie.releaseTag || movie.type}</span>
 
           <div className="movie-hover-actions">
-            <button onClick={(e) => { e.stopPropagation(); onPlay(movie); }}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onPlay(movie);
+              }}
+            >
               ▶ Assistir
             </button>
             <button
@@ -321,9 +368,7 @@ function Shelf({
       </div>
     </section>
   );
-}
-
-function PlayerModal({ movie, open, onClose, onSaveProgress }) {
+}function PlayerModal({ movie, open, onClose, onSaveProgress }) {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -483,7 +528,9 @@ function DetailsModal({
       </div>
     </div>
   );
-}function AdminPanel({
+}
+
+function AdminPanel({
   open,
   onClose,
   movies,
@@ -659,9 +706,7 @@ function DetailsModal({
                   onChange={(e) => setForm({ ...form, rating: e.target.value })}
                   placeholder="14+"
                 />
-              </label>
-
-              <label>
+              </label>              <label>
                 Popularidade
                 <input
                   type="number"
@@ -845,10 +890,10 @@ function DetailsModal({
       </div>
     </div>
   );
-}export default function App() {
-  const [movies, setMovies] = useState(() =>
-    readStorage(STORAGE_KEYS.MOVIES, defaultMovies)
-  );
+}
+
+export default function App() {
+  const [movies, setMovies] = useState(defaultMovies);
   const [favorites, setFavorites] = useState(() =>
     readStorage(STORAGE_KEYS.FAVORITES, [])
   );
@@ -870,10 +915,6 @@ function DetailsModal({
   const [quickTrailerMovie, setQuickTrailerMovie] = useState(null);
   const [showAdmin, setShowAdmin] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    writeStorage(STORAGE_KEYS.MOVIES, movies);
-  }, [movies]);
 
   useEffect(() => {
     writeStorage(STORAGE_KEYS.FAVORITES, favorites);
@@ -898,6 +939,36 @@ function DetailsModal({
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    let unsubscribe = () => {};
+
+    async function startMoviesSync() {
+      try {
+        await seedDefaultMoviesIfNeeded();
+
+        unsubscribe = onSnapshot(collection(db, "movies"), (snapshot) => {
+          const remoteMovies = snapshot.docs.map((docItem) =>
+            normalizeMovie(docItem.data())
+          );
+
+          remoteMovies.sort((a, b) => {
+            const popDiff = (b.popularity || 0) - (a.popularity || 0);
+            if (popDiff !== 0) return popDiff;
+            return (b.year || 0) - (a.year || 0);
+          });
+
+          setMovies(remoteMovies);
+        });
+      } catch (error) {
+        console.error("Erro ao carregar filmes do Firestore:", error);
+      }
+    }
+
+    startMoviesSync();
+
+    return () => unsubscribe();
   }, []);
 
   const categories = useMemo(() => getCategories(movies), [movies]);
@@ -933,9 +1004,7 @@ function DetailsModal({
     }
 
     return result;
-  }, [movies, category, search, sortBy]);
-
-  const featuredMovies = useMemo(
+  }, [movies, category, search, sortBy]);  const featuredMovies = useMemo(
     () => movies.filter((movie) => movie.featured).slice(0, 6),
     [movies]
   );
@@ -958,7 +1027,10 @@ function DetailsModal({
   }, [movies, continueWatching]);
 
   const trendingMovies = useMemo(
-    () => [...movies].sort((a, b) => (b.popularity || 0) - (a.popularity || 0)).slice(0, 8),
+    () =>
+      [...movies]
+        .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+        .slice(0, 8),
     [movies]
   );
 
@@ -1000,28 +1072,48 @@ function DetailsModal({
     }));
   }
 
-  function handleAddMovie(movie) {
-    setMovies((prev) => [movie, ...prev]);
+  async function handleAddMovie(movie) {
+    try {
+      const newMovie = normalizeMovie({
+        ...movie,
+        id: movie.id || Date.now(),
+      });
+
+      await setDoc(doc(db, "movies", String(newMovie.id)), newMovie);
+    } catch (error) {
+      console.error("Erro ao adicionar filme:", error);
+      alert("Não foi possível adicionar o filme.");
+    }
   }
 
-  function handleUpdateMovie(updatedMovie) {
-    setMovies((prev) =>
-      prev.map((movie) => (movie.id === updatedMovie.id ? updatedMovie : movie))
-    );
+  async function handleUpdateMovie(updatedMovie) {
+    try {
+      const movieToSave = normalizeMovie(updatedMovie);
+      await setDoc(doc(db, "movies", String(movieToSave.id)), movieToSave);
+    } catch (error) {
+      console.error("Erro ao atualizar filme:", error);
+      alert("Não foi possível atualizar o filme.");
+    }
   }
 
-  function handleDeleteMovie(id) {
-    setMovies((prev) => prev.filter((movie) => movie.id !== id));
-    setFavorites((prev) => prev.filter((favId) => favId !== id));
+  async function handleDeleteMovie(id) {
+    try {
+      await deleteDoc(doc(db, "movies", String(id)));
 
-    setContinueWatching((prev) => {
-      const copy = { ...prev };
-      delete copy[id];
-      return copy;
-    });
+      setFavorites((prev) => prev.filter((favId) => favId !== id));
 
-    if (selectedMovie?.id === id) setSelectedMovie(null);
-    if (playerMovie?.id === id) setPlayerMovie(null);
+      setContinueWatching((prev) => {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      });
+
+      if (selectedMovie?.id === id) setSelectedMovie(null);
+      if (playerMovie?.id === id) setPlayerMovie(null);
+    } catch (error) {
+      console.error("Erro ao remover filme:", error);
+      alert("Não foi possível remover o filme.");
+    }
   }
 
   async function handleGoogleLogin() {
@@ -1084,11 +1176,11 @@ function DetailsModal({
             />
           </div>
 
-{user?.email === ADMIN_EMAIL && (
-  <button className="admin-btn" onClick={() => setShowAdmin(true)}>
-    Painel
-  </button>
-)}
+          {user?.email === ADMIN_EMAIL && (
+            <button className="admin-btn" onClick={() => setShowAdmin(true)}>
+              Painel
+            </button>
+          )}
 
           {user ? (
             <div className="user-box">
@@ -1176,7 +1268,9 @@ function DetailsModal({
               <option value="lancamento">Lançamento</option>
             </select>
           </div>
-        </section>        <Shelf
+        </section>
+
+        <Shelf
           title="Em alta"
           items={trendingMovies}
           favorites={favorites}
@@ -1329,16 +1423,16 @@ function DetailsModal({
         onSaveProgress={saveProgress}
       />
 
-{user?.email === ADMIN_EMAIL && (
-  <AdminPanel
-    open={showAdmin}
-    onClose={() => setShowAdmin(false)}
-    movies={movies}
-    onAddMovie={handleAddMovie}
-    onUpdateMovie={handleUpdateMovie}
-    onDeleteMovie={handleDeleteMovie}
-  />
-)}
+      {user?.email === ADMIN_EMAIL && (
+        <AdminPanel
+          open={showAdmin}
+          onClose={() => setShowAdmin(false)}
+          movies={movies}
+          onAddMovie={handleAddMovie}
+          onUpdateMovie={handleUpdateMovie}
+          onDeleteMovie={handleDeleteMovie}
+        />
+      )}
     </div>
   );
 }
