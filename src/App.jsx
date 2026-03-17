@@ -524,7 +524,7 @@ function DetailsModal({
       </div>
     </div>
   );
-}
+  }
 
 function AdminPanel({
   open,
