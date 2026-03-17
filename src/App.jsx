@@ -88,97 +88,238 @@ function getSafeFavorites(defaultIds = []) {
   if (!saved) return defaultIds;
   const parsed = safeJsonParse(saved, defaultIds);
   return Array.isArray(parsed) ? parsed : defaultIds;
-}import React, { useEffect, useMemo, useRef, useState } from "react";
-import "./index.css";
-import { auth, provider } from "./firebase";
-import {
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
-
-const posterPool = [
-  "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1497032205916-ac775f0649ae?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1542204625-de293a2f8ff2?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80",
+}const publicDomainMovies = [
+  {
+    id: 1,
+    title: "Night of the Living Dead",
+    type: "Filme",
+    genre: "Terror",
+    year: 1968,
+    note: "8.6",
+    duration: "96 min",
+    badge: "Clássico",
+    image: posterPool[0],
+    banner: heroPool[0],
+    video: trailerPool[7],
+    progress: 41,
+    description: "Clássico cult de horror com clima sombrio, tensão crescente e estética retrô.",
+    fullDescription:
+      "Um dos filmes de terror mais influentes de todos os tempos, com atmosfera intensa, sobrevivência em grupo e um visual clássico que combina muito com a área de filmes antigos do catálogo.",
+    classification: "16+",
+    quality: "1080p",
+    audio: "Inglês",
+    seasons: null,
+    episodes: null,
+    isCustom: false,
+  },
+  {
+    id: 2,
+    title: "Nosferatu",
+    type: "Filme",
+    genre: "Terror",
+    year: 1922,
+    note: "8.4",
+    duration: "94 min",
+    badge: "Clássico",
+    image: posterPool[1],
+    banner: heroPool[1],
+    video: trailerPool[0],
+    progress: 23,
+    description: "Terror expressionista com fotografia marcante, sombra, suspense e visual histórico.",
+    fullDescription:
+      "Uma obra fundamental do cinema silencioso. Ideal para a seção de filmes antigos, trazendo elegância visual, clima gótico e presença forte no catálogo.",
+    classification: "12+",
+    quality: "1080p",
+    audio: "Inglês",
+    seasons: null,
+    episodes: null,
+    isCustom: false,
+  },
+  {
+    id: 3,
+    title: "Metropolis",
+    type: "Filme",
+    genre: "Ficção Científica",
+    year: 1927,
+    note: "8.7",
+    duration: "148 min",
+    badge: "Top 10",
+    image: posterPool[2],
+    banner: heroPool[2],
+    video: trailerPool[1],
+    progress: 58,
+    description: "Ficção científica clássica com arquitetura futurista, drama social e identidade visual forte.",
+    fullDescription:
+      "Filme monumental do cinema mudo, perfeito para destacar um catálogo premium com obras antigas de aparência grandiosa e impacto visual.",
+    classification: "12+",
+    quality: "1080p",
+    audio: "Inglês",
+    seasons: null,
+    episodes: null,
+    isCustom: false,
+  },
+  {
+    id: 4,
+    title: "The General",
+    type: "Filme",
+    genre: "Aventura",
+    year: 1926,
+    note: "8.3",
+    duration: "75 min",
+    badge: "Popular",
+    image: posterPool[3],
+    banner: heroPool[3],
+    video: trailerPool[2],
+    progress: 36,
+    description: "Aventura clássica com humor físico, perseguição e ritmo leve do cinema antigo.",
+    fullDescription:
+      "Uma produção lendária da era muda, ótima para dar variedade ao catálogo com ação, humor visual e carisma clássico.",
+    classification: "10+",
+    quality: "1080p",
+    audio: "Inglês",
+    seasons: null,
+    episodes: null,
+    isCustom: false,
+  },
+  {
+    id: 5,
+    title: "Sherlock Jr.",
+    type: "Filme",
+    genre: "Comédia",
+    year: 1924,
+    note: "8.2",
+    duration: "45 min",
+    badge: "Em Alta",
+    image: posterPool[4],
+    banner: heroPool[4],
+    video: trailerPool[3],
+    progress: 29,
+    description: "Comédia clássica ágil e inventiva com cenas criativas e charme do cinema mudo.",
+    fullDescription:
+      "Um filme curto, elegante e muito importante historicamente, ideal para representar filmes antigos sem depender de obras modernas.",
+    classification: "10+",
+    quality: "1080p",
+    audio: "Inglês",
+    seasons: null,
+    episodes: null,
+    isCustom: false,
+  },
+  {
+    id: 6,
+    title: "The Cabinet of Dr. Caligari",
+    type: "Filme",
+    genre: "Suspense",
+    year: 1920,
+    note: "8.1",
+    duration: "67 min",
+    badge: "Clássico",
+    image: posterPool[5],
+    banner: heroPool[5],
+    video: trailerPool[4],
+    progress: 18,
+    description: "Suspense expressionista com cenários marcantes e atmosfera perturbadora.",
+    fullDescription:
+      "Uma referência do expressionismo alemão, excelente para enriquecer a vitrine de filmes antigos com algo visualmente único.",
+    classification: "12+",
+    quality: "1080p",
+    audio: "Inglês",
+    seasons: null,
+    episodes: null,
+    isCustom: false,
+  },
+  {
+    id: 7,
+    title: "His Girl Friday",
+    type: "Filme",
+    genre: "Comédia",
+    year: 1940,
+    note: "8.0",
+    duration: "92 min",
+    badge: "Novo",
+    image: posterPool[6],
+    banner: heroPool[0],
+    video: trailerPool[5],
+    progress: 52,
+    description: "Comédia clássica rápida, elegante e cheia de diálogos marcantes.",
+    fullDescription:
+      "Ótima opção para equilibrar terror e ficção com uma obra antiga mais leve, sofisticada e com grande energia narrativa.",
+    classification: "10+",
+    quality: "1080p",
+    audio: "Inglês",
+    seasons: null,
+    episodes: null,
+    isCustom: false,
+  },
+  {
+    id: 8,
+    title: "The Last Man on Earth",
+    type: "Filme",
+    genre: "Ficção Científica",
+    year: 1964,
+    note: "7.9",
+    duration: "86 min",
+    badge: "Popular",
+    image: posterPool[7],
+    banner: heroPool[1],
+    video: trailerPool[6],
+    progress: 63,
+    description: "Sci-fi clássico pós-apocalíptico com clima solitário e atmosfera escura.",
+    fullDescription:
+      "Uma escolha muito boa para dar tom sombrio e futurista ao catálogo, combinando ficção científica antiga e suspense.",
+    classification: "14+",
+    quality: "1080p",
+    audio: "Inglês",
+    seasons: null,
+    episodes: null,
+    isCustom: false,
+  },
 ];
 
-const heroPool = [
-  "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1498036882173-b41c28a8ba34?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1600&q=80",
-];
+function generateItems(type, count, startId) {
+  return Array.from({ length: count }, (_, index) => {
+    const bank = wordBank[type];
+    const first = bank[index % bank.length];
+    const second = bank[(index + 3) % bank.length];
+    const genre = genreMap[type][index % genreMap[type].length];
+    const year = 2014 + (index % 12);
+    const note = (7.4 + ((index * 5) % 20) / 10).toFixed(1);
 
-const trailerPool = [
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-];
-
-const gradients = [
-  "linear-gradient(135deg,#0f172a,#1d4ed8)",
-  "linear-gradient(135deg,#111827,#2563eb)",
-  "linear-gradient(135deg,#1e293b,#0ea5e9)",
-  "linear-gradient(135deg,#0b1220,#1d4ed8)",
-  "linear-gradient(135deg,#172554,#0284c7)",
-];
-
-const genreMap = {
-  Série: ["Drama", "Crime", "Thriller", "Mistério", "Sci-Fi", "Aventura"],
-  Anime: ["Shounen", "Fantasia", "Ação", "Romance", "Cyberpunk", "Sobrenatural"],
-  Desenho: ["Aventura", "Família", "Comédia", "Fantasia", "Musical", "Sci-Fi"],
-};
-
-const wordBank = {
-  Série: ["Archive", "Signal", "District", "Circuit", "Binary", "Empire", "Vault", "Code"],
-  Anime: ["Requiem", "Chronicle", "Phoenix", "Astra", "Blade", "Zenith", "Eclipse", "Dream"],
-  Desenho: ["Pixel", "Comet", "Bubble", "Orbit", "Luna", "Rocket", "Prism", "Cloud"],
-};
-
-const CUSTOM_MOVIES_KEY = "drik_custom_movies_v3";
-const FAVORITES_KEY = "drik_favorites_v3";
-
-function safeJsonParse(value, fallback) {
-  try {
-    const parsed = JSON.parse(value);
-    return parsed ?? fallback;
-  } catch {
-    return fallback;
-  }
+    return {
+      id: startId + index,
+      title: `${first} ${second}`,
+      type,
+      genre,
+      year,
+      note,
+      duration: `${1 + (index % 5)} temporada${index % 5 === 0 ? "" : "s"} • ${8 + (index % 12)} episódios`,
+      badge:
+        index % 8 === 0
+          ? "Top 10"
+          : index % 6 === 0
+          ? "Novo"
+          : index % 4 === 0
+          ? "Popular"
+          : "",
+      image: posterPool[index % posterPool.length],
+      banner: heroPool[index % heroPool.length],
+      video: trailerPool[index % trailerPool.length],
+      progress: (index * 11) % 100,
+      description: `${type} com visual moderno, card premium e clima forte para o catálogo Drik.`,
+      fullDescription: `${first} ${second} é um ${type.toLowerCase()} criado para preencher o catálogo com visual elegante, navegação forte e identidade original.`,
+      classification: ["10+", "12+", "14+", "16+"][index % 4],
+      quality: ["4K", "1080p", "Ultra HD"][index % 3],
+      audio: ["Português", "Inglês", "Japonês"][index % 3],
+      seasons: 1 + (index % 5),
+      episodes: 8 + (index % 12),
+      isCustom: false,
+    };
+  });
 }
 
-function formatTime(seconds) {
-  if (!Number.isFinite(seconds)) return "0:00";
-  const mins = Math.floor(seconds / 60);
-  const secs = String(Math.floor(seconds % 60)).padStart(2, "0");
-  return `${mins}:${secs}`;
-}
-
-function getSafeCustomCatalog() {
-  const saved = localStorage.getItem(CUSTOM_MOVIES_KEY);
-  if (!saved) return [];
-  return Array.isArray(safeJsonParse(saved, [])) ? safeJsonParse(saved, []) : [];
-}
-
-function getSafeFavorites(defaultIds = []) {
-  const saved = localStorage.getItem(FAVORITES_KEY);
-  if (!saved) return defaultIds;
-  const parsed = safeJsonParse(saved, defaultIds);
-  return Array.isArray(parsed) ? parsed : defaultIds;
-}function RowSection({
+const films = publicDomainMovies;
+const series = generateItems("Série", 40, 1001);
+const animes = generateItems("Anime", 40, 2001);
+const cartoons = generateItems("Desenho", 30, 3001);function RowSection({
   title,
   items,
   favorites,
