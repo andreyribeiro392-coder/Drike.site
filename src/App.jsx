@@ -1,7 +1,11 @@
-import { auth, provider } from "./firebase";
-import { signInWithPopup, signOut } from "firebase/auth";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./index.css";
+import { auth, provider } from "./firebase";
+import {
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 const posterPool = [
   "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80",
@@ -54,239 +58,17 @@ const wordBank = {
   Desenho: ["Pixel", "Comet", "Bubble", "Orbit", "Luna", "Rocket", "Prism", "Cloud"],
 };
 
-const CUSTOM_MOVIES_KEY = "drik_custom_movies_v2";
-const FAVORITES_KEY = "drik_favorites_v2";
+const CUSTOM_MOVIES_KEY = "drik_custom_movies_v3";
+const FAVORITES_KEY = "drik_favorites_v3";
 
-const publicDomainMovies = [
-  {
-    id: 1,
-    title: "Night of the Living Dead",
-    type: "Filme",
-    genre: "Terror",
-    year: 1968,
-    note: "8.6",
-    duration: "96 min",
-    badge: "Clássico",
-    image: posterPool[0],
-    banner: heroPool[0],
-    video: trailerPool[7],
-    progress: 41,
-    description: "Clássico cult de horror com clima sombrio, tensão crescente e estética retrô.",
-    fullDescription:
-      "Um dos filmes de terror mais influentes de todos os tempos, com atmosfera intensa, sobrevivência em grupo e um visual clássico que combina muito com a área de filmes antigos do catálogo.",
-    classification: "16+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 2,
-    title: "Nosferatu",
-    type: "Filme",
-    genre: "Terror",
-    year: 1922,
-    note: "8.4",
-    duration: "94 min",
-    badge: "Clássico",
-    image: posterPool[1],
-    banner: heroPool[1],
-    video: trailerPool[0],
-    progress: 23,
-    description: "Terror expressionista com fotografia marcante, sombra, suspense e visual histórico.",
-    fullDescription:
-      "Uma obra fundamental do cinema silencioso. Ideal para a seção de filmes antigos, trazendo elegância visual, clima gótico e presença forte no catálogo.",
-    classification: "12+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 3,
-    title: "Metropolis",
-    type: "Filme",
-    genre: "Ficção Científica",
-    year: 1927,
-    note: "8.7",
-    duration: "148 min",
-    badge: "Top 10",
-    image: posterPool[2],
-    banner: heroPool[2],
-    video: trailerPool[1],
-    progress: 58,
-    description: "Ficção científica clássica com arquitetura futurista, drama social e identidade visual forte.",
-    fullDescription:
-      "Filme monumental do cinema mudo, perfeito para destacar um catálogo premium com obras antigas de aparência grandiosa e impacto visual.",
-    classification: "12+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 4,
-    title: "The General",
-    type: "Filme",
-    genre: "Aventura",
-    year: 1926,
-    note: "8.3",
-    duration: "75 min",
-    badge: "Popular",
-    image: posterPool[3],
-    banner: heroPool[3],
-    video: trailerPool[2],
-    progress: 36,
-    description: "Aventura clássica com humor físico, perseguição e ritmo leve do cinema antigo.",
-    fullDescription:
-      "Uma produção lendária da era muda, ótima para dar variedade ao catálogo com ação, humor visual e carisma clássico.",
-    classification: "10+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 5,
-    title: "Sherlock Jr.",
-    type: "Filme",
-    genre: "Comédia",
-    year: 1924,
-    note: "8.2",
-    duration: "45 min",
-    badge: "Em Alta",
-    image: posterPool[4],
-    banner: heroPool[4],
-    video: trailerPool[3],
-    progress: 29,
-    description: "Comédia clássica ágil e inventiva com cenas criativas e charme do cinema mudo.",
-    fullDescription:
-      "Um filme curto, elegante e muito importante historicamente, ideal para representar filmes antigos sem depender de obras modernas.",
-    classification: "10+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 6,
-    title: "The Cabinet of Dr. Caligari",
-    type: "Filme",
-    genre: "Suspense",
-    year: 1920,
-    note: "8.1",
-    duration: "67 min",
-    badge: "Clássico",
-    image: posterPool[5],
-    banner: heroPool[5],
-    video: trailerPool[4],
-    progress: 18,
-    description: "Suspense expressionista com cenários marcantes e atmosfera perturbadora.",
-    fullDescription:
-      "Uma referência do expressionismo alemão, excelente para enriquecer a vitrine de filmes antigos com algo visualmente único.",
-    classification: "12+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 7,
-    title: "His Girl Friday",
-    type: "Filme",
-    genre: "Comédia",
-    year: 1940,
-    note: "8.0",
-    duration: "92 min",
-    badge: "Novo",
-    image: posterPool[6],
-    banner: heroPool[0],
-    video: trailerPool[5],
-    progress: 52,
-    description: "Comédia clássica rápida, elegante e cheia de diálogos marcantes.",
-    fullDescription:
-      "Ótima opção para equilibrar terror e ficção com uma obra antiga mais leve, sofisticada e com grande energia narrativa.",
-    classification: "10+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-  {
-    id: 8,
-    title: "The Last Man on Earth",
-    type: "Filme",
-    genre: "Ficção Científica",
-    year: 1964,
-    note: "7.9",
-    duration: "86 min",
-    badge: "Popular",
-    image: posterPool[7],
-    banner: heroPool[1],
-    video: trailerPool[6],
-    progress: 63,
-    description: "Sci-fi clássico pós-apocalíptico com clima solitário e atmosfera escura.",
-    fullDescription:
-      "Uma escolha muito boa para dar tom sombrio e futurista ao catálogo, combinando ficção científica antiga e suspense.",
-    classification: "14+",
-    quality: "1080p",
-    audio: "Inglês",
-    seasons: null,
-    episodes: null,
-    isCustom: false,
-  },
-];function generateItems(type, count, startId) {
-  return Array.from({ length: count }, (_, index) => {
-    const bank = wordBank[type];
-    const first = bank[index % bank.length];
-    const second = bank[(index + 3) % bank.length];
-    const genre = genreMap[type][index % genreMap[type].length];
-    const year = 2014 + (index % 12);
-    const note = (7.4 + ((index * 5) % 20) / 10).toFixed(1);
-
-    return {
-      id: startId + index,
-      title: `${first} ${second}`,
-      type,
-      genre,
-      year,
-      note,
-      duration: `${1 + (index % 5)} temporada${index % 5 === 0 ? "" : "s"} • ${8 + (index % 12)} episódios`,
-      badge:
-        index % 8 === 0
-          ? "Top 10"
-          : index % 6 === 0
-          ? "Novo"
-          : index % 4 === 0
-          ? "Popular"
-          : "",
-      image: posterPool[index % posterPool.length],
-      banner: heroPool[index % heroPool.length],
-      video: trailerPool[index % trailerPool.length],
-      progress: (index * 11) % 100,
-      description: `${type} com visual moderno, card premium e clima forte para o catálogo Drik.`,
-      fullDescription: `${first} ${second} é um ${type.toLowerCase()} criado para preencher o catálogo com visual elegante, navegação forte e identidade original.`,
-      classification: ["10+", "12+", "14+", "16+"][index % 4],
-      quality: ["4K", "1080p", "Ultra HD"][index % 3],
-      audio: ["Português", "Inglês", "Japonês"][index % 3],
-      seasons: 1 + (index % 5),
-      episodes: 8 + (index % 12),
-      isCustom: false,
-    };
-  });
+function safeJsonParse(value, fallback) {
+  try {
+    const parsed = JSON.parse(value);
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
 }
-
-const films = publicDomainMovies;
-const series = generateItems("Série", 40, 1001);
-const animes = generateItems("Anime", 40, 2001);
-const cartoons = generateItems("Desenho", 30, 3001);
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) return "0:00";
@@ -296,35 +78,122 @@ function formatTime(seconds) {
 }
 
 function getSafeCustomCatalog() {
+  const saved = localStorage.getItem(CUSTOM_MOVIES_KEY);
+  if (!saved) return [];
+  return Array.isArray(safeJsonParse(saved, [])) ? safeJsonParse(saved, []) : [];
+}
+
+function getSafeFavorites(defaultIds = []) {
+  const saved = localStorage.getItem(FAVORITES_KEY);
+  if (!saved) return defaultIds;
+  const parsed = safeJsonParse(saved, defaultIds);
+  return Array.isArray(parsed) ? parsed : defaultIds;
+}import React, { useEffect, useMemo, useRef, useState } from "react";
+import "./index.css";
+import { auth, provider } from "./firebase";
+import {
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+
+const posterPool = [
+  "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1497032205916-ac775f0649ae?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1542204625-de293a2f8ff2?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80",
+];
+
+const heroPool = [
+  "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1498036882173-b41c28a8ba34?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1600&q=80",
+];
+
+const trailerPool = [
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+];
+
+const gradients = [
+  "linear-gradient(135deg,#0f172a,#1d4ed8)",
+  "linear-gradient(135deg,#111827,#2563eb)",
+  "linear-gradient(135deg,#1e293b,#0ea5e9)",
+  "linear-gradient(135deg,#0b1220,#1d4ed8)",
+  "linear-gradient(135deg,#172554,#0284c7)",
+];
+
+const genreMap = {
+  Série: ["Drama", "Crime", "Thriller", "Mistério", "Sci-Fi", "Aventura"],
+  Anime: ["Shounen", "Fantasia", "Ação", "Romance", "Cyberpunk", "Sobrenatural"],
+  Desenho: ["Aventura", "Família", "Comédia", "Fantasia", "Musical", "Sci-Fi"],
+};
+
+const wordBank = {
+  Série: ["Archive", "Signal", "District", "Circuit", "Binary", "Empire", "Vault", "Code"],
+  Anime: ["Requiem", "Chronicle", "Phoenix", "Astra", "Blade", "Zenith", "Eclipse", "Dream"],
+  Desenho: ["Pixel", "Comet", "Bubble", "Orbit", "Luna", "Rocket", "Prism", "Cloud"],
+};
+
+const CUSTOM_MOVIES_KEY = "drik_custom_movies_v3";
+const FAVORITES_KEY = "drik_favorites_v3";
+
+function safeJsonParse(value, fallback) {
   try {
-    const saved = localStorage.getItem(CUSTOM_MOVIES_KEY);
-    if (!saved) return [];
-    const parsed = JSON.parse(saved);
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(value);
+    return parsed ?? fallback;
   } catch {
-    return [];
+    return fallback;
   }
 }
 
-function getSafeFavorites() {
-  try {
-    const saved = localStorage.getItem(FAVORITES_KEY);
-    if (!saved) return [films[0]?.id, series[1]?.id, animes[2]?.id].filter(Boolean);
-    const parsed = JSON.parse(saved);
-    return Array.isArray(parsed)
-      ? parsed
-      : [films[0]?.id, series[1]?.id, animes[2]?.id].filter(Boolean);
-  } catch {
-    return [films[0]?.id, series[1]?.id, animes[2]?.id].filter(Boolean);
-  }
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return "0:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = String(Math.floor(seconds % 60)).padStart(2, "0");
+  return `${mins}:${secs}`;
 }
 
-function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails, sectionRef }) {
+function getSafeCustomCatalog() {
+  const saved = localStorage.getItem(CUSTOM_MOVIES_KEY);
+  if (!saved) return [];
+  return Array.isArray(safeJsonParse(saved, [])) ? safeJsonParse(saved, []) : [];
+}
+
+function getSafeFavorites(defaultIds = []) {
+  const saved = localStorage.getItem(FAVORITES_KEY);
+  if (!saved) return defaultIds;
+  const parsed = safeJsonParse(saved, defaultIds);
+  return Array.isArray(parsed) ? parsed : defaultIds;
+}function RowSection({
+  title,
+  items,
+  favorites,
+  onToggleFavorite,
+  onOpenDetails,
+  sectionRef,
+}) {
   const rowRef = useRef(null);
 
   const scrollRow = (direction) => {
     if (!rowRef.current) return;
-    rowRef.current.scrollBy({ left: direction * 820, behavior: "smooth" });
+    rowRef.current.scrollBy({
+      left: direction * 820,
+      behavior: "smooth",
+    });
   };
 
   if (!items.length) return null;
@@ -334,12 +203,16 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails, 
       <div className="section-head">
         <div>
           <h2>{title}</h2>
-          <p>Seleções com layout inspirado em streaming premium e navegação horizontal.</p>
+          <p>Seleções com visual premium, navegação lateral e acesso rápido.</p>
         </div>
 
         <div className="row-arrows">
-          <button type="button" onClick={() => scrollRow(-1)}>‹</button>
-          <button type="button" onClick={() => scrollRow(1)}>›</button>
+          <button type="button" onClick={() => scrollRow(-1)}>
+            ‹
+          </button>
+          <button type="button" onClick={() => scrollRow(1)}>
+            ›
+          </button>
         </div>
       </div>
 
@@ -350,12 +223,21 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails, 
           return (
             <article key={item.id} className="media-card globo-card">
               <div className="media-poster">
-                <img src={item.image} alt={item.title} />
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  onError={(e) => {
+                    e.currentTarget.src = posterPool[index % posterPool.length];
+                  }}
+                />
                 <div className="media-overlay" />
 
                 <div className="media-top">
                   {item.badge ? (
-                    <span className="badge" style={{ background: gradients[index % gradients.length] }}>
+                    <span
+                      className="badge"
+                      style={{ background: gradients[index % gradients.length] }}
+                    >
                       {item.badge}
                     </span>
                   ) : (
@@ -388,11 +270,19 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails, 
                 <p>{item.description}</p>
 
                 <div className="media-actions">
-                  <button type="button" className="primary-btn" onClick={() => onOpenDetails(item)}>
+                  <button
+                    type="button"
+                    className="primary-btn"
+                    onClick={() => onOpenDetails(item)}
+                  >
                     ▶ Assistir
                   </button>
 
-                  <button type="button" className="secondary-btn" onClick={() => onOpenDetails(item)}>
+                  <button
+                    type="button"
+                    className="secondary-btn"
+                    onClick={() => onOpenDetails(item)}
+                  >
                     i Detalhes
                   </button>
                 </div>
@@ -405,7 +295,14 @@ function RowSection({ title, items, favorites, onToggleFavorite, onOpenDetails, 
   );
 }
 
-function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems }) {
+function PlayerModal({
+  item,
+  onClose,
+  favorites,
+  onToggleFavorite,
+  relatedItems,
+  onOpenRelated,
+}) {
   const videoRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -413,7 +310,10 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
   const [speed, setSpeed] = useState(1);
   const [quality, setQuality] = useState(item.quality || "1080p");
   const [subtitle, setSubtitle] = useState("Português");
-  const [audio, setAudio] = useState(item.audio || "Português");  useEffect(() => {
+  const [audio, setAudio] = useState(item.audio || "Português");
+  const [isPlaying, setIsPlaying] = useState(true);
+
+  useEffect(() => {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
@@ -424,35 +324,49 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.key === "Escape") onClose();
+      if (e.key === " ") {
+        e.preventDefault();
+        togglePlay();
+      }
     };
+
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
-
-  useEffect(() => {
+  }, []);  useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const onLoaded = () => setDuration(video.duration || 0);
     const onTime = () => setCurrentTime(video.currentTime || 0);
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
 
     video.volume = volume;
     video.playbackRate = speed;
     video.addEventListener("loadedmetadata", onLoaded);
     video.addEventListener("timeupdate", onTime);
-    video.play().catch(() => {});
+    video.addEventListener("play", onPlay);
+    video.addEventListener("pause", onPause);
+
+    video.play().catch(() => setIsPlaying(false));
 
     return () => {
       video.removeEventListener("loadedmetadata", onLoaded);
       video.removeEventListener("timeupdate", onTime);
+      video.removeEventListener("play", onPlay);
+      video.removeEventListener("pause", onPause);
     };
-  }, [volume, speed]);
+  }, [item, volume, speed]);
 
   const togglePlay = () => {
     const video = videoRef.current;
     if (!video) return;
-    if (video.paused) video.play().catch(() => {});
-    else video.pause();
+
+    if (video.paused) {
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
   };
 
   const seek = (value) => {
@@ -487,7 +401,9 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
             <h3>{item.title}</h3>
           </div>
 
-          <button type="button" className="icon-btn" onClick={onClose}>✕</button>
+          <button type="button" className="icon-btn" onClick={onClose}>
+            ✕
+          </button>
         </div>
 
         <div className="modal-grid">
@@ -510,9 +426,15 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
                 </div>
 
                 <div className="overlay-buttons">
-                  <button type="button" className="round-white" onClick={togglePlay}>▶</button>
-                  <button type="button" className="round-dark" onClick={() => skipBy(-10)}>«10</button>
-                  <button type="button" className="round-dark" onClick={() => skipBy(10)}>10»</button>
+                  <button type="button" className="round-white" onClick={togglePlay}>
+                    {isPlaying ? "❚❚" : "▶"}
+                  </button>
+                  <button type="button" className="round-dark" onClick={() => skipBy(-10)}>
+                    «10
+                  </button>
+                  <button type="button" className="round-dark" onClick={() => skipBy(10)}>
+                    10»
+                  </button>
                   <button
                     type="button"
                     className={isFav ? "round-dark active" : "round-dark"}
@@ -584,9 +506,7 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
                     <option value={1.5}>1.5x</option>
                     <option value={2}>2x</option>
                   </select>
-                </div>
-
-                <div className="control-item">
+                </div>                <div className="control-item">
                   <label>Legenda</label>
                   <select value={subtitle} onChange={(e) => setSubtitle(e.target.value)}>
                     <option>Português</option>
@@ -603,7 +523,9 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
                       <option>Inglês</option>
                       <option>Japonês</option>
                     </select>
-                    <button type="button" className="square-btn" onClick={openFullscreen}>⛶</button>
+                    <button type="button" className="square-btn" onClick={openFullscreen}>
+                      ⛶
+                    </button>
                   </div>
                 </div>
               </div>
@@ -612,7 +534,8 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
                 <div className="next-episode">
                   <strong>Próximo episódio disponível</strong>
                   <p>
-                    Temporada {item.seasons}, episódio {Math.min(2, item.episodes || 2)} pronto para reprodução.
+                    Temporada {item.seasons || 1}, episódio{" "}
+                    {Math.min(2, item.episodes || 2)} pronto para reprodução.
                   </p>
                 </div>
               )}
@@ -638,10 +561,22 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
                 <p>{item.fullDescription}</p>
 
                 <div className="detail-grid">
-                  <div><small>Categoria</small><span>{item.type}</span></div>
-                  <div><small>Duração</small><span>{item.duration}</span></div>
-                  <div><small>Classificação</small><span>{item.classification}</span></div>
-                  <div><small>Áudio</small><span>{audio}</span></div>
+                  <div>
+                    <small>Categoria</small>
+                    <span>{item.type}</span>
+                  </div>
+                  <div>
+                    <small>Duração</small>
+                    <span>{item.duration}</span>
+                  </div>
+                  <div>
+                    <small>Classificação</small>
+                    <span>{item.classification}</span>
+                  </div>
+                  <div>
+                    <small>Áudio</small>
+                    <span>{audio}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -650,14 +585,21 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
               <h5>Conteúdos parecidos</h5>
 
               {relatedItems.map((related) => (
-                <div key={related.id} className="related-item">
+                <button
+                  key={related.id}
+                  type="button"
+                  className="related-item"
+                  onClick={() => onOpenRelated(related)}
+                >
                   <img src={related.image} alt={related.title} />
                   <div>
                     <div className="related-title">{related.title}</div>
-                    <div className="related-meta">{related.genre} • {related.year}</div>
+                    <div className="related-meta">
+                      {related.genre} • {related.year}
+                    </div>
                     <div className="related-desc">{related.description}</div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </aside>
@@ -668,8 +610,10 @@ function PlayerModal({ item, onClose, favorites, onToggleFavorite, relatedItems 
 }
 
 export default function DrikStreamingExperience() {
+  const defaultFavorites = [films[0]?.id, series[1]?.id, animes[2]?.id].filter(Boolean);
+
   const [search, setSearch] = useState("");
-  const [favorites, setFavorites] = useState(getSafeFavorites);
+  const [favorites, setFavorites] = useState(getSafeFavorites(defaultFavorites));
   const [selectedItem, setSelectedItem] = useState(null);
   const [heroIndex, setHeroIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("Início");
@@ -682,7 +626,9 @@ export default function DrikStreamingExperience() {
   const seriesRef = useRef(null);
   const animesRef = useRef(null);
   const desenhosRef = useRef(null);
-  const listaRef = useRef(null);  const [newMovie, setNewMovie] = useState({
+  const listaRef = useRef(null);
+
+  const [newMovie, setNewMovie] = useState({
     title: "",
     type: "Filme",
     genre: "Ação",
@@ -698,11 +644,9 @@ export default function DrikStreamingExperience() {
     classification: "14+",
     quality: "1080p",
     audio: "Português",
-    seasons: "",
-    episodes: "",
-  });
-
-  useEffect(() => {
+    seasons: "1",
+    episodes: "8",
+  });  useEffect(() => {
     setCustomCatalog(getSafeCustomCatalog());
   }, []);
 
@@ -711,16 +655,11 @@ export default function DrikStreamingExperience() {
   }, [favorites]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % 5);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setLoggedUser(user || null);
+    });
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => unsubscribe();
   }, []);
 
   const allCatalog = useMemo(() => {
@@ -732,25 +671,47 @@ export default function DrikStreamingExperience() {
     return customCatalog.length ? [customCatalog[0], ...base.slice(0, 4)] : base;
   }, [customCatalog]);
 
+  useEffect(() => {
+    if (!heroItems.length) return;
+    const timer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroItems.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [heroItems]);
+
+  useEffect(() => {
+    if (heroIndex >= heroItems.length && heroItems.length > 0) {
+      setHeroIndex(0);
+    }
+  }, [heroItems, heroIndex]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const filteredCatalog = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return allCatalog;
 
     return allCatalog.filter((item) =>
-      [item.title, item.genre, item.type, item.description]
+      [item.title, item.genre, item.type, item.description, item.fullDescription]
         .join(" ")
         .toLowerCase()
         .includes(term)
     );
   }, [search, allCatalog]);
 
-  const toggleFavorite = (id) => {
-    setFavorites((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
-  };
-
   const saveCustomCatalog = (items) => {
     setCustomCatalog(items);
     localStorage.setItem(CUSTOM_MOVIES_KEY, JSON.stringify(items));
+  };
+
+  const toggleFavorite = (id) => {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
   };
 
   const handleAddMovie = () => {
@@ -760,6 +721,8 @@ export default function DrikStreamingExperience() {
 
     const itemId = Date.now();
 
+    const isSeriesType = newMovie.type === "Série" || newMovie.type === "Anime";
+
     const payload = {
       id: itemId,
       title: newMovie.title.trim(),
@@ -767,11 +730,10 @@ export default function DrikStreamingExperience() {
       genre: newMovie.genre.trim(),
       year: Number(newMovie.year) || 2026,
       note: String(newMovie.note || "8.5"),
-      duration:
-        newMovie.type === "Filme" || newMovie.type === "Desenho"
-          ? newMovie.duration || "100 min"
-          : `${newMovie.seasons || 1} temporada${Number(newMovie.seasons || 1) > 1 ? "s" : ""} • ${newMovie.episodes || 8} episódios`,
-      badge: newMovie.badge,
+      duration: isSeriesType
+        ? `${newMovie.seasons || 1} temporada${Number(newMovie.seasons || 1) > 1 ? "s" : ""} • ${newMovie.episodes || 8} episódios`
+        : newMovie.duration || "100 min",
+      badge: newMovie.badge || "Novo",
       image: newMovie.image || posterPool[0],
       banner: newMovie.banner || heroPool[0],
       video: newMovie.video || trailerPool[0],
@@ -781,8 +743,8 @@ export default function DrikStreamingExperience() {
       classification: newMovie.classification,
       quality: newMovie.quality,
       audio: newMovie.audio,
-      seasons: newMovie.type === "Filme" || newMovie.type === "Desenho" ? null : Number(newMovie.seasons || 1),
-      episodes: newMovie.type === "Filme" || newMovie.type === "Desenho" ? null : Number(newMovie.episodes || 8),
+      seasons: isSeriesType ? Number(newMovie.seasons || 1) : null,
+      episodes: isSeriesType ? Number(newMovie.episodes || 8) : null,
       isCustom: true,
     };
 
@@ -805,14 +767,12 @@ export default function DrikStreamingExperience() {
       classification: "14+",
       quality: "1080p",
       audio: "Português",
-      seasons: "",
-      episodes: "",
+      seasons: "1",
+      episodes: "8",
     });
 
     alert("Conteúdo adicionado com sucesso.");
-  };
-
-  const handleRemoveMovie = (id) => {
+  };  const handleRemoveMovie = (id) => {
     const updated = customCatalog.filter((item) => item.id !== id);
     saveCustomCatalog(updated);
   };
@@ -841,19 +801,80 @@ export default function DrikStreamingExperience() {
     }
   };
 
-  const favoritesItems = allCatalog.filter((item) => favorites.includes(item.id));
-  const continueWatching = allCatalog.filter((item) => item.progress >= 20 && item.progress <= 85).slice(0, 6);
-  const recommended = allCatalog.filter((item) => Number(item.note) >= 8.2).slice(0, 16);
-  const popular = allCatalog.filter((item) => item.badge === "Popular" || item.badge === "Top 10" || item.badge === "Clássico").slice(0, 16);
-  const launches = allCatalog.filter((item) => item.year >= 2020 || item.type === "Filme").slice(0, 16);
-  const trending = allCatalog.filter((item) => ["Em Alta", "Top 10", "Novo", "Clássico"].includes(item.badge)).slice(0, 16);
+  const loginGoogle = async () => {
+    if (googleLoading) return;
+    setGoogleLoading(true);
 
-  const actionFilms = allCatalog.filter((item) => item.type === "Filme" && item.genre === "Aventura").slice(0, 16);
-  const horrorFilms = allCatalog.filter((item) => item.type === "Filme" && item.genre === "Terror").slice(0, 16);
-  const comedyFilms = allCatalog.filter((item) => item.type === "Filme" && item.genre === "Comédia").slice(0, 16);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      setLoggedUser(user);
+      alert("Bem-vindo " + (user.displayName || "usuário"));
+    } catch (error) {
+      console.error("Erro no login com Google:", error);
+      const code = error?.code || "";
+
+      if (code.includes("popup-blocked")) {
+        alert("O navegador bloqueou o popup do Google. Libere o popup e tente de novo.");
+      } else if (code.includes("popup-closed-by-user")) {
+        alert("Você fechou a janela de login antes de concluir.");
+      } else if (code.includes("unauthorized-domain")) {
+        alert("Seu domínio ainda não foi autorizado no Firebase.");
+      } else if (code.includes("operation-not-allowed")) {
+        alert("O login com Google ainda não está ativado no Firebase Authentication.");
+      } else if (code.includes("network-request-failed")) {
+        alert("Falha de rede. Verifique sua internet e tente novamente.");
+      } else {
+        alert("Erro ao entrar com Google. Verifique Firebase, domínio autorizado e popup.");
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const logoutGoogle = async () => {
+    try {
+      await signOut(auth);
+      setLoggedUser(null);
+    } catch {
+      alert("Não foi possível sair da conta agora.");
+    }
+  };
+
+  const favoritesItems = allCatalog.filter((item) => favorites.includes(item.id));
+  const continueWatching = allCatalog
+    .filter((item) => item.progress >= 20 && item.progress <= 85)
+    .slice(0, 6);
+
+  const recommended = allCatalog.filter((item) => Number(item.note) >= 8.2).slice(0, 16);
+  const popular = allCatalog
+    .filter((item) => ["Popular", "Top 10", "Clássico"].includes(item.badge))
+    .slice(0, 16);
+
+  const launches = allCatalog
+    .filter((item) => item.year >= 2020 || item.isCustom)
+    .slice(0, 16);
+
+  const trending = allCatalog
+    .filter((item) => ["Em Alta", "Top 10", "Novo", "Clássico"].includes(item.badge))
+    .slice(0, 16);
+
+  const actionFilms = allCatalog
+    .filter((item) => item.type === "Filme" && ["Aventura", "Ação"].includes(item.genre))
+    .slice(0, 16);
+
+  const horrorFilms = allCatalog
+    .filter((item) => item.type === "Filme" && item.genre === "Terror")
+    .slice(0, 16);
+
+  const comedyFilms = allCatalog
+    .filter((item) => item.type === "Filme" && item.genre === "Comédia")
+    .slice(0, 16);
+
   const seriesRow = allCatalog.filter((item) => item.type === "Série").slice(0, 16);
   const animeRow = allCatalog.filter((item) => item.type === "Anime").slice(0, 16);
   const cartoonRow = allCatalog.filter((item) => item.type === "Desenho").slice(0, 16);
+
   const liveSearchResults = search ? filteredCatalog.slice(0, 12) : [];
   const menu = ["Início", "Filmes", "Séries", "Animes", "Desenhos", "Minha Lista"];
   const activeHero = heroItems[heroIndex] || films[0];
@@ -866,45 +887,7 @@ export default function DrikStreamingExperience() {
             (item.genre === selectedItem.genre || item.type === selectedItem.type)
         )
         .slice(0, 4)
-    : [];
-
- const loginGoogle = async () => {
-  if (googleLoading) return;
-  setGoogleLoading(true);
-
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    setLoggedUser(user);
-    alert("Bem-vindo " + (user.displayName || "usuário"));
-  } catch (error) {
-    console.error("Erro completo no login com Google:", error);
-
-    const code = error?.code || "sem-codigo";
-    const message = error?.message || "sem-mensagem";
-    const customData = error?.customData
-      ? JSON.stringify(error.customData)
-      : "sem-customData";
-
-    alert(
-      "ERRO FIREBASE:\n\n" +
-      "code: " + code + "\n\n" +
-      "message: " + message + "\n\n" +
-      "customData: " + customData
-    );
-  } finally {
-    setGoogleLoading(false);
-  }
-};
-
-  const logoutGoogle = async () => {
-    try {
-      await signOut(auth);
-      setLoggedUser(null);
-    } catch {
-      alert("Não foi possível sair da conta agora.");
-    }
-  };  return (
+    : [];  return (
     <div className="app-bg globoplay-theme">
       <header className={scrolled ? "header scrolled globoplay-header" : "header top globoplay-header"}>
         <div className="header-inner">
@@ -948,7 +931,11 @@ export default function DrikStreamingExperience() {
             )}
 
             <button type="button" className="avatar">
-              {loggedUser?.photoURL ? <img src={loggedUser.photoURL} alt="Usuário" /> : <span>{loggedUser?.displayName?.[0] || "👤"}</span>}
+              {loggedUser?.photoURL ? (
+                <img src={loggedUser.photoURL} alt="Usuário" />
+              ) : (
+                <span>{loggedUser?.displayName?.[0] || "👤"}</span>
+              )}
             </button>
           </div>
         </div>
@@ -964,10 +951,10 @@ export default function DrikStreamingExperience() {
         <div className="hero-inner">
           <div className="hero-copy">
             <div className="eyebrow">Catálogo Drik</div>
-            <h1>Interface mais próxima de streaming premium com foco em filmes clássicos, séries e animes.</h1>
+            <h1>Streaming com visual sofisticado, busca rápida, player moderno e catálogo dinâmico.</h1>
             <p>
-              Agora os botões do menu realmente levam para a seção certa, os filmes foram trocados por clássicos antigos
-              e a home ficou com uma pegada mais limpa e forte.
+              Estrutura reforçada, login persistente, hero rotativo corrigido, favoritos salvos, painel admin melhorado
+              e experiência mais próxima de uma plataforma real de filmes e séries.
             </p>
 
             <div className="tag-row">
@@ -988,7 +975,12 @@ export default function DrikStreamingExperience() {
 
             <div className="hero-dots">
               {heroItems.map((hero, index) => (
-                <button key={hero.id} type="button" className={heroIndex === index ? "active" : ""} onClick={() => setHeroIndex(index)} />
+                <button
+                  key={hero.id}
+                  type="button"
+                  className={heroIndex === index ? "active" : ""}
+                  onClick={() => setHeroIndex(index)}
+                />
               ))}
             </div>
           </div>
@@ -1013,12 +1005,14 @@ export default function DrikStreamingExperience() {
         <section className="stats">
           {[
             { label: "Catálogo total", value: allCatalog.length },
-            { label: "Filmes antigos", value: allCatalog.filter((item) => item.type === "Filme").length },
+            { label: "Filmes", value: allCatalog.filter((item) => item.type === "Filme").length },
             { label: "Séries + Animes", value: allCatalog.filter((item) => item.type === "Série" || item.type === "Anime").length },
             { label: "Desenhos", value: allCatalog.filter((item) => item.type === "Desenho").length },
           ].map((stat, index) => (
             <div key={stat.label} className="stat">
-              <div className="label" style={{ background: gradients[index % gradients.length] }}>{stat.label}</div>
+              <div className="label" style={{ background: gradients[index % gradients.length] }}>
+                {stat.label}
+              </div>
               <div className="value">{stat.value}</div>
             </div>
           ))}
@@ -1028,7 +1022,7 @@ export default function DrikStreamingExperience() {
           <div className="search-panel-head">
             <div>
               <h2>Busca do catálogo</h2>
-              <p>Pesquise filmes antigos, séries, animes e desenhos em tempo real.</p>
+              <p>Pesquise filmes, séries, animes e desenhos em tempo real.</p>
             </div>
 
             <div className="search-wide">
@@ -1047,9 +1041,13 @@ export default function DrikStreamingExperience() {
                 <button key={item.id} type="button" className="search-result" onClick={() => setSelectedItem(item)}>
                   <img src={item.image} alt={item.title} />
                   <div>
-                    <div className="result-tag" style={{ background: gradients[index % gradients.length] }}>{item.type}</div>
+                    <div className="result-tag" style={{ background: gradients[index % gradients.length] }}>
+                      {item.type}
+                    </div>
                     <div className="title">{item.title}</div>
-                    <div className="meta">{item.genre} • {item.year} • Nota {item.note}</div>
+                    <div className="meta">
+                      {item.genre} • {item.year} • Nota {item.note}
+                    </div>
                     <div className="desc">{item.description}</div>
                   </div>
                 </button>
@@ -1064,7 +1062,7 @@ export default function DrikStreamingExperience() {
           <div className="admin-head">
             <div>
               <h2>Painel para adicionar conteúdos</h2>
-              <p>Você pode cadastrar filmes, séries, animes e desenhos sem quebrar o site.</p>
+              <p>Cadastre filmes, séries, animes e desenhos sem quebrar o site.</p>
             </div>
           </div>
 
@@ -1103,6 +1101,61 @@ export default function DrikStreamingExperience() {
               <label>Duração</label>
               <input value={newMovie.duration} onChange={(e) => setNewMovie((prev) => ({ ...prev, duration: e.target.value }))} />
             </div>
+
+            <div className="admin-field">
+              <label>Selo</label>
+              <select value={newMovie.badge} onChange={(e) => setNewMovie((prev) => ({ ...prev, badge: e.target.value }))}>
+                <option>Novo</option>
+                <option>Top 10</option>
+                <option>Popular</option>
+                <option>Clássico</option>
+                <option>Em Alta</option>
+              </select>
+            </div>
+
+            <div className="admin-field">
+              <label>Classificação</label>
+              <select value={newMovie.classification} onChange={(e) => setNewMovie((prev) => ({ ...prev, classification: e.target.value }))}>
+                <option>10+</option>
+                <option>12+</option>
+                <option>14+</option>
+                <option>16+</option>
+                <option>18+</option>
+              </select>
+            </div>
+
+            <div className="admin-field">
+              <label>Qualidade</label>
+              <select value={newMovie.quality} onChange={(e) => setNewMovie((prev) => ({ ...prev, quality: e.target.value }))}>
+                <option>4K</option>
+                <option>1080p</option>
+                <option>720p</option>
+                <option>Ultra HD</option>
+              </select>
+            </div>
+
+            <div className="admin-field">
+              <label>Áudio</label>
+              <select value={newMovie.audio} onChange={(e) => setNewMovie((prev) => ({ ...prev, audio: e.target.value }))}>
+                <option>Português</option>
+                <option>Inglês</option>
+                <option>Japonês</option>
+              </select>
+            </div>
+
+            {(newMovie.type === "Série" || newMovie.type === "Anime") && (
+              <>
+                <div className="admin-field">
+                  <label>Temporadas</label>
+                  <input value={newMovie.seasons} onChange={(e) => setNewMovie((prev) => ({ ...prev, seasons: e.target.value }))} />
+                </div>
+
+                <div className="admin-field">
+                  <label>Episódios</label>
+                  <input value={newMovie.episodes} onChange={(e) => setNewMovie((prev) => ({ ...prev, episodes: e.target.value }))} />
+                </div>
+              </>
+            )}
 
             <div className="admin-field wide">
               <label>Imagem do card</label>
@@ -1143,7 +1196,9 @@ export default function DrikStreamingExperience() {
                   <img src={item.image} alt={item.title} />
                   <div className="custom-item-body">
                     <div className="custom-item-title">{item.title}</div>
-                    <div className="custom-item-meta">{item.type} • {item.genre} • {item.year}</div>
+                    <div className="custom-item-meta">
+                      {item.type} • {item.genre} • {item.year}
+                    </div>
                     <div className="custom-item-actions">
                       <button type="button" className="danger-btn" onClick={() => handleRemoveMovie(item.id)}>
                         Remover
@@ -1180,7 +1235,9 @@ export default function DrikStreamingExperience() {
                   <div className="continue-bottom">
                     <div className="continue-title">
                       <strong>{item.title}</strong>
-                      <span style={{ background: gradients[index % gradients.length] }}>{item.progress}%</span>
+                      <span style={{ background: gradients[index % gradients.length] }}>
+                        {item.progress}%
+                      </span>
                     </div>
                     <div className="progress-track">
                       <div className="progress-fill" style={{ width: `${item.progress}%` }} />
@@ -1192,33 +1249,45 @@ export default function DrikStreamingExperience() {
           </div>
         </section>
 
-        <RowSection sectionRef={filmesRef} title="Filmes Antigos" items={films} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection title="Aventura Clássica" items={actionFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection title="Terror Clássico" items={horrorFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection title="Comédia Clássica" items={comedyFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
+        <RowSection sectionRef={filmesRef} title="Filmes" items={films} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
+        <RowSection title="Aventura" items={actionFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
+        <RowSection title="Terror" items={horrorFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
+        <RowSection title="Comédia" items={comedyFilms} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
         <RowSection sectionRef={seriesRef} title="Séries" items={seriesRow} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
         <RowSection sectionRef={animesRef} title="Animes" items={animeRow} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
         <RowSection sectionRef={desenhosRef} title="Desenhos" items={cartoonRow} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
-        <RowSection sectionRef={listaRef} title="Minha Lista" items={favoritesItems.length ? favoritesItems : allCatalog.slice(0, 8)} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenDetails={setSelectedItem} />
+        <RowSection
+          sectionRef={listaRef}
+          title="Minha Lista"
+          items={favoritesItems.length ? favoritesItems : allCatalog.slice(0, 8)}
+          favorites={favorites}
+          onToggleFavorite={toggleFavorite}
+          onOpenDetails={setSelectedItem}
+        />
       </main>
 
       <footer className="footer">
         <div className="footer-grid">
           <div>
-            <div className="brand">Dri<span>k</span></div>
-            <p>Plataforma demonstrativa com filmes antigos, séries, animes, player moderno e navegação melhorada.</p>
+            <div className="brand">
+              Dri<span>k</span>
+            </div>
+            <p>Plataforma demonstrativa com player moderno, favoritos, busca, login Google e painel dinâmico.</p>
           </div>
 
           <div>
             <h4>Seções</h4>
-            {menu.map((item) => <div key={item}>{item}</div>)}
+            {menu.map((item) => (
+              <div key={item}>{item}</div>
+            ))}
           </div>
 
           <div>
-            <h4>Resumo</h4>
-            <div>Menu agora rola para a seção correta</div>
-            <div>Filmes trocados por clássicos antigos</div>
-            <div>Busca, favoritos, player e painel continuam funcionando</div>
+            <h4>Melhorias</h4>
+            <div>Login do Google com persistência</div>
+            <div>Hero rotativo corrigido</div>
+            <div>Painel de cadastro mais completo</div>
+            <div>Relacionados clicáveis no player</div>
           </div>
         </div>
       </footer>
@@ -1230,6 +1299,7 @@ export default function DrikStreamingExperience() {
           favorites={favorites}
           onToggleFavorite={toggleFavorite}
           relatedItems={relatedItems}
+          onOpenRelated={setSelectedItem}
         />
       )}
     </div>
