@@ -90,12 +90,6 @@ function parseTags(value = "") {
     .filter(Boolean);
 }
 
-function formatListText(value = "") {
-  if (!value) return "";
-  if (Array.isArray(value)) return value.join(", ");
-  return value;
-}
-
 function formatViews(value) {
   const num = Number(value || 0);
   if (!num) return "0";
@@ -252,15 +246,17 @@ function App() {
       const items = snapshot.docs.map((item) =>
         normalizeMovie({ id: item.id, ...item.data() })
       );
+
       items.sort((a, b) => {
         if ((b.popularity || 0) !== (a.popularity || 0)) {
           return (b.popularity || 0) - (a.popularity || 0);
         }
         return (b.createdAtMs || 0) - (a.createdAtMs || 0);
       });
+
       setMovies(items);
     } catch (error) {
-      console.error(error);
+      console.error("ERRO AO CARREGAR CATÁLOGO:", error);
       setCatalogError("Não foi possível carregar o catálogo agora.");
       showToast("Erro ao carregar o catálogo.", "error");
     } finally {
@@ -276,36 +272,39 @@ function App() {
     });
   }
 
- async function handleGoogleLogin() {
-  setGoogleLoading(true);
-  try {
-    await signInWithPopup(auth, provider);
-    showToast("Login realizado com sucesso.", "success");
-  } catch (error) {
-    console.error("ERRO GOOGLE LOGIN:", error);
-    console.error("CODE:", error?.code);
-    console.error("MESSAGE:", error?.message);
+  async function handleGoogleLogin() {
+    setGoogleLoading(true);
+    try {
+      await signInWithPopup(auth, provider);
+      showToast("Login realizado com sucesso.", "success");
+    } catch (error) {
+      console.error("ERRO GOOGLE LOGIN:", error);
+      console.error("CODE:", error?.code);
+      console.error("MESSAGE:", error?.message);
 
-    const code = error?.code || "";
-    let message = `Erro ao entrar com Google: ${code || "desconhecido"}`;
+      const code = error?.code || "";
+      let message = `Erro ao entrar com Google: ${code || "desconhecido"}`;
 
-    if (code.includes("popup-blocked")) {
-      message = "O popup foi bloqueado pelo navegador. Libere popups e tente novamente.";
-    } else if (code.includes("popup-closed-by-user")) {
-      message = "O login foi fechado antes de ser concluído.";
-    } else if (code.includes("unauthorized-domain")) {
-      message = "Este domínio ainda não está autorizado no Firebase Authentication.";
-    } else if (code.includes("operation-not-allowed")) {
-      message = "O login com Google ainda não está ativado no Firebase Authentication.";
-    } else if (code.includes("network-request-failed")) {
-      message = "Falha de rede ao tentar entrar com Google.";
+      if (code.includes("popup-blocked")) {
+        message =
+          "O popup foi bloqueado pelo navegador. Libere popups e tente novamente.";
+      } else if (code.includes("popup-closed-by-user")) {
+        message = "O login foi fechado antes de ser concluído.";
+      } else if (code.includes("unauthorized-domain")) {
+        message =
+          "Este domínio ainda não está autorizado no Firebase Authentication.";
+      } else if (code.includes("operation-not-allowed")) {
+        message =
+          "O login com Google ainda não está ativado no Firebase Authentication.";
+      } else if (code.includes("network-request-failed")) {
+        message = "Falha de rede ao tentar entrar com Google.";
+      }
+
+      showToast(message, "error");
+    } finally {
+      setGoogleLoading(false);
     }
-
-    showToast(message, "error");
-  } finally {
-    setGoogleLoading(false);
   }
-}
 
   async function handleLogout() {
     try {
@@ -327,16 +326,19 @@ function App() {
       const next = exists
         ? current.filter((id) => id !== movieId)
         : [...current, movieId];
+
       showToast(
         exists ? "Removido da Minha Lista." : "Adicionado à Minha Lista.",
         exists ? "info" : "success"
       );
+
       return next;
     });
   }
 
   function addToHistory(movie) {
     if (!movie?.id) return;
+
     setHistory((current) => {
       const cleaned = current.filter((item) => item.id !== movie.id);
       const entry = {
@@ -349,10 +351,12 @@ function App() {
     });
   }
 
-  async function incrementLocalView(movieId) {
+  function incrementLocalView(movieId) {
     setMovies((current) =>
       current.map((item) =>
-        item.id === movieId ? { ...item, views: Number(item.views || 0) + 1 } : item
+        item.id === movieId
+          ? { ...item, views: Number(item.views || 0) + 1 }
+          : item
       )
     );
   }
@@ -378,33 +382,25 @@ function App() {
 
     if (category !== "Todos") {
       const normalizedCategory = slugify(category);
+
       result = result.filter((movie) => {
         const movieCategory = slugify(movie.category);
         const movieGenre = slugify(movie.genre);
         const movieType = slugify(movie.type);
 
-        if (
-          normalizedCategory === "filmes" &&
-          movieType === "filme"
-        ) {
+        if (normalizedCategory === "filmes" && movieType === "filme") {
           return true;
         }
-        if (
-          normalizedCategory === "series" &&
-          movieType === "serie"
-        ) {
+
+        if (normalizedCategory === "series" && movieType === "serie") {
           return true;
         }
-        if (
-          normalizedCategory === "series" &&
-          movieType === "série"
-        ) {
+
+        if (normalizedCategory === "series" && movieType === "série") {
           return true;
         }
-        if (
-          normalizedCategory === "animes" &&
-          movieType === "anime"
-        ) {
+
+        if (normalizedCategory === "animes" && movieType === "anime") {
           return true;
         }
 
@@ -441,12 +437,15 @@ function App() {
 
   const relatedMovies = useMemo(() => {
     if (!selectedMovie) return [];
+
     return movies
       .filter((movie) => movie.id !== selectedMovie.id)
       .map((movie) => {
         let score = 0;
+
         if (slugify(movie.category) === slugify(selectedMovie.category)) score += 2;
         if (slugify(movie.type) === slugify(selectedMovie.type)) score += 2;
+
         if (
           movie.genre &&
           selectedMovie.genre &&
@@ -454,14 +453,18 @@ function App() {
         ) {
           score += 3;
         }
+
         const selectedTags = Array.isArray(selectedMovie.tags)
           ? selectedMovie.tags.map((tag) => slugify(tag))
           : [];
+
         const movieTags = Array.isArray(movie.tags)
           ? movie.tags.map((tag) => slugify(tag))
           : [];
+
         const commonTags = movieTags.filter((tag) => selectedTags.includes(tag));
         score += commonTags.length;
+
         return { ...movie, _score: score };
       })
       .sort((a, b) => {
@@ -480,25 +483,67 @@ function App() {
     try {
       if (payload.id) {
         const movieRef = doc(db, MOVIES_COLLECTION, payload.id);
+        const { id, ...dataToSave } = payload;
+
         await updateDoc(movieRef, {
-          ...payload,
-          id: undefined,
+          ...dataToSave,
           updatedAt: serverTimestamp(),
         });
+
+        setMovies((current) =>
+          current.map((item) =>
+            item.id === id
+              ? normalizeMovie({
+                  ...item,
+                  ...dataToSave,
+                  id,
+                  updatedAt: { seconds: Math.floor(Date.now() / 1000) },
+                })
+              : item
+          )
+        );
+
+        if (selectedMovie?.id === id) {
+          setSelectedMovie((current) =>
+            current
+              ? normalizeMovie({
+                  ...current,
+                  ...dataToSave,
+                  id,
+                  updatedAt: { seconds: Math.floor(Date.now() / 1000) },
+                })
+              : current
+          );
+        }
+
         showToast("Conteúdo atualizado com sucesso.", "success");
       } else {
-        await addDoc(collection(db, MOVIES_COLLECTION), {
+        const dataToSave = {
           ...payload,
           createdAt: serverTimestamp(),
           createdAtMs: Date.now(),
           updatedAt: serverTimestamp(),
+        };
+
+        const docRef = await addDoc(collection(db, MOVIES_COLLECTION), dataToSave);
+
+        const newMovie = normalizeMovie({
+          id: docRef.id,
+          ...payload,
+          createdAtMs: Date.now(),
         });
+
+        setMovies((current) => [newMovie, ...current]);
         showToast("Conteúdo adicionado com sucesso.", "success");
       }
-      await fetchMovies();
     } catch (error) {
-      console.error(error);
-      showToast("Falha ao salvar o conteúdo.", "error");
+      console.error("ERRO AO SALVAR CONTEÚDO:", error);
+      showToast(
+        error?.message
+          ? `Falha ao salvar: ${error.message}`
+          : "Falha ao salvar o conteúdo.",
+        "error"
+      );
       throw error;
     }
   }
@@ -512,10 +557,14 @@ function App() {
     try {
       await deleteDoc(doc(db, MOVIES_COLLECTION, movieId));
       setMovies((current) => current.filter((item) => item.id !== movieId));
-      if (selectedMovie?.id === movieId) setSelectedMovie(null);
+
+      if (selectedMovie?.id === movieId) {
+        setSelectedMovie(null);
+      }
+
       showToast("Conteúdo excluído com sucesso.", "success");
     } catch (error) {
-      console.error(error);
+      console.error("ERRO AO EXCLUIR:", error);
       showToast("Falha ao excluir o conteúdo.", "error");
     }
   }
@@ -529,6 +578,7 @@ function App() {
       showToast("Este conteúdo ainda não possui vídeo disponível.", "info");
       return;
     }
+
     addToHistory(movie);
     incrementLocalView(movie.id);
     setSelectedMovie(movie);
@@ -1902,6 +1952,7 @@ function App() {
                 {history.map((item) => {
                   const movie = movies.find((m) => m.id === item.id);
                   if (!movie) return null;
+
                   return (
                     <button
                       key={item.id}
@@ -2153,19 +2204,25 @@ function Hero({ refProp, movie, onBrandClick, onOpenMovie, onPlay }) {
           <div className="hero-actions">
             {movie ? (
               <>
-                <button className="primary-btn" type="button" onClick={() => onOpenMovie(movie)}>
+                <button
+                  className="primary-btn"
+                  type="button"
+                  onClick={() => onOpenMovie(movie)}
+                >
                   Ver detalhes
                 </button>
-                <button className="soft-btn" type="button" onClick={() => onPlay(movie)}>
+                <button
+                  className="soft-btn"
+                  type="button"
+                  onClick={() => onPlay(movie)}
+                >
                   Assistir
                 </button>
               </>
             ) : (
-              <>
-                <button className="primary-btn" type="button" onClick={onBrandClick}>
-                  Explorar
-                </button>
-              </>
+              <button className="primary-btn" type="button" onClick={onBrandClick}>
+                Explorar
+              </button>
             )}
           </div>
         </div>
@@ -2398,9 +2455,7 @@ function MovieCard({ movie, onOpen, onToggleFavorite, isFavorite }) {
       </div>
     </div>
   );
-}
-
-function DetailsModal({
+}function DetailsModal({
   movie,
   related,
   favorites,
@@ -2430,10 +2485,7 @@ function DetailsModal({
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div
-        className="details-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="details-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-close">
           <button className="icon-btn" type="button" onClick={onClose}>
             ✕
@@ -2668,8 +2720,15 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
+  useEffect(() => {
+    return () => {
+      if (previews.cover?.startsWith("blob:")) URL.revokeObjectURL(previews.cover);
+      if (previews.banner?.startsWith("blob:")) URL.revokeObjectURL(previews.banner);
+    };
+  }, [previews.cover, previews.banner]);
+
   function resetForm() {
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM });
     setEditingId("");
     setFiles({
       cover: null,
@@ -2688,6 +2747,12 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
       banner: 0,
       video: 0,
       trailer: 0,
+    });
+    setUploading({
+      cover: false,
+      banner: false,
+      video: false,
+      trailer: false,
     });
   }
 
@@ -2716,23 +2781,33 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
       recommended: !!movie.recommended,
       views: String(movie.views || ""),
     });
+
     setFiles({
       cover: null,
       banner: null,
       video: null,
       trailer: null,
     });
+
     setPreviews({
       cover: movie.coverUrl || "",
       banner: movie.bannerUrl || "",
       videoName: movie.videoUrl ? "Vídeo já cadastrado" : "",
       trailerName: movie.trailerUrl ? "Trailer já cadastrado" : "",
     });
+
     setProgress({
       cover: 0,
       banner: 0,
       video: 0,
       trailer: 0,
+    });
+
+    setUploading({
+      cover: false,
+      banner: false,
+      video: false,
+      trailer: false,
     });
   }
 
@@ -2746,6 +2821,7 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
 
   function onFileSelect(kind, file) {
     if (!file) return;
+
     setFiles((current) => ({ ...current, [kind]: file }));
 
     if (kind === "cover" || kind === "banner") {
@@ -2765,38 +2841,53 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
         return;
       }
 
-      setUploading((current) => ({ ...current, [kind]: true }));
-      setProgress((current) => ({ ...current, [kind]: 0 }));
+      try {
+        setUploading((current) => ({ ...current, [kind]: true }));
+        setProgress((current) => ({ ...current, [kind]: 0 }));
 
-      const cleanName = file.name.replace(/\s+/g, "-").toLowerCase();
-      const filePath = `drick/${kind}/${Date.now()}-${cleanName}`;
-      const storageRef = ref(storage, filePath);
-      const task = uploadBytesResumable(storageRef, file);
+        const cleanName = file.name.replace(/\s+/g, "-").toLowerCase();
+        const filePath = `drick/${kind}/${Date.now()}-${cleanName}`;
+        const storageRef = ref(storage, filePath);
+        const task = uploadBytesResumable(storageRef, file);
 
-      task.on(
-        "state_changed",
-        (snapshot) => {
-          const pct = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          setProgress((current) => ({ ...current, [kind]: pct }));
-        },
-        (error) => {
-          console.error(error);
-          setUploading((current) => ({ ...current, [kind]: false }));
-          reject(error);
-        },
-        async () => {
-          const downloadURL = await getDownloadURL(task.snapshot.ref);
-          setUploading((current) => ({ ...current, [kind]: false }));
-          resolve(downloadURL);
-        }
-      );
+        task.on(
+          "state_changed",
+          (snapshot) => {
+            const pct = Math.round(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            );
+            setProgress((current) => ({ ...current, [kind]: pct }));
+          },
+          (error) => {
+            console.error(`ERRO NO UPLOAD ${kind.toUpperCase()}:`, error);
+            setUploading((current) => ({ ...current, [kind]: false }));
+            reject(error);
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(task.snapshot.ref);
+              setUploading((current) => ({ ...current, [kind]: false }));
+              setProgress((current) => ({ ...current, [kind]: 100 }));
+              resolve(downloadURL);
+            } catch (error) {
+              console.error(`ERRO AO PEGAR URL ${kind.toUpperCase()}:`, error);
+              setUploading((current) => ({ ...current, [kind]: false }));
+              reject(error);
+            }
+          }
+        );
+      } catch (error) {
+        console.error(`ERRO GERAL NO UPLOAD ${kind.toUpperCase()}:`, error);
+        setUploading((current) => ({ ...current, [kind]: false }));
+        reject(error);
+      }
     });
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (submitting) return;
 
     if (!form.title.trim()) {
       onToast("Informe o título do conteúdo.", "error");
@@ -2865,14 +2956,29 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
         searchIndex: buildSearchIndex({
           ...form,
           tags: parseTags(form.tags),
+          coverUrl,
+          bannerUrl,
+          videoUrl,
+          trailerUrl,
         }),
       };
 
+      console.log("PAYLOAD ENVIADO:", payload);
+
       await onSave(payload);
+      onToast(
+        editingId ? "Conteúdo atualizado com sucesso." : "Conteúdo salvo com sucesso.",
+        "success"
+      );
       resetForm();
     } catch (error) {
-      console.error(error);
-      onToast("Falha ao enviar os arquivos ou salvar o conteúdo.", "error");
+      console.error("ERRO FINAL AO SALVAR:", error);
+      onToast(
+        error?.message
+          ? `Falha ao enviar ou salvar: ${error.message}`
+          : "Falha ao enviar os arquivos ou salvar o conteúdo.",
+        "error"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -2881,9 +2987,16 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
   async function handleDelete(id) {
     const confirmed = window.confirm("Deseja realmente excluir este conteúdo?");
     if (!confirmed) return;
+
     await onDelete(id);
-    if (editingId === id) resetForm();
+
+    if (editingId === id) {
+      resetForm();
+    }
   }
+
+  const isAnyUploading =
+    uploading.cover || uploading.banner || uploading.video || uploading.trailer;
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -3184,6 +3297,7 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
                       />
                     </label>
                   </div>
+
                   <div className="upload-preview poster">
                     {previews.cover ? (
                       <img src={previews.cover} alt="Preview capa" />
@@ -3191,6 +3305,7 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
                       <span>Sem capa selecionada</span>
                     )}
                   </div>
+
                   {uploading.cover && (
                     <div className="progress-wrap">
                       <div
@@ -3217,6 +3332,7 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
                       />
                     </label>
                   </div>
+
                   <div className="upload-preview">
                     {previews.banner ? (
                       <img src={previews.banner} alt="Preview banner" />
@@ -3224,6 +3340,7 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
                       <span>Sem banner selecionado</span>
                     )}
                   </div>
+
                   {uploading.banner && (
                     <div className="progress-wrap">
                       <div
@@ -3250,11 +3367,13 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
                       />
                     </label>
                   </div>
+
                   {previews.videoName ? (
                     <div className="file-chip">{previews.videoName}</div>
                   ) : (
                     <div className="file-chip">Nenhum vídeo selecionado</div>
                   )}
+
                   {uploading.video && (
                     <div className="progress-wrap">
                       <div
@@ -3281,11 +3400,13 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
                       />
                     </label>
                   </div>
+
                   {previews.trailerName ? (
                     <div className="file-chip">{previews.trailerName}</div>
                   ) : (
                     <div className="file-chip">Nenhum trailer selecionado</div>
                   )}
+
                   {uploading.trailer && (
                     <div className="progress-wrap">
                       <div
@@ -3305,12 +3426,22 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
                   marginTop: 18,
                 }}
               >
-                <button className="primary-btn" type="submit" disabled={submitting}>
-                  {submitting ? "Salvando..." : editingId ? "Atualizar conteúdo" : "Salvar conteúdo"}
+                <button
+                  className="primary-btn"
+                  type="submit"
+                  disabled={submitting || isAnyUploading}
+                >
+                  {submitting
+                    ? "Salvando..."
+                    : editingId
+                    ? "Atualizar conteúdo"
+                    : "Salvar conteúdo"}
                 </button>
+
                 <button className="soft-btn" type="button" onClick={resetForm}>
                   Limpar formulário
                 </button>
+
                 <button className="ghost-btn" type="button" onClick={onClose}>
                   Cancelar
                 </button>
@@ -3358,6 +3489,7 @@ function AdminPanel({ movies, onClose, onSave, onDelete, onToast }) {
                         >
                           Editar
                         </button>
+
                         <button
                           className="danger-btn"
                           type="button"
