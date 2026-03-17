@@ -377,7 +377,9 @@
       )}
     </div>
   );
-}function DetailsModal({
+}
+
+function DetailsModal({
   movie,
   open,
   onClose,
