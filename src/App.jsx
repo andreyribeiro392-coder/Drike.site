@@ -2,17 +2,18 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./index.css";
 import { auth, provider } from "./firebase";
 import {
-  export default function DrikStreamingExperience() {
+  
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+export default function DrikStreamingExperience() {
   return (
     <div style={{ background: "red", color: "white", minHeight: "100vh", fontSize: "40px", padding: "40px" }}>
       TESTE APP NOVO
     </div>
   );
 }
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
 
 const posterPool = [
   "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80",
