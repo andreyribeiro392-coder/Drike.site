@@ -832,40 +832,39 @@ function AdminPanel({
             )}
           </form>
 
-          <div className="admin-list">
-            <h3>Catálogo atual</h3>
+<section className="admin-list">
+  <h3>Catálogo atual</h3>
 
-            <div className="admin-items">
-              {movies.map((movie) => (
-                <div key={movie.id} className="admin-item">
+  <section className="admin-items">
+    {movies.map((movie) => (
+      <article key={movie.id} className="admin-item">
 
-                  <div
-                    className="admin-thumb"
-                    style={{ backgroundImage: `url(${movie.cover})` }}
-                  />
+        <div
+          className="admin-thumb"
+          style={{ backgroundImage: `url(${movie.cover})` }}
+        />
 
-                  <div className="admin-item-info">
-                    <strong>{movie.title}</strong>
-                    <span>
-                      {movie.type} • {movie.category} • {movie.year}
-                    </span>
-                  </div>
+        <header className="admin-item-info">
+          <strong>{movie.title}</strong>
+          <span>
+            {movie.type} • {movie.category} • {movie.year}
+          </span>
+        </header>
 
-                  <div className="admin-item-actions">
-                    <button onClick={() => handleEdit(movie)}>Editar</button>
+        <footer className="admin-item-actions">
+          <button onClick={() => handleEdit(movie)}>
+            Editar
+          </button>
 
-                    <button
-                      className="danger-btn"
-                      onClick={() => onDeleteMovie(movie.id)}
-                    >
-                     Remover
-                   </button>
-                </div>
-               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+          <button
+            className="danger-btn"
+            onClick={() => onDeleteMovie(movie.id)}
+          >
+            Remover
+          </button>
+        </footer>
+
+      </article>
+    ))}
+  </section>
+</section>
