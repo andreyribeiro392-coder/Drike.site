@@ -383,7 +383,7 @@ return (
       related={related}
     />
 
-    {user?.email === ADMIN_EMAIL && (
+       {user?.email === ADMIN_EMAIL && (
       <AdminPanel
         open={showAdmin}
         onClose={() => setShowAdmin(false)}
@@ -395,7 +395,9 @@ return (
     )}
   </div>
 );
-}function DetailsModal({
+}
+
+function DetailsModal({
   movie,
   open,
   onClose,
