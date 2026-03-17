@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   signInWithPopup,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
 } from "firebase/auth";
 
 import {
@@ -12,17 +12,9 @@ import {
   setDoc,
   deleteDoc,
   onSnapshot,
-  getDocs
-} from "firebase/firestore";
-
-import { auth, provider, db } from "./firebase";
-  collection,
-  doc,
-  setDoc,
-  deleteDoc,
-  onSnapshot,
   getDocs,
 } from "firebase/firestore";
+
 import { auth, provider, db } from "./firebase";
 
 const STORAGE_KEYS = {
