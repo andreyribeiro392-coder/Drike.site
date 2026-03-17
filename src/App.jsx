@@ -854,15 +854,16 @@ function AdminPanel({
                     <button
                       className="danger-btn"
                       onClick={() => onDeleteMovie(movie.id)}
-                    >
+                    >  
                       Remover
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+    </div>
   );
 }
