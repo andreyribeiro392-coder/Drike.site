@@ -21,181 +21,11 @@ const STORAGE_KEYS = {
   FAVORITES: "drik_favorites_v2",
   HISTORY: "drik_history_v2",
   CONTINUE: "drik_continue_v2",
-  PROFILE: "drik_profile_v2",
 };
 
 const ADMIN_EMAIL = "andreyribeiro392@gmail.com";
 
-const defaultMovies = [
-  {
-    id: 1,
-    title: "Ação Suprema",
-    type: "Filme",
-    category: "Ação",
-    year: 2024,
-    duration: "2h 08min",
-    rating: "16+",
-    cast: "Lucas Vieira, Ana Costa, Rafael Alves",
-    description:
-      "Um ex-agente retorna à ativa para impedir uma organização criminosa de derrubar a cidade em uma única noite.",
-    cover:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
-    banner:
-      "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=1600&q=80",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    videoUrl: "",
-    featured: true,
-    popularity: 98,
-    releaseTag: "Novo",
-  },
-  {
-    id: 2,
-    title: "Noite Sombria",
-    type: "Filme",
-    category: "Terror",
-    year: 2023,
-    duration: "1h 52min",
-    rating: "18+",
-    cast: "Marina Luz, Felipe Rocha, Clara Mota",
-    description:
-      "Uma família se muda para uma casa isolada e logo percebe que há algo observando cada passo deles.",
-    cover:
-      "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=900&q=80",
-    banner:
-      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1600&q=80",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    videoUrl: "",
-    featured: false,
-    popularity: 91,
-    releaseTag: "Em alta",
-  },
-  {
-    id: 3,
-    title: "Velocidade Fatal",
-    type: "Filme",
-    category: "Carros",
-    year: 2025,
-    duration: "2h 01min",
-    rating: "14+",
-    cast: "Diego Ferraz, Bruno Melo, Camila Torres",
-    description:
-      "Pilotos de rua entram em uma disputa mortal onde velocidade e lealdade valem mais do que qualquer prêmio.",
-    cover:
-      "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80",
-    banner:
-      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    videoUrl: "",
-    featured: true,
-    popularity: 95,
-    releaseTag: "Popular",
-  },
-  {
-    id: 4,
-    title: "Romance no Inverno",
-    type: "Filme",
-    category: "Romance",
-    year: 2022,
-    duration: "1h 44min",
-    rating: "12+",
-    cast: "Laura Menezes, Pedro Lima, Sofia Nunes",
-    description:
-      "Duas vidas completamente diferentes se cruzam durante uma temporada gelada que muda tudo para sempre.",
-    cover:
-      "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=900&q=80",
-    banner:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1600&q=80",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    videoUrl: "",
-    featured: false,
-    popularity: 82,
-    releaseTag: "Clássico",
-  },
-  {
-    id: 5,
-    title: "Crônicas de Neon",
-    type: "Série",
-    category: "Ficção",
-    year: 2026,
-    duration: "10 episódios",
-    rating: "16+",
-    cast: "Renan Silva, Giulia Prado, Vitor Ramos",
-    description:
-      "Em um futuro dividido entre tecnologia e caos, um grupo de jovens descobre um segredo capaz de mudar a cidade.",
-    cover:
-      "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?auto=format&fit=crop&w=900&q=80",
-    banner:
-      "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?auto=format&fit=crop&w=1600&q=80",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    videoUrl: "",
-    featured: true,
-    popularity: 99,
-    releaseTag: "Novo",
-  },
-  {
-    id: 6,
-    title: "Lâmina Celestial",
-    type: "Anime",
-    category: "Anime",
-    year: 2025,
-    duration: "24 episódios",
-    rating: "14+",
-    cast: "Elenco original",
-    description:
-      "Um jovem guerreiro desperta um poder antigo e precisa enfrentar monstros, reis e o próprio destino.",
-    cover:
-      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=900&q=80",
-    banner:
-      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=1600&q=80",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    videoUrl: "",
-    featured: true,
-    popularity: 97,
-    releaseTag: "Em alta",
-  },
-  {
-    id: 7,
-    title: "Riso Total",
-    type: "Filme",
-    category: "Comédia",
-    year: 2021,
-    duration: "1h 39min",
-    rating: "10+",
-    cast: "João Matos, Livia Reis, Enzo Duarte",
-    description:
-      "Uma sequência de desastres hilários transforma a semana de três amigos em um caos impossível de esquecer.",
-    cover:
-      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80",
-    banner:
-      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1600&q=80",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    videoUrl: "",
-    featured: false,
-    popularity: 75,
-    releaseTag: "Leve",
-  },
-  {
-    id: 8,
-    title: "Distrito Zero",
-    type: "Série",
-    category: "Suspense",
-    year: 2024,
-    duration: "8 episódios",
-    rating: "16+",
-    cast: "Nina Teles, Marcos Leal, Igor Pinto",
-    description:
-      "Depois de um apagão nacional, um grupo tenta sobreviver enquanto segredos perigosos surgem dentro do próprio abrigo.",
-    cover:
-      "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=900&q=80",
-    banner:
-      "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1600&q=80",
-    trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    videoUrl: "",
-    featured: false,
-    popularity: 93,
-    releaseTag: "Popular",
-  },
-];
+const defaultMovies = [];
 
 function readStorage(key, fallback) {
   try {
@@ -253,8 +83,6 @@ function normalizeMovie(movie) {
     description: movie.description || "",
     cover: movie.cover || "",
     banner: movie.banner || movie.cover || "",
-    trailer: movie.trailer || "",
-    videoUrl: movie.videoUrl || "",
     featured: !!movie.featured,
     popularity: Number(movie.popularity) || 0,
     releaseTag: movie.releaseTag || "Novo",
@@ -285,14 +113,7 @@ function StarRating({ value = 4.5 }) {
   );
 }
 
-function MovieCard({
-  movie,
-  onOpenDetails,
-  onPlay,
-  onToggleFavorite,
-  isFavorite,
-  onQuickTrailer,
-}) {
+function MovieCard({ movie, onOpenDetails, onToggleFavorite, isFavorite }) {
   return (
     <article className="movie-card">
       <div
@@ -307,11 +128,12 @@ function MovieCard({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onPlay(movie);
+                onOpenDetails(movie);
               }}
             >
-              ▶ Assistir
+              Ver detalhes
             </button>
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -319,14 +141,6 @@ function MovieCard({
               }}
             >
               {isFavorite ? "♥ Favorito" : "+ Minha Lista"}
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onQuickTrailer(movie);
-              }}
-            >
-              Trailer
             </button>
           </div>
         </div>
@@ -347,9 +161,7 @@ function Shelf({
   items,
   favorites,
   onOpenDetails,
-  onPlay,
   onToggleFavorite,
-  onQuickTrailer,
 }) {
   if (!items.length) return null;
 
@@ -366,83 +178,17 @@ function Shelf({
             key={movie.id}
             movie={movie}
             onOpenDetails={onOpenDetails}
-            onPlay={onPlay}
             onToggleFavorite={onToggleFavorite}
-            onQuickTrailer={onQuickTrailer}
             isFavorite={favorites.includes(movie.id)}
           />
         ))}
       </div>
     </section>
   );
-}function PlayerModal({ movie, open, onClose, onSaveProgress }) {
-  const videoRef = useRef(null);
-
-  useEffect(() => {
-    if (!open || !movie || !movie.videoUrl) return;
-    const saved = readStorage(STORAGE_KEYS.CONTINUE, {});
-    const current = saved[movie.id];
-    if (videoRef.current && current?.progress) {
-      videoRef.current.currentTime = current.progress;
-    }
-  }, [open, movie]);
-
-  if (!open || !movie) return null;
-
-  const hasDirectVideo = movie.videoUrl && !movie.videoUrl.includes("youtube");
-
-  return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="player-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="player-top">
-          <div>
-            <h2>{movie.title}</h2>
-            <p>
-              {movie.category} • {movie.year} • {movie.duration} • {movie.rating}
-            </p>
-          </div>
-          <button className="close-btn" onClick={onClose}>
-            ✕
-          </button>
-        </div>
-
-        <div className="player-area">
-          {hasDirectVideo ? (
-            <video
-              ref={videoRef}
-              className="video-player"
-              src={movie.videoUrl}
-              controls
-              autoPlay
-              onTimeUpdate={(e) => {
-                onSaveProgress(movie.id, e.currentTarget.currentTime);
-              }}
-            />
-          ) : movie.trailer ? (
-            <iframe
-              className="video-frame"
-              src={movie.trailer}
-              title={movie.title}
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-            />
-          ) : (
-            <div className="empty-player">
-              <h3>Nenhum vídeo configurado</h3>
-              <p>Adicione um trailer ou link de vídeo no painel administrativo.</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DetailsModal({
+}function DetailsModal({
   movie,
   open,
   onClose,
-  onPlay,
   onToggleFavorite,
   isFavorite,
   related,
@@ -465,13 +211,14 @@ function DetailsModal({
               <span className="hero-tag">{movie.type}</span>
               <h1>{movie.title}</h1>
               <p className="details-meta">
-                {movie.category} • {movie.year} • {movie.duration} • {movie.rating}
+                {movie.category} • {movie.year} • {movie.duration} •{" "}
+                {movie.rating}
               </p>
               <p className="details-description">{movie.description}</p>
 
               <div className="hero-buttons">
-                <button className="primary-btn" onClick={() => onPlay(movie)}>
-                  ▶ Assistir agora
+                <button className="primary-btn" onClick={onClose}>
+                  Fechar
                 </button>
                 <button
                   className="secondary-btn"
@@ -494,19 +241,33 @@ function DetailsModal({
             <div>
               <h3>Informações</h3>
               <ul className="details-list">
-                <li><strong>Tipo:</strong> {movie.type}</li>
-                <li><strong>Gênero:</strong> {movie.category}</li>
-                <li><strong>Ano:</strong> {movie.year}</li>
-                <li><strong>Duração:</strong> {movie.duration}</li>
-                <li><strong>Classificação:</strong> {movie.rating}</li>
-                <li><strong>Elenco:</strong> {movie.cast}</li>
+                <li>
+                  <strong>Tipo:</strong> {movie.type}
+                </li>
+                <li>
+                  <strong>Gênero:</strong> {movie.category}
+                </li>
+                <li>
+                  <strong>Ano:</strong> {movie.year}
+                </li>
+                <li>
+                  <strong>Duração:</strong> {movie.duration}
+                </li>
+                <li>
+                  <strong>Classificação:</strong> {movie.rating}
+                </li>
+                <li>
+                  <strong>Elenco:</strong> {movie.cast}
+                </li>
               </ul>
             </div>
 
             <div>
               <h3>Avaliação</h3>
               <StarRating value={4.6} />
-              <p className="mini-note">Baseado em curtidas e engajamento da plataforma.</p>
+              <p className="mini-note">
+                Baseado em curtidas e engajamento da plataforma.
+              </p>
             </div>
           </div>
 
@@ -556,8 +317,6 @@ function AdminPanel({
     description: "",
     cover: "",
     banner: "",
-    trailer: "",
-    videoUrl: "",
     featured: false,
     popularity: 80,
     releaseTag: "Novo",
@@ -621,8 +380,6 @@ function AdminPanel({
       description: movie.description || "",
       cover: movie.cover || "",
       banner: movie.banner || "",
-      trailer: movie.trailer || "",
-      videoUrl: movie.videoUrl || "",
       featured: !!movie.featured,
       popularity: movie.popularity || 80,
       releaseTag: movie.releaseTag || "Novo",
@@ -640,9 +397,7 @@ function AdminPanel({
           <button className="close-btn" onClick={onClose}>
             ✕
           </button>
-        </div>
-
-        <div className="admin-layout">
+        </div>        <div className="admin-layout">
           <form className="admin-form" onSubmit={handleSubmit}>
             <h3>{editingId ? "Editar título" : "Adicionar novo título"}</h3>
 
@@ -713,7 +468,9 @@ function AdminPanel({
                   onChange={(e) => setForm({ ...form, rating: e.target.value })}
                   placeholder="14+"
                 />
-              </label>              <label>
+              </label>
+
+              <label>
                 Popularidade
                 <input
                   type="number"
@@ -759,15 +516,6 @@ function AdminPanel({
               </label>
 
               <label className="full">
-                URL da capa
-                <input
-                  value={form.cover}
-                  onChange={(e) => setForm({ ...form, cover: e.target.value })}
-                  placeholder="https://..."
-                />
-              </label>
-
-              <label className="full">
                 Upload da capa do PC
                 <input
                   type="file"
@@ -777,38 +525,11 @@ function AdminPanel({
               </label>
 
               <label className="full">
-                URL do banner
-                <input
-                  value={form.banner}
-                  onChange={(e) => setForm({ ...form, banner: e.target.value })}
-                  placeholder="https://..."
-                />
-              </label>
-
-              <label className="full">
                 Upload do banner do PC
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "banner")}
-                />
-              </label>
-
-              <label className="full">
-                Trailer (YouTube embed)
-                <input
-                  value={form.trailer}
-                  onChange={(e) => setForm({ ...form, trailer: e.target.value })}
-                  placeholder="https://www.youtube.com/embed/..."
-                />
-              </label>
-
-              <label className="full">
-                Link direto do vídeo
-                <input
-                  value={form.videoUrl}
-                  onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
-                  placeholder="https://...mp4"
                 />
               </label>
 
@@ -918,8 +639,6 @@ export default function App() {
   const [category, setCategory] = useState("Todos");
   const [sortBy, setSortBy] = useState("popularidade");
   const [selectedMovie, setSelectedMovie] = useState(null);
-  const [playerMovie, setPlayerMovie] = useState(null);
-  const [quickTrailerMovie, setQuickTrailerMovie] = useState(null);
   const [showAdmin, setShowAdmin] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -976,9 +695,7 @@ export default function App() {
     startMoviesSync();
 
     return () => unsubscribe();
-  }, []);
-
-  const categories = useMemo(() => getCategories(movies), [movies]);
+  }, []);  const categories = useMemo(() => getCategories(movies), [movies]);
 
   const filteredMovies = useMemo(() => {
     let result = [...movies];
@@ -1011,7 +728,9 @@ export default function App() {
     }
 
     return result;
-  }, [movies, category, search, sortBy]);  const featuredMovies = useMemo(
+  }, [movies, category, search, sortBy]);
+
+  const featuredMovies = useMemo(
     () => movies.filter((movie) => movie.featured).slice(0, 6),
     [movies]
   );
@@ -1047,7 +766,10 @@ export default function App() {
   );
 
   const animeMovies = useMemo(
-    () => movies.filter((movie) => movie.category === "Anime" || movie.type === "Anime"),
+    () =>
+      movies.filter(
+        (movie) => movie.category === "Anime" || movie.type === "Anime"
+      ),
     [movies]
   );
 
@@ -1059,10 +781,6 @@ export default function App() {
 
   function openDetails(movie) {
     setSelectedMovie(movie);
-  }
-
-  function openPlayer(movie) {
-    setPlayerMovie(movie);
     setHistory((prev) => {
       const next = [movie.id, ...prev.filter((id) => id !== movie.id)];
       return next.slice(0, 20);
@@ -1116,24 +834,23 @@ export default function App() {
       });
 
       if (selectedMovie?.id === id) setSelectedMovie(null);
-      if (playerMovie?.id === id) setPlayerMovie(null);
     } catch (error) {
       console.error("Erro ao remover filme:", error);
       alert("Não foi possível remover o filme.");
     }
   }
 
-async function handleGoogleLogin() {
-  try {
-    setGoogleLoading(true);
-    await signInWithPopup(auth, provider);
-  } catch (error) {
-    console.error("ERRO GOOGLE LOGIN:", error);
-    alert(error?.code || error?.message || "Erro ao entrar com Google.");
-  } finally {
-    setGoogleLoading(false);
+  async function handleGoogleLogin() {
+    try {
+      setGoogleLoading(true);
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("ERRO GOOGLE LOGIN:", error);
+      alert(error?.code || error?.message || "Erro ao entrar com Google.");
+    } finally {
+      setGoogleLoading(false);
+    }
   }
-}
 
   async function handleLogout() {
     try {
@@ -1146,7 +863,10 @@ async function handleGoogleLogin() {
   const related = getRelatedMovies(selectedMovie, movies);
 
   const historyMovies = useMemo(
-    () => history.map((id) => movies.find((movie) => movie.id === id)).filter(Boolean),
+    () =>
+      history
+        .map((id) => movies.find((movie) => movie.id === id))
+        .filter(Boolean),
     [history, movies]
   );
 
@@ -1217,9 +937,6 @@ async function handleGoogleLogin() {
               <p className="hero-description">{heroMovie.description}</p>
 
               <div className="hero-buttons">
-                <button className="primary-btn" onClick={() => openPlayer(heroMovie)}>
-                  ▶ Assistir
-                </button>
                 <button
                   className="secondary-btn"
                   onClick={() => openDetails(heroMovie)}
@@ -1274,9 +991,7 @@ async function handleGoogleLogin() {
           items={trendingMovies}
           favorites={favorites}
           onOpenDetails={openDetails}
-          onPlay={openPlayer}
           onToggleFavorite={toggleFavorite}
-          onQuickTrailer={setQuickTrailerMovie}
         />
 
         <Shelf
@@ -1284,9 +999,7 @@ async function handleGoogleLogin() {
           items={newReleases}
           favorites={favorites}
           onOpenDetails={openDetails}
-          onPlay={openPlayer}
           onToggleFavorite={toggleFavorite}
-          onQuickTrailer={setQuickTrailerMovie}
         />
 
         <section id="animes">
@@ -1295,9 +1008,7 @@ async function handleGoogleLogin() {
             items={animeMovies}
             favorites={favorites}
             onOpenDetails={openDetails}
-            onPlay={openPlayer}
             onToggleFavorite={toggleFavorite}
-            onQuickTrailer={setQuickTrailerMovie}
           />
         </section>
 
@@ -1307,9 +1018,7 @@ async function handleGoogleLogin() {
             items={continueMovies}
             favorites={favorites}
             onOpenDetails={openDetails}
-            onPlay={openPlayer}
             onToggleFavorite={toggleFavorite}
-            onQuickTrailer={setQuickTrailerMovie}
           />
         )}
 
@@ -1320,9 +1029,7 @@ async function handleGoogleLogin() {
               items={favoritesMovies}
               favorites={favorites}
               onOpenDetails={openDetails}
-              onPlay={openPlayer}
               onToggleFavorite={toggleFavorite}
-              onQuickTrailer={setQuickTrailerMovie}
             />
           </section>
         )}
@@ -1333,9 +1040,7 @@ async function handleGoogleLogin() {
             items={historyMovies}
             favorites={favorites}
             onOpenDetails={openDetails}
-            onPlay={openPlayer}
             onToggleFavorite={toggleFavorite}
-            onQuickTrailer={setQuickTrailerMovie}
           />
         )}
 
@@ -1344,82 +1049,17 @@ async function handleGoogleLogin() {
           items={filteredMovies}
           favorites={favorites}
           onOpenDetails={openDetails}
-          onPlay={openPlayer}
           onToggleFavorite={toggleFavorite}
-          onQuickTrailer={setQuickTrailerMovie}
         />
-
-        <section className="bottom-panels">
-          <div className="info-panel">
-            <h3>Recursos já incluídos</h3>
-            <ul>
-              <li>Busca em tempo real</li>
-              <li>Filtros por categoria</li>
-              <li>Ordenação por popularidade, ano e título</li>
-              <li>Login com Google</li>
-              <li>Minha Lista / Favoritos</li>
-              <li>Histórico</li>
-              <li>Continuar assistindo</li>
-              <li>Painel para adicionar, editar e remover filmes</li>
-              <li>Upload de capa e banner pelo computador</li>
-              <li>Player com trailer ou vídeo direto</li>
-            </ul>
-          </div>
-
-          <div className="info-panel">
-            <h3>O que pode ser ligado depois</h3>
-            <ul>
-              <li>Firebase Firestore para salvar tudo online</li>
-              <li>Firebase Storage para upload real de imagens</li>
-              <li>Comentários</li>
-              <li>Avaliações por estrelas reais</li>
-              <li>Assinaturas</li>
-              <li>Notificações</li>
-              <li>Analytics</li>
-              <li>Página individual por rota</li>
-            </ul>
-          </div>
-        </section>
       </main>
-
-      <footer className="site-footer">
-        <div>
-          <strong>DRIK</strong>
-          <p>Sua plataforma de filmes, séries e animes.</p>
-        </div>
-        <div className="footer-links">
-          <span>Em alta</span>
-          <span>Minha lista</span>
-          <span>Lançamentos</span>
-          <span>Suporte</span>
-        </div>
-      </footer>
-
-      <PlayerModal
-        movie={playerMovie}
-        open={!!playerMovie}
-        onClose={() => setPlayerMovie(null)}
-        onSaveProgress={saveProgress}
-      />
 
       <DetailsModal
         movie={selectedMovie}
         open={!!selectedMovie}
         onClose={() => setSelectedMovie(null)}
-        onPlay={(movie) => {
-          setSelectedMovie(null);
-          openPlayer(movie);
-        }}
         onToggleFavorite={toggleFavorite}
         isFavorite={selectedMovie ? favorites.includes(selectedMovie.id) : false}
         related={related}
-      />
-
-      <PlayerModal
-        movie={quickTrailerMovie}
-        open={!!quickTrailerMovie}
-        onClose={() => setQuickTrailerMovie(null)}
-        onSaveProgress={saveProgress}
       />
 
       {user?.email === ADMIN_EMAIL && (
