@@ -2,6 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./index.css";
 import { auth, provider } from "./firebase";
 import {
+  export default function DrikStreamingExperience() {
+  return (
+    <div style={{ background: "red", color: "white", minHeight: "100vh", fontSize: "40px", padding: "40px" }}>
+      TESTE APP NOVO
+    </div>
+  );
+}
   signInWithPopup,
   signOut,
   onAuthStateChanged,
