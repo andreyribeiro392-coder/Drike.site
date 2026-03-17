@@ -827,16 +827,18 @@ function AdminPanel({
                       style={{ backgroundImage: `url(${form.banner})` }}
                     />
                   )}
-                </div>
+                  </div>
               </div>
             )}
           </form>
 
           <div className="admin-list">
             <h3>Catálogo atual</h3>
+
             <div className="admin-items">
               {movies.map((movie) => (
                 <div key={movie.id} className="admin-item">
+
                   <div
                     className="admin-thumb"
                     style={{ backgroundImage: `url(${movie.cover})` }}
@@ -856,13 +858,12 @@ function AdminPanel({
                       className="danger-btn"
                       onClick={() => onDeleteMovie(movie.id)}
                     >
-                      Remover
-                    </button>
-                  </div>
+                     Remover
+                   </button>
                 </div>
-              </div>
+               </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </div>
