@@ -395,7 +395,6 @@ return (
     )}
   </div>
 );
-}
 
 function DetailsModal({
   movie,
