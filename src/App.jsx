@@ -1,6 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+
 import {
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "firebase/auth";
+
+import {
+  collection,
+  doc,
+  setDoc,
+  deleteDoc,
+  onSnapshot,
+  getDocs
+} from "firebase/firestore";
+
+import { auth, provider, db } from "./firebase";
   collection,
   doc,
   setDoc,
