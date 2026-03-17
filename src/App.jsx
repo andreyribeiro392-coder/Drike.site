@@ -1123,25 +1123,17 @@ export default function App() {
     }
   }
 
-  async function handleGoogleLogin() {
-    try {
-      setGoogleLoading(true);
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      const code = error?.code || "";
-      if (code.includes("popup-closed-by-user")) {
-        alert("Você fechou a janela de login antes de concluir.");
-      } else if (code.includes("unauthorized-domain")) {
-        alert("Seu domínio ainda não foi autorizado no Firebase.");
-      } else if (code.includes("operation-not-allowed")) {
-        alert("O login com Google ainda não está ativado no Firebase Authentication.");
-      } else {
-        alert("Erro ao entrar com Google. Verifique Firebase, domínio e autenticação.");
-      }
-    } finally {
-      setGoogleLoading(false);
-    }
+async function handleGoogleLogin() {
+  try {
+    setGoogleLoading(true);
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    console.error("ERRO GOOGLE LOGIN:", error);
+    alert(error?.code || error?.message || "Erro ao entrar com Google.");
+  } finally {
+    setGoogleLoading(false);
   }
+}
 
   async function handleLogout() {
     try {
