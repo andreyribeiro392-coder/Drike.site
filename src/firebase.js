@@ -3,12 +3,13 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "SUA_KEY",
-  authDomain: "SEU_DOMINIO.firebaseapp.com",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_STORAGE_BUCKET",
-  messagingSenderId: "SEU_MESSAGING_ID",
-  appId: "SEU_APP_ID",
+  apiKey: "AIzaSyCXM-nEcv5HAwXeBVKQ4eSZK8DIzGpRXHE",
+  authDomain: "drik-streaming.firebaseapp.com",
+  projectId: "drik-streaming",
+  storageBucket: "drik-streaming.firebasestorage.app",
+  messagingSenderId: "366702155857",
+  appId: "1:366702155857:web:7a0a922ce0f63c78f50070",
+  measurementId: "G-NVTTBB1PLF",
 };
 
 const app = initializeApp(firebaseConfig);
