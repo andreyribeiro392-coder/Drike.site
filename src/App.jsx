@@ -9,7 +9,7 @@ const STORAGE_KEYS = {
   CONTINUE: "drik_continue_v2",
   PROFILE: "drik_profile_v2",
 };
-
+const ADMIN_EMAIL = "andreyribeiro392@gmail.com";
 const defaultMovies = [
   {
     id: 1,
@@ -1084,9 +1084,11 @@ function DetailsModal({
             />
           </div>
 
-          <button className="admin-btn" onClick={() => setShowAdmin(true)}>
-            Painel
-          </button>
+{user?.email === ADMIN_EMAIL && (
+  <button className="admin-btn" onClick={() => setShowAdmin(true)}>
+    Painel
+  </button>
+)}
 
           {user ? (
             <div className="user-box">
@@ -1327,14 +1329,16 @@ function DetailsModal({
         onSaveProgress={saveProgress}
       />
 
-      <AdminPanel
-        open={showAdmin}
-        onClose={() => setShowAdmin(false)}
-        movies={movies}
-        onAddMovie={handleAddMovie}
-        onUpdateMovie={handleUpdateMovie}
-        onDeleteMovie={handleDeleteMovie}
-      />
+{user?.email === ADMIN_EMAIL && (
+  <AdminPanel
+    open={showAdmin}
+    onClose={() => setShowAdmin(false)}
+    movies={movies}
+    onAddMovie={handleAddMovie}
+    onUpdateMovie={handleUpdateMovie}
+    onDeleteMovie={handleDeleteMovie}
+  />
+)}
     </div>
   );
 }
