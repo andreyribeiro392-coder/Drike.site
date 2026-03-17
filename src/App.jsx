@@ -524,7 +524,8 @@ function DetailsModal({
       </div>
     </div>
   );
-}function AdminPanel({
+}
+function AdminPanel({
   open,
   onClose,
   movies,
