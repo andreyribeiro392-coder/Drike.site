@@ -851,17 +851,18 @@ function AdminPanel({
 
                   <div className="admin-item-actions">
                     <button onClick={() => handleEdit(movie)}>Editar</button>
+
                     <button
                       className="danger-btn"
                       onClick={() => onDeleteMovie(movie.id)}
-                    >  
+                    >
                       Remover
                     </button>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
