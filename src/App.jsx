@@ -146,7 +146,9 @@ async function handleDeleteMovie(id) {
     console.error("Erro ao remover filme:", error);
     alert("Não foi possível remover o filme.");
   }
-}async function handleGoogleLogin() {
+}
+
+async function handleGoogleLogin() {
   try {
     setGoogleLoading(true);
     await signInWithPopup(auth, provider);
@@ -328,7 +330,9 @@ return (
           onOpenDetails={openDetails}
           onToggleFavorite={toggleFavorite}
         />
-      </section>      {continueMovies.length > 0 && (
+      </section>
+
+      {continueMovies.length > 0 && (
         <Shelf
           title="Continuar assistindo"
           items={continueMovies}
@@ -373,6 +377,7 @@ return (
       movie={selectedMovie}
       open={!!selectedMovie}
       onClose={() => setSelectedMovie(null)}
+      onPlay={openDetails}
       onToggleFavorite={toggleFavorite}
       isFavorite={selectedMovie ? favorites.includes(selectedMovie.id) : false}
       related={related}
