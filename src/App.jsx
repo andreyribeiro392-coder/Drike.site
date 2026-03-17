@@ -276,36 +276,36 @@ function App() {
     });
   }
 
-  async function handleGoogleLogin() {
-    setGoogleLoading(true);
-    try {
-      await signInWithPopup(auth, provider);
-      showToast("Login realizado com sucesso.", "success");
-    } catch (error) {
-      console.error(error);
-      const code = error?.code || "";
-      let message = "Erro ao entrar com Google. Tente novamente.";
+ async function handleGoogleLogin() {
+  setGoogleLoading(true);
+  try {
+    await signInWithPopup(auth, provider);
+    showToast("Login realizado com sucesso.", "success");
+  } catch (error) {
+    console.error("ERRO GOOGLE LOGIN:", error);
+    console.error("CODE:", error?.code);
+    console.error("MESSAGE:", error?.message);
 
-      if (code.includes("popup-blocked")) {
-        message =
-          "O popup foi bloqueado pelo navegador. Libere popups e tente novamente.";
-      } else if (code.includes("popup-closed-by-user")) {
-        message = "O login foi fechado antes de ser concluído.";
-      } else if (code.includes("unauthorized-domain")) {
-        message =
-          "Este domínio ainda não está autorizado no Firebase Authentication.";
-      } else if (code.includes("operation-not-allowed")) {
-        message =
-          "O login com Google ainda não está ativado no Firebase Authentication.";
-      } else if (code.includes("network-request-failed")) {
-        message = "Falha de rede ao tentar entrar com Google.";
-      }
+    const code = error?.code || "";
+    let message = `Erro ao entrar com Google: ${code || "desconhecido"}`;
 
-      showToast(message, "error");
-    } finally {
-      setGoogleLoading(false);
+    if (code.includes("popup-blocked")) {
+      message = "O popup foi bloqueado pelo navegador. Libere popups e tente novamente.";
+    } else if (code.includes("popup-closed-by-user")) {
+      message = "O login foi fechado antes de ser concluído.";
+    } else if (code.includes("unauthorized-domain")) {
+      message = "Este domínio ainda não está autorizado no Firebase Authentication.";
+    } else if (code.includes("operation-not-allowed")) {
+      message = "O login com Google ainda não está ativado no Firebase Authentication.";
+    } else if (code.includes("network-request-failed")) {
+      message = "Falha de rede ao tentar entrar com Google.";
     }
+
+    showToast(message, "error");
+  } finally {
+    setGoogleLoading(false);
   }
+}
 
   async function handleLogout() {
     try {
