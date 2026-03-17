@@ -70,6 +70,329 @@ const EMPTY_FORM = {
   views: "",
 };
 
+const INITIAL_MOVIES = [
+  {
+    id: "seed-1",
+    title: "Godzilla",
+    description: "O monstro lendário que marcou o cinema japonês.",
+    synopsis:
+      "Após testes nucleares no Pacífico, uma criatura colossal surge do oceano e ameaça destruir Tóquio. Um clássico absoluto do cinema de monstros.",
+    category: "Filmes",
+    genre: "Ficção, Terror",
+    type: "filme",
+    year: "1954",
+    duration: "1h 36min",
+    rating: "12 anos",
+    cast: "Akira Takarada, Momoko Kōchi, Akihiko Hirata",
+    director: "Ishirō Honda",
+    seasons: "",
+    episodes: "",
+    featured: true,
+    coverUrl:
+      "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80",
+    bannerUrl:
+      "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=1800&q=80",
+    videoUrl: "",
+    trailerUrl: "",
+    popularity: 88,
+    createdAtMs: Date.now() - 100000,
+    tags: ["classico", "monstro", "japao", "1950"],
+    language: "Japonês",
+    subtitle: "Português",
+    status: "publicado",
+    recommended: true,
+    views: 0,
+  },
+  {
+    id: "seed-2",
+    title: "Seven Samurai",
+    description: "Uma obra-prima épica do cinema mundial.",
+    synopsis:
+      "Em um vilarejo ameaçado por bandidos, sete samurais são contratados para defender os camponeses. Um dos maiores filmes de todos os tempos.",
+    category: "Filmes",
+    genre: "Ação, Drama",
+    type: "filme",
+    year: "1954",
+    duration: "3h 27min",
+    rating: "14 anos",
+    cast: "Toshiro Mifune, Takashi Shimura",
+    director: "Akira Kurosawa",
+    seasons: "",
+    episodes: "",
+    featured: false,
+    coverUrl:
+      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80",
+    bannerUrl:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80",
+    videoUrl: "",
+    trailerUrl: "",
+    popularity: 95,
+    createdAtMs: Date.now() - 90000,
+    tags: ["samurai", "classico", "acao", "1950"],
+    language: "Japonês",
+    subtitle: "Português",
+    status: "publicado",
+    recommended: true,
+    views: 0,
+  },
+  {
+    id: "seed-3",
+    title: "Rear Window",
+    description: "Suspense clássico e inesquecível.",
+    synopsis:
+      "Um fotógrafo preso em casa passa a observar os vizinhos pela janela e começa a suspeitar que testemunhou um assassinato.",
+    category: "Filmes",
+    genre: "Suspense, Mistério",
+    type: "filme",
+    year: "1954",
+    duration: "1h 52min",
+    rating: "12 anos",
+    cast: "James Stewart, Grace Kelly",
+    director: "Alfred Hitchcock",
+    seasons: "",
+    episodes: "",
+    featured: false,
+    coverUrl:
+      "https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=900&q=80",
+    bannerUrl:
+      "https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?auto=format&fit=crop&w=1800&q=80",
+    videoUrl: "",
+    trailerUrl: "",
+    popularity: 90,
+    createdAtMs: Date.now() - 80000,
+    tags: ["suspense", "classico", "misterio", "1950"],
+    language: "Inglês",
+    subtitle: "Português",
+    status: "publicado",
+    recommended: true,
+    views: 0,
+  },
+  {
+    id: "seed-4",
+    title: "Ben-Hur",
+    description: "Grandioso épico histórico do cinema.",
+    synopsis:
+      "Judah Ben-Hur enfrenta traição, escravidão e vingança em uma das maiores produções épicas já feitas.",
+    category: "Filmes",
+    genre: "Ação, Drama, Épico",
+    type: "filme",
+    year: "1959",
+    duration: "3h 32min",
+    rating: "12 anos",
+    cast: "Charlton Heston, Jack Hawkins",
+    director: "William Wyler",
+    seasons: "",
+    episodes: "",
+    featured: false,
+    coverUrl:
+      "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=900&q=80",
+    bannerUrl:
+      "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?auto=format&fit=crop&w=1800&q=80",
+    videoUrl: "",
+    trailerUrl: "",
+    popularity: 91,
+    createdAtMs: Date.now() - 70000,
+    tags: ["epico", "classico", "historico", "1950"],
+    language: "Inglês",
+    subtitle: "Português",
+    status: "publicado",
+    recommended: false,
+    views: 0,
+  },
+  {
+    id: "seed-5",
+    title: "12 Angry Men",
+    description: "Drama intenso dentro de uma sala de júri.",
+    synopsis:
+      "Doze jurados decidem o destino de um jovem acusado de assassinato, enquanto um único homem insiste em questionar as evidências.",
+    category: "Filmes",
+    genre: "Drama",
+    type: "filme",
+    year: "1957",
+    duration: "1h 36min",
+    rating: "12 anos",
+    cast: "Henry Fonda, Lee J. Cobb",
+    director: "Sidney Lumet",
+    seasons: "",
+    episodes: "",
+    featured: false,
+    coverUrl:
+      "https://images.unsplash.com/photo-1512070679279-8988d32161be?auto=format&fit=crop&w=900&q=80",
+    bannerUrl:
+      "https://images.unsplash.com/photo-1460881680858-30d872d5b530?auto=format&fit=crop&w=1800&q=80",
+    videoUrl: "",
+    trailerUrl: "",
+    popularity: 93,
+    createdAtMs: Date.now() - 60000,
+    tags: ["drama", "juri", "classico", "1950"],
+    language: "Inglês",
+    subtitle: "Português",
+    status: "publicado",
+    recommended: true,
+    views: 0,
+  },
+  {
+    id: "seed-6",
+    title: "Demon Slayer",
+    description: "Um dos animes mais populares da atualidade.",
+    synopsis:
+      "Após sua família ser atacada por demônios, Tanjiro Kamado parte em uma jornada para salvar sua irmã e se tornar um caçador de demônios.",
+    category: "Animes",
+    genre: "Ação, Fantasia",
+    type: "anime",
+    year: "2019",
+    duration: "24min",
+    rating: "14 anos",
+    cast: "Natsuki Hanae, Akari Kitō",
+    director: "Haruo Sotozaki",
+    seasons: "4",
+    episodes: "60+",
+    featured: true,
+    coverUrl:
+      "https://images.unsplash.com/photo-1542204637-e67bc7d41e48?auto=format&fit=crop&w=900&q=80",
+    bannerUrl:
+      "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1800&q=80",
+    videoUrl: "",
+    trailerUrl: "",
+    popularity: 98,
+    createdAtMs: Date.now() - 50000,
+    tags: ["anime", "acao", "fantasia", "dublado"],
+    language: "Japonês",
+    subtitle: "Português",
+    status: "publicado",
+    recommended: true,
+    views: 0,
+  },
+  {
+    id: "seed-7",
+    title: "Attack on Titan",
+    description: "Um anime intenso, épico e sombrio.",
+    synopsis:
+      "A humanidade vive cercada por muralhas para se proteger de gigantes devoradores de humanos. Eren decide lutar após uma tragédia devastadora.",
+    category: "Animes",
+    genre: "Ação, Drama, Fantasia",
+    type: "anime",
+    year: "2013",
+    duration: "24min",
+    rating: "16 anos",
+    cast: "Yuki Kaji, Yui Ishikawa",
+    director: "Tetsuro Araki",
+    seasons: "4",
+    episodes: "80+",
+    featured: true,
+    coverUrl:
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+    bannerUrl:
+      "https://images.unsplash.com/photo-1487180144351-b8472da7d491?auto=format&fit=crop&w=1800&q=80",
+    videoUrl: "",
+    trailerUrl: "",
+    popularity: 99,
+    createdAtMs: Date.now() - 40000,
+    tags: ["anime", "acao", "drama", "epico"],
+    language: "Japonês",
+    subtitle: "Português",
+    status: "publicado",
+    recommended: true,
+    views: 0,
+  },
+  {
+    id: "seed-8",
+    title: "Jujutsu Kaisen",
+    description: "Maldições, batalhas e muita ação.",
+    synopsis:
+      "Yuji Itadori entra para o mundo dos feiticeiros jujutsu depois de entrar em contato com um objeto amaldiçoado extremamente perigoso.",
+    category: "Animes",
+    genre: "Ação, Sobrenatural",
+    type: "anime",
+    year: "2020",
+    duration: "24min",
+    rating: "16 anos",
+    cast: "Junya Enoki, Yuma Uchida",
+    director: "Sunghoo Park",
+    seasons: "2",
+    episodes: "40+",
+    featured: false,
+    coverUrl:
+      "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?auto=format&fit=crop&w=900&q=80",
+    bannerUrl:
+      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1800&q=80",
+    videoUrl: "",
+    trailerUrl: "",
+    popularity: 96,
+    createdAtMs: Date.now() - 30000,
+    tags: ["anime", "sobrenatural", "acao", "popular"],
+    language: "Japonês",
+    subtitle: "Português",
+    status: "publicado",
+    recommended: true,
+    views: 0,
+  },
+  {
+    id: "seed-9",
+    title: "Naruto",
+    description: "O clássico ninja que marcou gerações.",
+    synopsis:
+      "Naruto Uzumaki sonha em se tornar Hokage e conquistar o respeito de sua vila, enquanto enfrenta desafios, rivais e inimigos poderosos.",
+    category: "Animes",
+    genre: "Ação, Aventura",
+    type: "anime",
+    year: "2002",
+    duration: "23min",
+    rating: "12 anos",
+    cast: "Junko Takeuchi, Noriaki Sugiyama",
+    director: "Hayato Date",
+    seasons: "9",
+    episodes: "220",
+    featured: false,
+    coverUrl:
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=900&q=80",
+    bannerUrl:
+      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1800&q=80",
+    videoUrl: "",
+    trailerUrl: "",
+    popularity: 94,
+    createdAtMs: Date.now() - 20000,
+    tags: ["anime", "ninja", "aventura", "classico"],
+    language: "Japonês",
+    subtitle: "Português",
+    status: "publicado",
+    recommended: false,
+    views: 0,
+  },
+  {
+    id: "seed-10",
+    title: "One Piece",
+    description: "A jornada pirata mais famosa dos animes.",
+    synopsis:
+      "Monkey D. Luffy parte em busca do lendário tesouro One Piece para se tornar o Rei dos Piratas ao lado de sua tripulação.",
+    category: "Animes",
+    genre: "Aventura, Ação, Fantasia",
+    type: "anime",
+    year: "1999",
+    duration: "24min",
+    rating: "12 anos",
+    cast: "Mayumi Tanaka, Kazuya Nakai",
+    director: "Konosuke Uda",
+    seasons: "Saga contínua",
+    episodes: "1000+",
+    featured: true,
+    coverUrl:
+      "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=900&q=80",
+    bannerUrl:
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1800&q=80",
+    videoUrl: "",
+    trailerUrl: "",
+    popularity: 97,
+    createdAtMs: Date.now() - 10000,
+    tags: ["anime", "pirata", "aventura", "epico"],
+    language: "Japonês",
+    subtitle: "Português",
+    status: "publicado",
+    recommended: true,
+    views: 0,
+  },
+];
+
 function slugify(value = "") {
   return value
     .toString()
@@ -241,24 +564,34 @@ function App() {
   async function fetchMovies() {
     setLoadingCatalog(true);
     setCatalogError("");
+
     try {
       const snapshot = await getDocs(collection(db, MOVIES_COLLECTION));
-      const items = snapshot.docs.map((item) =>
+      const firebaseItems = snapshot.docs.map((item) =>
         normalizeMovie({ id: item.id, ...item.data() })
       );
 
-      items.sort((a, b) => {
+      const seedItems = INITIAL_MOVIES.map((item) => normalizeMovie(item));
+
+      const allItems =
+        firebaseItems.length > 0 ? [...firebaseItems] : [...seedItems];
+
+      allItems.sort((a, b) => {
         if ((b.popularity || 0) !== (a.popularity || 0)) {
           return (b.popularity || 0) - (a.popularity || 0);
         }
         return (b.createdAtMs || 0) - (a.createdAtMs || 0);
       });
 
-      setMovies(items);
+      setMovies(allItems);
     } catch (error) {
       console.error("ERRO AO CARREGAR CATÁLOGO:", error);
-      setCatalogError("Não foi possível carregar o catálogo agora.");
-      showToast("Erro ao carregar o catálogo.", "error");
+
+      const seedItems = INITIAL_MOVIES.map((item) => normalizeMovie(item));
+      setMovies(seedItems);
+
+      setCatalogError("");
+      showToast("Catálogo carregado com filmes locais de exemplo.", "info");
     } finally {
       setLoadingCatalog(false);
     }
@@ -2455,7 +2788,9 @@ function MovieCard({ movie, onOpen, onToggleFavorite, isFavorite }) {
       </div>
     </div>
   );
-}function DetailsModal({
+}
+
+function DetailsModal({
   movie,
   related,
   favorites,
