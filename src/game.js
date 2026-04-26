@@ -1,73 +1,132 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
+// ===== CONFIG =====
+let player = { x: 500, y: 400, speed: 4 };
 let enemies = [];
-let player = { x: 400, y: 300, health: 100 };
+let bullets = [];
+let keys = {};
+let mouse = { x: 0, y: 0 };
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-function startGame() {
-  document.getElementById("menu").style.display = "none";
-  canvas.style.display = "block";
-  document.getElementById("hud").style.display = "block";
+// ===== START =====
+export function startGame(canvas) {
+  const ctx = canvas.getContext("2d");
 
   spawnEnemies();
-  gameLoop();
-}
 
-function spawnEnemies() {
-  for (let i = 0; i < 5; i++) {
-    enemies.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: 40,
-      health: 100
+  window.addEventListener("keydown", (e) => (keys[e.key] = true));
+  window.addEventListener("keyup", (e) => (keys[e.key] = false));
+
+  canvas.addEventListener("mousemove", (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+
+  canvas.addEventListener("click", shoot);
+
+  function shoot() {
+    bullets.push({
+      x: player.x,
+      y: player.y,
+      dx: mouse.x - player.x,
+      dy: mouse.y - player.y
     });
   }
-}
 
-canvas.addEventListener("click", (e) => {
-  let mx = e.clientX;
-  let my = e.clientY;
-
-  enemies.forEach(enemy => {
-    let dx = enemy.x - mx;
-    let dy = enemy.y - my;
-    let dist = Math.sqrt(dx * dx + dy * dy);
-
-    // AIM ASSIST (leve)
-    if (dist < 60) {
-      let isHeadshot = my < enemy.y - 10;
-
-      let damage = isHeadshot ? 60 : 25;
-      enemy.health -= damage;
-
-      console.log(isHeadshot ? "HEADSHOT!" : "BODY SHOT");
-
-      if (enemy.health <= 0) {
-        enemies = enemies.filter(e => e !== enemy);
-      }
+  function spawnEnemies() {
+    for (let i = 0; i < 10; i++) {
+      enemies.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        health: 100
+      });
     }
-  });
-});
+  }
 
-function drawEnemies() {
-  enemies.forEach(enemy => {
-    // corpo
-    ctx.fillStyle = "red";
-    ctx.fillRect(enemy.x - 20, enemy.y - 20, 40, 40);
+  function update() {
+    // movimento jogador
+    if (keys["w"]) player.y -= player.speed;
+    if (keys["s"]) player.y += player.speed;
+    if (keys["a"]) player.x -= player.speed;
+    if (keys["d"]) player.x += player.speed;
 
-    // cabeça
+    // movimento tiros
+    bullets.forEach((b) => {
+      b.x += b.dx * 0.05;
+      b.y += b.dy * 0.05;
+    });
+
+    // colisão
+    bullets.forEach((b) => {
+      enemies.forEach((e) => {
+        let dx = e.x - b.x;
+        let dy = e.y - b.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 20) {
+          e.health -= 50;
+        }
+      });
+    });
+
+    enemies = enemies.filter((e) => e.health > 0);
+  }
+
+  function drawMap() {
+    // chão
+    ctx.fillStyle = "#2e7d32";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // casas
+    for (let i = 0; i < 8; i++) {
+      ctx.fillStyle = "#795548";
+      ctx.fillRect(100 + i * 150, 100, 80, 80);
+    }
+
+    // prédios
+    for (let i = 0; i < 5; i++) {
+      ctx.fillStyle = "#555";
+      ctx.fillRect(200 + i * 200, 300, 100, 150);
+    }
+  }
+
+  function drawPlayer() {
+    ctx.fillStyle = "blue";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, 15, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawEnemies() {
+    enemies.forEach((e) => {
+      ctx.fillStyle = "red";
+      ctx.fillRect(e.x, e.y, 30, 30);
+    });
+  }
+
+  function drawBullets() {
     ctx.fillStyle = "yellow";
-    ctx.fillRect(enemy.x - 10, enemy.y - 35, 20, 15);
-  });
-}
+    bullets.forEach((b) => {
+      ctx.fillRect(b.x, b.y, 5, 5);
+    });
+  }
 
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  function drawCrosshair() {
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(mouse.x, mouse.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
-  drawEnemies();
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  requestAnimationFrame(gameLoop);
+    update();
+    drawMap();
+    drawPlayer();
+    drawEnemies();
+    drawBullets();
+    drawCrosshair();
+
+    requestAnimationFrame(loop);
+  }
+
+  loop();
 }
