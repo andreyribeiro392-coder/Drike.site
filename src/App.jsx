@@ -1,22 +1,36 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { startGame } from "./game";
 
 function App() {
   const canvasRef = useRef(null);
+  const [jogando, setJogando] = useState(false);
 
   const iniciar = () => {
-    const canvas = canvasRef.current;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    setJogando(true);
 
-    startGame(canvas);
+    setTimeout(() => {
+      const canvas = canvasRef.current;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      startGame(canvas);
+    }, 100);
   };
 
   return (
-    <div id="menu">
-      <button onClick={iniciar}>Jogar</button>
-      <canvas ref={canvasRef}></canvas>
-    </div>
+    <>
+      {!jogando && (
+        <div id="menu">
+          <h1>Jogo de Tiro 🔫</h1>
+          <button onClick={iniciar}>Jogar</button>
+        </div>
+      )}
+
+      <canvas
+        ref={canvasRef}
+        style={{ display: jogando ? "block" : "none" }}
+      />
+    </>
   );
 }
 
