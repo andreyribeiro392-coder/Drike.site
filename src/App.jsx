@@ -12,7 +12,6 @@ function App() {
       const canvas = canvasRef.current;
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-
       startGame(canvas);
     }, 100);
   };
@@ -21,8 +20,9 @@ function App() {
     <>
       {!jogando && (
         <div id="menu">
-          <h1>Jogo de Tiro 🔫</h1>
-          <button onClick={iniciar}>Jogar</button>
+          <h1>🔥 BATTLE SHOOTER 🔥</h1>
+          <p>Sobreviva. Mire. Elimine.</p>
+          <button onClick={iniciar}>JOGAR AGORA</button>
         </div>
       )}
 
