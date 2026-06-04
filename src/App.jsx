@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
-import { Activity, Flame, Trophy, Target, Dumbbell, Brain, Calendar, Droplets, User, Bell, Gear, Moon, Sun, Award, Crown, Zap, Heart, TrendingUp, Clock, Shield, Star, BarChart3, Sparkles, Timer, Menu, X, CheckCircle, AlertCircle, Info, Home, ArrowLeft, LogOut, Filter, Search } from "lucide-react";
+import { Activity, Flame, Trophy, Target, Dumbbell, Brain, Calendar, Droplets, User, Bell, Sliders, Moon, Sun, Award, Crown, Zap, Heart, TrendingUp, Clock, Shield, Star, BarChart3, Sparkles, Timer, Menu, X, CheckCircle, AlertCircle, Info, Home, ArrowLeft, LogOut, Filter, Search } from "lucide-react";
 
 // ======================================
 // CUSTOM HOOK - useLocalStorage
@@ -1307,7 +1307,7 @@ function Sidebar() {
     { icon: Droplets, title: "Hidratação", path: "/hydration" },
     { icon: Trophy, title: "Conquistas", path: "/achievements" },
     { icon: User, title: "Perfil", path: "/profile" },
-    { icon: Gear, title: "Configurações", path: "/settings" }
+    { icon: Sliders, title: "Configurações", path: "/settings" }
   ];
 
   const handleLogout = async () => {
