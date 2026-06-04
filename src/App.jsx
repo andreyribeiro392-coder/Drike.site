@@ -1,228 +1,247 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const LISTA_EXERCICIOS = [
+const EXERCICIOS_DATA = [
   {
     id: 1,
     categoria: "Pernas",
-    nome: "Gêmeos Sentado (Panturrilha na Máquina)",
+    nome: "Gêmeos Sentado (Panturrilha)",
     alvo: "Panturrilhas (Sóleo)",
-    series: "4 séries x 12-15 repetições",
+    config: "4 séries x 12-15 repetições",
     passos: [
-      "Sente-se no aparelho e ajuste o suporte acolchoado firmemente sobre as coxas.",
-      "Coloque a ponta dos pés na plataforma, deixando os calcanhares para fora.",
-      "Alongue descendo os calcanhares ao máximo e empurre para cima subindo na ponta dos pés."
+      "Ajuste o suporte acolchoado firmemente sobre as coxas.",
+      "Coloque apenas a ponta dos pés na plataforma.",
+      "Alongue descendo ao máximo e suba contraindo a panturrilha no topo."
     ],
     erro: "Usar o impulso do corpo ou fazer o movimento curto demais.",
-    prompt: "A minimalist 3D white clay character performing a seated calf raise exercise on a gym machine, full body view, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/400x250?text=Boneco+3D+Panturrilha"
+    prompt: "A minimalist 3D white clay character performing a seated calf raise exercise on a gym machine, full body, white studio background, 3d render.",
+    imagem: "https://via.placeholder.com/500x300?text=Boneco+3D+Panturrilha"
   },
   {
     id: 2,
     categoria: "Pernas",
     nome: "Leg Press 45º",
     alvo: "Quadríceps e Glúteos",
-    series: "4 séries x 10-12 repetições",
+    config: "4 séries x 10-12 repetições",
     passos: [
-      "Apoie completamente as costas e o quadril no encosto do banco.",
-      "Posicione os pés na plataforma alinhados com a largura dos ombros.",
-      "Destrave a máquina e flexione os joelhos até 90 graus de forma controlada.",
-      "Empurre a plataforma de volta sem estender e travar totalmente os joelhos."
+      "Apoie completamente as costas e o quadril no encosto.",
+      "Pés na plataforma alinhados com a largura dos ombros.",
+      "Desça o peso controladamente até formar um ângulo de 90º nos joelhos."
     ],
-    erro: "Tirar o quadril do banco ou deixar os joelhos entrarem (valgo).",
-    prompt: "A minimalist 3D white clay character performing a 45 degree leg press exercise, full body view, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/400x250?text=Boneco+3D+Leg+Press"
+    erro: "Tirar o quadril do banco ou deixar os joelhos entrarem.",
+    prompt: "A minimalist 3D white clay character performing a 45 degree leg press exercise, full body, white studio background, 3d render.",
+    imagem: "https://via.placeholder.com/500x300?text=Boneco+3D+Leg+Press"
   },
   {
     id: 3,
-    categoria: "Pernas",
-    nome: "Cadeira Extensora",
-    alvo: "Quadríceps (Frente da Coxa)",
-    series: "4 séries x 12 repetições",
-    passos: [
-      "Ajuste o encosto para apoiar bem as costas e alinhe o joelho com o eixo da máquina.",
-      "Posicione o rolo de espuma logo acima do tornozelo.",
-      "Estenda as pernas completamente para cima, contraindo o músculo.",
-      "Retorne à posição inicial segurando a descida."
-    ],
-    erro: "Fazer o movimento rápido demais sem controlar o peso na descida.",
-    prompt: "A minimalist 3D white clay character using a leg extension gym machine, full body view, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/400x250?text=Boneco+3D+Extensora"
-  },
-  {
-    id: 4,
     categoria: "Peito",
     nome: "Supino Vertical na Máquina",
     alvo: "Peitoral Maior",
-    series: "4 séries x 10 repetições",
+    config: "4 séries x 10 repetições",
     passos: [
-      "Regule o banco para que as manoplas fiquem na altura do meio do peito.",
-      "Mantenha as escápulas fechadas e apoiadas firmemente no banco.",
-      "Empurre as manoplas para a frente soltando o ar.",
-      "Retorne devagar controlando a carga até sentir o peito alongar."
+      "Regule o banco para as manoplas ficarem na altura do meio do peito.",
+      "Mantenha as escápulas fechadas e apoiadas no banco.",
+      "Empurre as manoplas para a frente estendendo os braços."
     ],
-    erro: "Projetar os ombros para a frente no final do movimento de empurrar.",
-    prompt: "A minimalist 3D white clay character using a chest press gym machine, full body view, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/400x250?text=Boneco+3D+Supino+Maquina"
+    erro: "Projetar os ombros para a frente no final do movimento.",
+    prompt: "A minimalist 3D white clay character using a chest press gym machine, full body, white studio background, 3d render.",
+    imagem: "https://via.placeholder.com/500x300?text=Boneco+3D+Supino"
+  },
+  {
+    id: 4,
+    categoria: "Costas",
+    nome: "Puxada Alta na Polia",
+    alvo: "Dorsais (Costas)",
+    config: "4 séries x 10 repetições",
+    passos: [
+      "Segure a barra com pegada aberta, maior que a largura dos ombros.",
+      "Puxe a barra em direção ao peito inclinando levemente o tronco para trás.",
+      "Controle a subida estendendo os braços completamente."
+    ],
+    erro: "Dar trancos com o tronco ou puxar a barra na nuca.",
+    prompt: "A minimalist 3D white clay character doing a lat pulldown exercise, full body, white studio background, 3d render.",
+    imagem: "https://via.placeholder.com/500x300?text=Boneco+3D+Puxada"
   },
   {
     id: 5,
-    categoria: "Peito",
-    nome: "Pec Deck (Voador / Pack Deck)",
-    alvo: "Isolamento do Peitoral",
-    series: "3 séries x 12 repetições",
-    passos: [
-      "Ajuste o banco e segure os apoios mantendo os cotovelos levemente flexionados.",
-      "Pressione os braços um em direção ao outro até que se encontrem na frente.",
-      "Abra os braços controlando o peso, sem passar da linha dos ombros."
-    ],
-    erro: "Bater os pesos da máquina no meio ou usar os ombros para puxar.",
-    prompt: "A minimalist 3D white clay character using a chest fly pec deck machine, full body view, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/400x250?text=Boneco+3D+Pec+Deck"
-  },
-  {
-    id: 6,
-    categoria: "Costas",
-    nome: "Puxada Alta na Polia",
-    alvo: "Dorsais (Asas das Costas)",
-    series: "4 séries x 10 repetições",
-    passos: [
-      "Segure a barra com as mãos um pouco mais largas que a linha dos ombros.",
-      "Sente-se e estabilize as coxas embaixo das travas.",
-      "Puxe a barra para baixo em direção ao peito, inclinando o tronco levemente para trás."
-    ],
-    erro: "Puxar a barra por trás do pescoço ou usar o peso do corpo para dar tranco.",
-    prompt: "A minimalist 3D white clay character doing a lat pulldown exercise on a cable machine, full body view, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/400x250?text=Boneco+3D+Puxada+Alta"
-  },
-  {
-    id: 7,
-    categoria: "Costas",
-    nome: "Remada Baixa Sentado na Polia",
-    alvo: "Meio das Costas e Romboides",
-    series: "4 séries x 12 repetições",
-    passos: [
-      "Sente-se de frente para a polia com os pés apoiados e joelhos levemente flexionados.",
-      "Segure o puxador estendendo os braços e mantendo a coluna ereta.",
-      "Puxe o triângulo em direção ao abdômen, espremendo as costas nas escápulas."
-    ],
-    erro: "Ficar curvando a coluna para frente e para trás durante o exercício.",
-    prompt: "A minimalist 3D white clay character performing a seated cable row exercise, full body view, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/400x250?text=Boneco+3D+Remada+Baixa"
-  },
-  {
-    id: 8,
-    categoria: "Ombros",
-    nome: "Desenvolvimento na Máquina",
-    alvo: "Deltoides (Ombros)",
-    series: "4 séries x 10 repetições",
-    passos: [
-      "Ajuste o assento para que as manoplas comecem próximas à altura do queixo.",
-      "Segure firme e empurre o peso verticalmente para cima até estender os braços.",
-      "Desça de forma lenta até que as mãos fiquem próximas à linha da orelha."
-    ],
-    erro: "Arcar excessivamente a lombar descolando as costas do banco.",
-    prompt: "A minimalist 3D white clay character using a shoulder press gym machine, full body view, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/400x250?text=Boneco+3D+Desenvolvimento"
-  },
-  {
-    id: 9,
     categoria: "Braços",
-    nome: "Tríceps Pulley (Corda ou Barra)",
-    alvo: "Tríceps (Atrás do Braço)",
-    series: "4 séries x 12 repetições",
+    nome: "Tríceps Pulley (Polia Alta)",
+    alvo: "Tríceps",
+    config: "4 séries x 12 repetições",
     passos: [
-      "Posicione-se de frente para o cabo da polia alta.",
-      "Mantenha os cotovelos colados fixamente nas laterais do seu tronco.",
-      "Empurre as mãos para baixo estendendo os braços por completo."
+      "Mantenha os cotovelos colados fixamente nas laterais do tronco.",
+      "Empurre a barra para baixo estendendo os braços por completo.",
+      "Retorne subindo as mãos de forma lenta até a linha do peito."
     ],
-    erro: "Ficar abrindo os cotovelos ou mexendo os braços para frente e para trás.",
-    prompt: "A minimalist 3D white clay character doing a triceps pushdown on a cable machine, full body view, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/400x250?text=Boneco+3D+Triceps"
-  },
-  {
-    id: 10,
-    categoria: "Braços",
-    nome: "Rosca Bíceps na Polia Baixa",
-    alvo: "Bíceps (Frente do Braço)",
-    series: "4 séries x 12 repetições",
-    passos: [
-      "Fique em pé de frente para a polia baixa segurando a barra reta ou curva.",
-      "Mantenha a postura reta e os cotovelos fixos ao lado do corpo.",
-      "Flexione os braços trazendo a barra em direção aos ombros, contraindo o bíceps."
-    ],
-    erro: "Jogar os cotovelos para frente para ajudar a subir a barra com o ombro.",
-    prompt: "A minimalist 3D white clay character performing a bicep cable curl, full body view, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/400x250?text=Boneco+3D+Biceps"
+    erro: "Ficar abrindo ou movendo os cotovelos para frente e para trás.",
+    prompt: "A minimalist 3D white clay character doing a triceps pushdown on a cable machine, full body, 3d render.",
+    imagem: "https://via.placeholder.com/500x300?text=Boneco+3D+Triceps"
   }
 ];
 
 export default function App() {
-  const [categoriaAtiva, setCategoriaAtiva] = useState("Todos");
+  const [categoria, setCategoria] = useState("Todos");
+  const [concluidos, setConcluidos] = useState([]);
+  const [tempo, setTempo] = useState(0);
+  const [timerAtivo, setTimerAtivo] = useState(false);
+  
+  // Calculadora de Carga
+  const [peso, setPeso] = useState("");
+  const [reps, setReps] = useState("");
+  const [resultadoRM, setResultadoRM] = useState(null);
 
-  const categorias = ["Todos", "Pernas", "Peito", "Costas", "Ombros", "Braços"];
+  const categorias = ["Todos", "Pernas", "Peito", "Costas", "Braços"];
 
-  const exerciciosFiltrados = categoriaAtiva === "Todos"
-    ? LISTA_EXERCICIOS
-    : LISTA_EXERCICIOS.filter(ex => ex.categoria === categoriaAtiva);
+  // Cronômetro de Descanso
+  useEffect(() => {
+    let intervalo = null;
+    if (timerAtivo && tempo > 0) {
+      intervalo = setInterval(() => {
+        setTempo((t) => t - 1);
+      }, 1000);
+    } else if (tempo === 0) {
+      setTimerAtivo(false);
+    }
+    return () => clearInterval(intervalo);
+  }, [timerAtivo, tempo]);
+
+  const dispararCronometro = () => {
+    setTempo(60); // 60 segundos de descanso padrão
+    setTimerAtivo(true);
+  };
+
+  // Alternar Conclusão
+  const alternarConcluido = (id) => {
+    if (concluidos.includes(id)) {
+      setConcluidos(concluidos.filter(item => item !== id));
+    } else {
+      setConcluidos([...concluidos, id]);
+    }
+  };
+
+  // Lógica da Calculadora (Fórmula de Epley)
+  const calcular1RM = () => {
+    if (peso && reps) {
+      const rm = parseFloat(peso) * (1 + parseInt(reps) / 30);
+      setResultadoRM(Math.round(rm));
+    }
+  };
+
+  const filtrados = categoria === "Todos" 
+    ? EXERCICIOS_DATA 
+    : EXERCICIOS_DATA.filter(e => e.categoria === categoria);
+
+  const progressoPorcentagem = Math.round((concluidos.length / EXERCICIOS_DATA.length) * 100);
 
   return (
-    <div className="app-container">
-      <header className="site-header">
-        <h1>Guia de Execução 3D</h1>
-        <p>Aprenda a executar os exercícios de máquina corretamente com ilustrações passo a passo.</p>
+    <div className="app-shell">
+      <header className="app-header">
+        <h1>Shape3D Interactive</h1>
+        <p>Seu guia de execução perfeito para a academia</p>
       </header>
 
-      <nav className="filter-menu">
+      {/* Barra de Progresso Geral */}
+      <div className="progress-container">
+        <div className="progress-info">
+          <span>Progresso do Treino Diário</span>
+          <strong>{progressoPorcentagem}% Concluído</strong>
+        </div>
+        <div className="progress-bar-bg">
+          <div className="progress-bar-fill" style={{ width: `${progressoPorcentagem}%` }}></div>
+        </div>
+      </div>
+
+      {/* Ferramenta Extra: Calculadora de Força */}
+      <div className="tools-box">
+        <h3>Calculadora de Força Máxima (Bônus 1RM)</h3>
+        <div className="calc-inputs">
+          <input 
+            type="number" 
+            placeholder="Peso usado (kg)" 
+            value={peso} 
+            onChange={(e) => setPeso(e.target.value)} 
+          />
+          <input 
+            type="number" 
+            placeholder="Repetições feitas" 
+            value={reps} 
+            onChange={(e) => setReps(e.target.value)} 
+          />
+        </div>
+        <button className="btn-action btn-done" onClick={calcular1RM}>Calcular Máximo</button>
+        {resultadoRM && (
+          <p style={{ marginTop: '10px', fontSize: '0.9rem', color: '#34d399', textAlign: 'center' }}>
+            Sua força máxima estimada para 1 repetição é: <strong>{resultadoRM} kg</strong>
+          </p>
+        )}
+      </div>
+
+      {/* Menu Filtros Deslizável */}
+      <nav className="nav-filters">
         {categorias.map(cat => (
-          <button
-            key={cat}
-            className={`filter-btn ${categoriaAtiva === cat ? 'active' : ''}`}
-            onClick={() => setCategoriaAtiva(cat)}
+          <button 
+            key={cat} 
+            className={`filter-chip ${categoria === cat ? 'active' : ''}`}
+            onClick={() => setCategoria(cat)}
           >
             {cat}
           </button>
         ))}
       </nav>
 
-      <main className="exercises-grid">
-        {exerciciosFiltrados.map(ex => (
-          <div key={ex.id} className="exercise-card">
-            <div>
-              <div className="card-header">
+      {/* Lista de Exercícios */}
+      <main>
+        {filtrados.map(ex => {
+          const isDone = concluidos.includes(ex.id);
+          return (
+            <div key={ex.id} className={`exercise-card ${isDone ? 'completed' : ''}`}>
+              <div className="card-top">
                 <h2>{ex.nome}</h2>
-                <span className="category-tag">{ex.categoria}</span>
+                <span className="tag">{ex.categoria}</span>
               </div>
 
-              <div className="info-row">
-                <p><strong>🎯 Alvo:</strong> {ex.alvo}</p>
-                <p><strong>🔄 Configuração:</strong> {ex.series}</p>
+              <div className="meta-grid">
+                <div><strong>🎯 Alvo:</strong> {ex.alvo}</div>
+                <div><strong>🔄 Estrutura:</strong> {ex.config}</div>
               </div>
 
-              <ol className="instructions-list">
+              <ol className="steps-list">
                 {ex.passos.map((passo, idx) => (
                   <li key={idx}>{passo}</li>
                 ))}
               </ol>
 
-              <div className="error-box">
-                <p><strong>⚠️ Erro Comum:</strong> {ex.erro}</p>
+              <div className="warning-alert">
+                <strong>Evite:</strong> {ex.erro}
               </div>
-            </div>
 
-            <div className="image-section">
-              <img src={ex.imagem} alt={ex.nome} className="exercise-img" />
-              <div className="prompt-box">
-                <span>PROMPT PARA IA:</span>
-                <code>{ex.prompt}</code>
+              <div className="visual-area">
+                <img src={ex.imagem} alt={ex.nome} className="workout-img" />
+                <div className="prompt-copy">
+                  <code style={{ fontSize: '0.75rem' }}>{ex.prompt}</code>
+                </div>
+              </div>
+
+              <div className="card-actions">
+                <button className="btn-action btn-timer" onClick={dispararCronometro}>⏱️ Descansar 1m</button>
+                <button 
+                  className={`btn-action btn-done ${isDone ? 'completed' : ''}`} 
+                  onClick={() => alternarConcluido(ex.id)}
+                >
+                  {isDone ? '✓ Concluído' : 'Marcar Concluído'}
+                </button>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </main>
 
-      <footer className="site-footer">
-        <p>&copy; 2026 Guia de Academia Pro - Pronto para a Kiwify.</p>
-      </footer>
+      {/* Balão Flutuante do Cronômetro de Descanso */}
+      {timerAtivo && (
+        <div className="floating-timer">
+          <span style={{ fontSize: '1.2rem' }}>⏳ Tempo de Descanso:</span>
+          <strong style={{ fontSize: '1.4rem', color: '#60a5fa' }}>{tempo}s</strong>
+        </div>
+      )}
     </div>
   );
 }
