@@ -246,3 +246,186 @@ body {
   .stats-grid { grid-template-columns: 1fr; }
   .hero-card { flex-direction: column; text-align: center; gap: 20px; }
 }
+/* =========================================
+   MÓDULO: MEUS TREINOS & CRONÔMETRO
+   ========================================= */
+
+.module-header {
+  margin-bottom: 30px;
+  animation: fadeInSlide 0.5s ease-out;
+}
+
+.module-header h2 {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+}
+
+.search-bar {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glow);
+  padding: 16px 20px;
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: 20px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.search-bar:focus {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+}
+
+.category-filters {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.category-filters::-webkit-scrollbar {
+  height: 4px;
+}
+
+.category-filters::-webkit-scrollbar-thumb {
+  background: var(--border-glow);
+  border-radius: 10px;
+}
+
+.filter-btn {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glow);
+  color: var(--text-secondary);
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.filter-btn.active {
+  background: var(--neon-blue);
+  color: var(--bg-deep);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.exercises-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  animation: fadeInSlide 0.6s ease-out;
+}
+
+.ex-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glow);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.3s, border-color 0.3s;
+}
+
+.ex-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--fitness-green);
+}
+
+.ex-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 1px solid var(--border-glow);
+}
+
+.ex-content {
+  padding: 20px;
+}
+
+.ex-title {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.ex-target {
+  color: var(--fitness-green);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.ex-btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-timer {
+  flex: 1;
+  background: rgba(0, 255, 136, 0.1);
+  color: var(--fitness-green);
+  border: 1px solid var(--fitness-green);
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.btn-timer:hover {
+  background: var(--fitness-green);
+  color: var(--bg-deep);
+}
+
+/* Cronômetro Flutuante Premium */
+.premium-timer-overlay {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: rgba(10, 10, 15, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--neon-blue);
+  border-radius: 20px;
+  padding: 25px;
+  width: 280px;
+  box-shadow: 0 10px 40px rgba(0, 240, 255, 0.15);
+  z-index: 1000;
+  text-align: center;
+  animation: fadeInSlide 0.3s ease-out;
+}
+
+.timer-display {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+  margin: 15px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.timer-btn {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glow);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.timer-btn.stop {
+  border-color: #ff3366;
+  color: #ff3366;
+}
