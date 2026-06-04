@@ -1,247 +1,128 @@
-import React, { useState, useEffect } from 'react';
-
-const EXERCICIOS_DATA = [
-  {
-    id: 1,
-    categoria: "Pernas",
-    nome: "Gêmeos Sentado (Panturrilha)",
-    alvo: "Panturrilhas (Sóleo)",
-    config: "4 séries x 12-15 repetições",
-    passos: [
-      "Ajuste o suporte acolchoado firmemente sobre as coxas.",
-      "Coloque apenas a ponta dos pés na plataforma.",
-      "Alongue descendo ao máximo e suba contraindo a panturrilha no topo."
-    ],
-    erro: "Usar o impulso do corpo ou fazer o movimento curto demais.",
-    prompt: "A minimalist 3D white clay character performing a seated calf raise exercise on a gym machine, full body, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/500x300?text=Boneco+3D+Panturrilha"
-  },
-  {
-    id: 2,
-    categoria: "Pernas",
-    nome: "Leg Press 45º",
-    alvo: "Quadríceps e Glúteos",
-    config: "4 séries x 10-12 repetições",
-    passos: [
-      "Apoie completamente as costas e o quadril no encosto.",
-      "Pés na plataforma alinhados com a largura dos ombros.",
-      "Desça o peso controladamente até formar um ângulo de 90º nos joelhos."
-    ],
-    erro: "Tirar o quadril do banco ou deixar os joelhos entrarem.",
-    prompt: "A minimalist 3D white clay character performing a 45 degree leg press exercise, full body, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/500x300?text=Boneco+3D+Leg+Press"
-  },
-  {
-    id: 3,
-    categoria: "Peito",
-    nome: "Supino Vertical na Máquina",
-    alvo: "Peitoral Maior",
-    config: "4 séries x 10 repetições",
-    passos: [
-      "Regule o banco para as manoplas ficarem na altura do meio do peito.",
-      "Mantenha as escápulas fechadas e apoiadas no banco.",
-      "Empurre as manoplas para a frente estendendo os braços."
-    ],
-    erro: "Projetar os ombros para a frente no final do movimento.",
-    prompt: "A minimalist 3D white clay character using a chest press gym machine, full body, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/500x300?text=Boneco+3D+Supino"
-  },
-  {
-    id: 4,
-    categoria: "Costas",
-    nome: "Puxada Alta na Polia",
-    alvo: "Dorsais (Costas)",
-    config: "4 séries x 10 repetições",
-    passos: [
-      "Segure a barra com pegada aberta, maior que a largura dos ombros.",
-      "Puxe a barra em direção ao peito inclinando levemente o tronco para trás.",
-      "Controle a subida estendendo os braços completamente."
-    ],
-    erro: "Dar trancos com o tronco ou puxar a barra na nuca.",
-    prompt: "A minimalist 3D white clay character doing a lat pulldown exercise, full body, white studio background, 3d render.",
-    imagem: "https://via.placeholder.com/500x300?text=Boneco+3D+Puxada"
-  },
-  {
-    id: 5,
-    categoria: "Braços",
-    nome: "Tríceps Pulley (Polia Alta)",
-    alvo: "Tríceps",
-    config: "4 séries x 12 repetições",
-    passos: [
-      "Mantenha os cotovelos colados fixamente nas laterais do tronco.",
-      "Empurre a barra para baixo estendendo os braços por completo.",
-      "Retorne subindo as mãos de forma lenta até a linha do peito."
-    ],
-    erro: "Ficar abrindo ou movendo os cotovelos para frente e para trás.",
-    prompt: "A minimalist 3D white clay character doing a triceps pushdown on a cable machine, full body, 3d render.",
-    imagem: "https://via.placeholder.com/500x300?text=Boneco+3D+Triceps"
-  }
-];
+import React, { useState } from 'react';
 
 export default function App() {
-  const [categoria, setCategoria] = useState("Todos");
-  const [concluidos, setConcluidos] = useState([]);
-  const [tempo, setTempo] = useState(0);
-  const [timerAtivo, setTimerAtivo] = useState(false);
-  
-  // Calculadora de Carga
-  const [peso, setPeso] = useState("");
-  const [reps, setReps] = useState("");
-  const [resultadoRM, setResultadoRM] = useState(null);
-
-  const categorias = ["Todos", "Pernas", "Peito", "Costas", "Braços"];
-
-  // Cronômetro de Descanso
-  useEffect(() => {
-    let intervalo = null;
-    if (timerAtivo && tempo > 0) {
-      intervalo = setInterval(() => {
-        setTempo((t) => t - 1);
-      }, 1000);
-    } else if (tempo === 0) {
-      setTimerAtivo(false);
-    }
-    return () => clearInterval(intervalo);
-  }, [timerAtivo, tempo]);
-
-  const dispararCronometro = () => {
-    setTempo(60); // 60 segundos de descanso padrão
-    setTimerAtivo(true);
-  };
-
-  // Alternar Conclusão
-  const alternarConcluido = (id) => {
-    if (concluidos.includes(id)) {
-      setConcluidos(concluidos.filter(item => item !== id));
-    } else {
-      setConcluidos([...concluidos, id]);
-    }
-  };
-
-  // Lógica da Calculadora (Fórmula de Epley)
-  const calcular1RM = () => {
-    if (peso && reps) {
-      const rm = parseFloat(peso) * (1 + parseInt(reps) / 30);
-      setResultadoRM(Math.round(rm));
-    }
-  };
-
-  const filtrados = categoria === "Todos" 
-    ? EXERCICIOS_DATA 
-    : EXERCICIOS_DATA.filter(e => e.categoria === categoria);
-
-  const progressoPorcentagem = Math.round((concluidos.length / EXERCICIOS_DATA.length) * 100);
+  const [activeModule, setActiveModule] = useState('dashboard');
 
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <h1>Shape3D Interactive</h1>
-        <p>Seu guia de execução perfeito para a academia</p>
-      </header>
-
-      {/* Barra de Progresso Geral */}
-      <div className="progress-container">
-        <div className="progress-info">
-          <span>Progresso do Treino Diário</span>
-          <strong>{progressoPorcentagem}% Concluído</strong>
-        </div>
-        <div className="progress-bar-bg">
-          <div className="progress-bar-fill" style={{ width: `${progressoPorcentagem}%` }}></div>
-        </div>
-      </div>
-
-      {/* Ferramenta Extra: Calculadora de Força */}
-      <div className="tools-box">
-        <h3>Calculadora de Força Máxima (Bônus 1RM)</h3>
-        <div className="calc-inputs">
-          <input 
-            type="number" 
-            placeholder="Peso usado (kg)" 
-            value={peso} 
-            onChange={(e) => setPeso(e.target.value)} 
-          />
-          <input 
-            type="number" 
-            placeholder="Repetições feitas" 
-            value={reps} 
-            onChange={(e) => setReps(e.target.value)} 
-          />
-        </div>
-        <button className="btn-action btn-done" onClick={calcular1RM}>Calcular Máximo</button>
-        {resultadoRM && (
-          <p style={{ marginTop: '10px', fontSize: '0.9rem', color: '#34d399', textAlign: 'center' }}>
-            Sua força máxima estimada para 1 repetição é: <strong>{resultadoRM} kg</strong>
-          </p>
-        )}
-      </div>
-
-      {/* Menu Filtros Deslizável */}
-      <nav className="nav-filters">
-        {categorias.map(cat => (
+    <div className="saas-layout">
+      {/* SIDEBAR - Navegação Premium */}
+      <aside className="sidebar">
+        <div className="brand-logo">AURA FITNESS</div>
+        <nav className="nav-menu">
           <button 
-            key={cat} 
-            className={`filter-chip ${categoria === cat ? 'active' : ''}`}
-            onClick={() => setCategoria(cat)}
+            className={`nav-item ${activeModule === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveModule('dashboard')}
           >
-            {cat}
+            📊 Dashboard
           </button>
-        ))}
-      </nav>
+          <button 
+            className={`nav-item ${activeModule === 'treinos' ? 'active' : ''}`}
+            onClick={() => setActiveModule('treinos')}
+          >
+            💪 Meus Treinos
+          </button>
+          <button 
+            className={`nav-item ${activeModule === 'nutricao' ? 'active' : ''}`}
+            onClick={() => setActiveModule('nutricao')}
+          >
+            🍎 Nutrição & Macros
+          </button>
+          <button 
+            className={`nav-item ${activeModule === 'ia' ? 'active' : ''}`}
+            onClick={() => setActiveModule('ia')}
+          >
+            🧠 IA Coach
+          </button>
+          <button 
+            className={`nav-item ${activeModule === 'comunidade' ? 'active' : ''}`}
+            onClick={() => setActiveModule('comunidade')}
+          >
+            🔥 Comunidade
+          </button>
+        </nav>
+      </aside>
 
-      {/* Lista de Exercícios */}
-      <main>
-        {filtrados.map(ex => {
-          const isDone = concluidos.includes(ex.id);
-          return (
-            <div key={ex.id} className={`exercise-card ${isDone ? 'completed' : ''}`}>
-              <div className="card-top">
-                <h2>{ex.nome}</h2>
-                <span className="tag">{ex.categoria}</span>
+      {/* ÁREA PRINCIPAL DINÂMICA */}
+      <main className="main-content">
+        
+        {/* Renderiza o Dashboard se for o módulo ativo */}
+        {activeModule === 'dashboard' && (
+          <>
+            <header className="topbar">
+              <div className="greeting">
+                <h2>Bem-vindo de volta, Atleta.</h2>
+                <p>Nível 12 • Focado na Missão</p>
               </div>
-
-              <div className="meta-grid">
-                <div><strong>🎯 Alvo:</strong> {ex.alvo}</div>
-                <div><strong>🔄 Estrutura:</strong> {ex.config}</div>
+              <div className="profile-widget">
+                <div className="user-info" style={{ textAlign: 'right' }}>
+                  <span style={{ display: 'block', fontWeight: 'bold' }}>Sua Conta</span>
+                  <span style={{ fontSize: '0.8rem', color: '#8a8d98' }}>Pro Member</span>
+                </div>
+                {/* Aqui você pode usar uma imagem super realista gerada por IA como Avatar */}
+                <img 
+                  src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop" 
+                  alt="Avatar" 
+                  className="avatar" 
+                />
               </div>
+            </header>
 
-              <ol className="steps-list">
-                {ex.passos.map((passo, idx) => (
-                  <li key={idx}>{passo}</li>
-                ))}
-              </ol>
-
-              <div className="warning-alert">
-                <strong>Evite:</strong> {ex.erro}
+            <section className="stats-grid">
+              <div className="stat-card">
+                <h3>🔥 Calorias Hoje</h3>
+                <div className="stat-value">1,240 <span style={{fontSize: '1.2rem', color: '#8a8d98'}}>/ 2500</span></div>
+                <span className="stat-highlight">Restam 1260 kcal</span>
               </div>
-
-              <div className="visual-area">
-                <img src={ex.imagem} alt={ex.nome} className="workout-img" />
-                <div className="prompt-copy">
-                  <code style={{ fontSize: '0.75rem' }}>{ex.prompt}</code>
+              <div className="stat-card">
+                <h3>💧 Hidratação</h3>
+                <div className="stat-value">1.5 <span style={{fontSize: '1.2rem', color: '#8a8d98'}}>L</span></div>
+                <div style={{ marginTop: '10px', height: '6px', background: '#1a1a24', borderRadius: '10px' }}>
+                  <div style={{ width: '50%', height: '100%', background: '#00f0ff', borderRadius: '10px' }}></div>
                 </div>
               </div>
+              <div className="stat-card">
+                <h3>📈 Meta de Peso</h3>
+                <div className="stat-value">76.5 <span style={{fontSize: '1.2rem', color: '#8a8d98'}}>kg</span></div>
+                <span className="stat-highlight" style={{color: '#7000ff'}}>-2.1kg este mês</span>
+              </div>
+            </section>
 
-              <div className="card-actions">
-                <button className="btn-action btn-timer" onClick={dispararCronometro}>⏱️ Descansar 1m</button>
-                <button 
-                  className={`btn-action btn-done ${isDone ? 'completed' : ''}`} 
-                  onClick={() => alternarConcluido(ex.id)}
-                >
-                  {isDone ? '✓ Concluído' : 'Marcar Concluído'}
+            <section className="hero-card">
+              <div className="hero-info">
+                <h3>Treino do Dia: Força e Hipertrofia</h3>
+                <div className="hero-tags">
+                  <span className="chip">Costas & Bíceps</span>
+                  <span className="chip">⏱️ 55 Minutos</span>
+                  <span className="chip">🔥 Alta Intensidade</span>
+                </div>
+                <p style={{ color: '#8a8d98', marginBottom: '20px', maxWidth: '500px' }}>
+                  Baseado no seu histórico, a IA separou um circuito tático para o dia de hoje. Prepare-se para quebrar recordes.
+                </p>
+                <button className="btn-start" onClick={() => setActiveModule('treinos')}>
+                  INICIAR SESSÃO
                 </button>
               </div>
-            </div>
-          );
-        })}
-      </main>
+            </section>
+          </>
+        )}
 
-      {/* Balão Flutuante do Cronômetro de Descanso */}
-      {timerAtivo && (
-        <div className="floating-timer">
-          <span style={{ fontSize: '1.2rem' }}>⏳ Tempo de Descanso:</span>
-          <strong style={{ fontSize: '1.4rem', color: '#60a5fa' }}>{tempo}s</strong>
-        </div>
-      )}
+        {/* Telas Futuras (Placeholders para os próximos passos) */}
+        {activeModule !== 'dashboard' && (
+          <div style={{ textAlign: 'center', marginTop: '100px', animation: 'fadeInSlide 0.4s' }}>
+            <h2 style={{ fontSize: '2.5rem', marginBottom: '15px' }}>Módulo em Construção 🚧</h2>
+            <p style={{ color: '#8a8d98', fontSize: '1.2rem' }}>
+              Estamos preparando o sistema de {activeModule.toUpperCase()} com design de milhões.
+            </p>
+            <button 
+              className="btn-start" 
+              style={{ marginTop: '30px', background: '#1a1a24', color: '#fff' }}
+              onClick={() => setActiveModule('dashboard')}
+            >
+              Voltar ao Dashboard
+            </button>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
