@@ -1,10 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import { Activity, Dumbbell, Brain, Droplets, Trophy, User, Sliders, Home, LogOut, Menu, X, CheckCircle, AlertCircle } from "lucide-react";
-import Exercise3D from "./components/Exercise3D";
-import PoseDetector from "./components/PoseDetector";
-import AICoach from "./components/AICoach";
-import WorkoutTimer from "./components/WorkoutTimer";
+import { Activity, Dumbbell, Brain, Droplets, Trophy, User, Sliders, Home, LogOut, Menu, X, CheckCircle, AlertCircle, Play, Pause } from "lucide-react";
 import { expandedExerciseDatabase } from "./ExpandedExerciseDB";
 
 // ======================================
@@ -85,13 +81,8 @@ function AppProvider({ children }) {
 
   const [darkMode, setDarkMode] = useState(true);
   const [toast, setToast] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [achievements, setAchievements] = useState([
-    { id: 1, title: "Primeiro Treino", description: "Complete seu primeiro treino", icon: "🏋️", unlocked: true, unlockedDate: "2024-01-15" },
-    { id: 2, title: "Hidratado", description: "Beba 2L de água", icon: "💧", unlocked: false, progress: 75 },
-    { id: 3, title: "Campeão", description: "Atinja nível 20", icon: "🏆", unlocked: false, progress: 60 },
-  ]);
-  const [notifications, setNotifications] = useState([]);
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
 
   const addWater = (amount) => {
     setUser((prev) => ({
@@ -110,20 +101,6 @@ function AppProvider({ children }) {
     setToast({ message: `+${amount} XP! 🎉`, type: "success" });
   };
 
-  const sendMessage = (content) => {
-    const userMsg = { id: Date.now(), role: "user", content };
-    setMessages((prev) => [...prev, userMsg]);
-
-    setTimeout(() => {
-      const aiMsg = {
-        id: Date.now() + 1,
-        role: "assistant",
-        content: getAIResponse(content),
-      };
-      setMessages((prev) => [...prev, aiMsg]);
-    }, 500);
-  };
-
   return (
     <AppContext.Provider
       value={{
@@ -133,12 +110,12 @@ function AppProvider({ children }) {
         setDarkMode,
         toast,
         setToast,
-        messages,
-        sendMessage,
-        achievements,
-        notifications,
         addWater,
         addXP,
+        timerSeconds,
+        setTimerSeconds,
+        timerRunning,
+        setTimerRunning,
       }}
     >
       {children}
@@ -355,19 +332,6 @@ function Workouts() {
 
         <h1 className="text-4xl font-black mb-8">{selectedExercise.name}</h1>
 
-        {/* Modelo 3D */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Visualização 3D</h2>
-          <Exercise3D exerciseName={selectedExercise.name} />
-        </div>
-
-        {/* Detecção de Pose */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Detecção de Forma</h2>
-          <PoseDetector exerciseName={selectedExercise.name} />
-        </div>
-
-        {/* Informações */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4">Forma Correta</h3>
@@ -392,6 +356,18 @@ function Workouts() {
               ))}
             </ul>
           </div>
+        </div>
+
+        <div className="mt-8">
+          <h3 className="text-xl font-bold mb-4">Lesões Possíveis</h3>
+          <ul className="space-y-2 text-zinc-400">
+            {selectedExercise.injuries.map((injury, i) => (
+              <li key={i} className="flex gap-2">
+                <AlertCircle size={20} className="text-red-500 flex-shrink-0" />
+                {injury}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     );
@@ -436,19 +412,6 @@ function HomeWorkouts() {
 
         <h1 className="text-4xl font-black mb-8">{selectedExercise.name}</h1>
 
-        {/* Modelo 3D */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Visualização 3D</h2>
-          <Exercise3D exerciseName={selectedExercise.name} />
-        </div>
-
-        {/* Detecção de Pose */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Detecção de Forma</h2>
-          <PoseDetector exerciseName={selectedExercise.name} />
-        </div>
-
-        {/* Informações */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4">Forma Correta</h3>
@@ -473,6 +436,18 @@ function HomeWorkouts() {
               ))}
             </ul>
           </div>
+        </div>
+
+        <div className="mt-8">
+          <h3 className="text-xl font-bold mb-4">Lesões Possíveis</h3>
+          <ul className="space-y-2 text-zinc-400">
+            {selectedExercise.injuries.map((injury, i) => (
+              <li key={i} className="flex gap-2">
+                <AlertCircle size={20} className="text-red-500 flex-shrink-0" />
+                {injury}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     );
@@ -502,7 +477,66 @@ function HomeWorkouts() {
 }
 
 function Coach() {
-  return <AICoach />;
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+
+  const sendMessage = () => {
+    if (message.trim()) {
+      setMessages([...messages, { role: "user", content: message }]);
+      
+      setTimeout(() => {
+        const response = getAIResponse(message);
+        setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+      }, 500);
+      
+      setMessage("");
+    }
+  };
+
+  return (
+    <div className="p-8 h-screen flex flex-col">
+      <h1 className="text-4xl font-black mb-8">IA Coach</h1>
+      
+      <div className="flex-1 bg-zinc-900 rounded-2xl p-6 mb-6 overflow-y-auto border border-zinc-800">
+        {messages.length === 0 ? (
+          <p className="text-zinc-400 text-center">Faça uma pergunta sobre exercícios, nutrição ou treino!</p>
+        ) : (
+          <div className="space-y-4">
+            {messages.map((msg, i) => (
+              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-xs p-4 rounded-xl ${
+                    msg.role === "user"
+                      ? "bg-cyan-500 text-white"
+                      : "bg-zinc-800 text-zinc-100"
+                  }`}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+          placeholder="Digite sua pergunta..."
+          className="flex-1 bg-zinc-900 px-4 py-3 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-zinc-800"
+        />
+        <button
+          onClick={sendMessage}
+          className="bg-cyan-500 hover:bg-cyan-600 px-6 py-3 rounded-xl font-bold transition"
+        >
+          Enviar
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function Hydration() {
@@ -541,7 +575,11 @@ function Hydration() {
 }
 
 function Achievements() {
-  const { achievements } = useApp();
+  const achievements = [
+    { id: 1, title: "Primeiro Treino", description: "Complete seu primeiro treino", icon: "🏋️", unlocked: true },
+    { id: 2, title: "Hidratado", description: "Beba 2L de água", icon: "💧", unlocked: false, progress: 75 },
+    { id: 3, title: "Campeão", description: "Atinja nível 20", icon: "🏆", unlocked: false, progress: 60 },
+  ];
 
   return (
     <div className="p-8">
@@ -636,7 +674,114 @@ function SettingsPage() {
 }
 
 function Timer() {
-  return <WorkoutTimer />;
+  const { timerSeconds, setTimerSeconds, timerRunning, setTimerRunning } = useApp();
+  const [inputTime, setInputTime] = useState("60");
+
+  React.useEffect(() => {
+    let interval;
+    if (timerRunning && timerSeconds > 0) {
+      interval = setInterval(() => {
+        setTimerSeconds((prev) => prev - 1);
+      }, 1000);
+    } else if (timerSeconds === 0 && timerRunning) {
+      setTimerRunning(false);
+    }
+    return () => clearInterval(interval);
+  }, [timerRunning, timerSeconds, setTimerSeconds, setTimerRunning]);
+
+  const startTimer = (seconds) => {
+    setTimerSeconds(seconds);
+    setTimerRunning(true);
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="p-8">
+      <h1 className="text-4xl font-black mb-8">Cronômetro</h1>
+      <div className="max-w-md mx-auto">
+        <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800 text-center">
+          <div className="text-7xl font-black mb-8 font-mono">{formatTime(timerSeconds)}</div>
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <button
+              onClick={() => startTimer(60)}
+              className="bg-cyan-500 hover:bg-cyan-600 p-4 rounded-xl font-bold transition"
+            >
+              1 min
+            </button>
+            <button
+              onClick={() => startTimer(180)}
+              className="bg-cyan-500 hover:bg-cyan-600 p-4 rounded-xl font-bold transition"
+            >
+              3 min
+            </button>
+            <button
+              onClick={() => startTimer(300)}
+              className="bg-cyan-500 hover:bg-cyan-600 p-4 rounded-xl font-bold transition"
+            >
+              5 min
+            </button>
+            <button
+              onClick={() => startTimer(600)}
+              className="bg-cyan-500 hover:bg-cyan-600 p-4 rounded-xl font-bold transition"
+            >
+              10 min
+            </button>
+          </div>
+
+          <div className="flex gap-2 mb-6">
+            <input
+              type="number"
+              value={inputTime}
+              onChange={(e) => setInputTime(e.target.value)}
+              className="flex-1 bg-zinc-800 px-4 py-2 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+            <button
+              onClick={() => startTimer(parseInt(inputTime))}
+              className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded-xl font-bold transition"
+            >
+              Iniciar
+            </button>
+          </div>
+
+          <div className="flex gap-4">
+            <button
+              onClick={() => setTimerRunning(!timerRunning)}
+              className={`flex-1 p-4 rounded-xl font-bold transition flex items-center justify-center gap-2 ${
+                timerRunning
+                  ? "bg-yellow-500 hover:bg-yellow-600"
+                  : "bg-green-500 hover:bg-green-600"
+              }`}
+            >
+              {timerRunning ? (
+                <>
+                  <Pause size={20} /> Pausar
+                </>
+              ) : (
+                <>
+                  <Play size={20} /> Retomar
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => {
+                setTimerSeconds(0);
+                setTimerRunning(false);
+              }}
+              className="flex-1 bg-red-500 hover:bg-red-600 p-4 rounded-xl font-bold transition"
+            >
+              Resetar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function NotFound() {
@@ -667,12 +812,11 @@ function MainLayout({ children }) {
     { icon: Trophy, title: "Conquistas", path: "/achievements" },
     { icon: User, title: "Perfil", path: "/profile" },
     { icon: Sliders, title: "Configurações", path: "/settings" },
-    { icon: Timer, title: "Cronômetro", path: "/timer" },
+    { icon: Activity, title: "Cronômetro", path: "/timer" },
   ];
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex">
-      {/* Sidebar */}
       <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:relative w-72 min-h-screen border-r border-zinc-800 p-5 transition-transform duration-300 z-30 bg-zinc-950 flex flex-col`}>
         <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent mb-10">
           Aura Fitness
@@ -709,9 +853,7 @@ function MainLayout({ children }) {
         </button>
       </aside>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
         <header className="h-20 border-b border-zinc-800 flex items-center justify-between px-8">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -725,13 +867,11 @@ function MainLayout({ children }) {
           </div>
         </header>
 
-        {/* Content */}
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>
 
-      {/* Overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 md:hidden z-20"
@@ -740,6 +880,19 @@ function MainLayout({ children }) {
       )}
     </div>
   );
+}
+
+// ======================================
+// AI RESPONSE
+// ======================================
+function getAIResponse(message) {
+  const lower = message.toLowerCase();
+  if (lower.includes("flexão")) return "Flexão é ótimo para peito e tríceps. Faça 3 séries de 10-15 repetições com boa forma!";
+  if (lower.includes("agachamento")) return "Agachamento trabalha pernas e glúteos. Mantenha os pés na largura dos ombros e desça até 90 graus.";
+  if (lower.includes("água")) return "Beba 2-3 litros de água por dia. Mais se estiver treinando!";
+  if (lower.includes("nutrição")) return "Coma proteína em cada refeição. Frango, ovos e peixe são ótimas opções!";
+  if (lower.includes("treino")) return "Treine 3-4 vezes por semana com descanso entre os dias. Varie os exercícios!";
+  return "Ótima pergunta! Para mais detalhes, consulte um profissional de fitness.";
 }
 
 // ======================================
@@ -863,18 +1016,6 @@ function AppRouter() {
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
-}
-
-// ======================================
-// AI RESPONSE
-// ======================================
-function getAIResponse(message) {
-  const lower = message.toLowerCase();
-  if (lower.includes("flexão")) return "Flexão é ótimo para peito e tríceps. Faça 3 séries de 10-15 repetições com boa forma!";
-  if (lower.includes("agachamento")) return "Agachamento trabalha pernas e glúteos. Mantenha os pés na largura dos ombros e desça até 90 graus.";
-  if (lower.includes("água")) return "Beba 2-3 litros de água por dia. Mais se estiver treinando!";
-  if (lower.includes("nutrição")) return "Coma proteína em cada refeição. Frango, ovos e peixe são ótimas opções!";
-  return "Ótima pergunta! Para mais detalhes, consulte um profissional de fitness.";
 }
 
 // ======================================
