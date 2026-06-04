@@ -14,7 +14,7 @@
     "react-router-dom": "^7.6.2",
     "lucide-react": "^0.525.0",
     "firebase": "^10.7.2",
-    "three": "^r128"
+    "three": "^0.160.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.7.0",
