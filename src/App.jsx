@@ -8,10 +8,11 @@ import React, {
 } from "react";
 
 import {
-  BrowserRouter,
+  HashRouter,
   Routes,
   Route,
-  Navigate
+  Navigate,
+  useNavigate
 } from "react-router-dom";
 
 import {
@@ -240,6 +241,8 @@ function MainLayout({ children }) {
 // ======================================
 
 function Sidebar() {
+  const navigate = useNavigate();
+
   const menuItems = [
     { icon: Activity, title: "Dashboard", path: "/" },
     { icon: Dumbbell, title: "Treinos", path: "/workouts" },
@@ -265,8 +268,8 @@ function Sidebar() {
           return (
             <button
               key={item.title}
-              className="flex items-center gap-3 p-4 rounded-xl hover:bg-zinc-900 transition-all"
-              onClick={() => window.location.pathname = item.path}
+              onClick={() => navigate(item.path)}
+              className="flex items-center gap-3 p-4 rounded-xl hover:bg-zinc-900 transition-all text-left"
             >
               <Icon size={20} />
               <span>{item.title}</span>
@@ -452,7 +455,7 @@ function Workouts() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Pesquisar exercício..."
-        className="w-full bg-zinc-900 p-5 rounded-2xl mb-8"
+        className="w-full bg-zinc-900 p-5 rounded-2xl mb-8 text-white"
       />
       <div className="grid grid-cols-3 gap-6">
         {filteredExercises.map((exercise) => (
@@ -499,17 +502,17 @@ function TimerPage() {
     <div>
       <h1 className="text-5xl font-black mb-10">Cronômetro Premium</h1>
       <div className="grid grid-cols-3 gap-4 mb-10">
-        <button onClick={() => { setMode("descanso"); setSeconds(60); }} className="bg-zinc-900 p-5 rounded-2xl">Descanso</button>
-        <button onClick={() => { setMode("hiit"); setSeconds(30); }} className="bg-zinc-900 p-5 rounded-2xl">HIIT</button>
-        <button onClick={() => { setMode("tabata"); setSeconds(20); }} className="bg-zinc-900 p-5 rounded-2xl">Tabata</button>
+        <button onClick={() => { setMode("descanso"); setSeconds(60); }} className="bg-zinc-900 p-5 rounded-2xl hover:bg-zinc-800 transition">Descanso</button>
+        <button onClick={() => { setMode("hiit"); setSeconds(30); }} className="bg-zinc-900 p-5 rounded-2xl hover:bg-zinc-800 transition">HIIT</button>
+        <button onClick={() => { setMode("tabata"); setSeconds(20); }} className="bg-zinc-900 p-5 rounded-2xl hover:bg-zinc-800 transition">Tabata</button>
       </div>
       <div className="bg-zinc-900 rounded-full w-80 h-80 mx-auto flex items-center justify-center text-7xl font-black">
         {seconds}
       </div>
       <div className="flex justify-center gap-5 mt-10">
-        <button onClick={() => setRunning(true)} className="bg-green-500 px-8 py-4 rounded-2xl">Iniciar</button>
-        <button onClick={() => setRunning(false)} className="bg-yellow-500 px-8 py-4 rounded-2xl">Pausar</button>
-        <button onClick={resetTimer} className="bg-red-500 px-8 py-4 rounded-2xl">Resetar</button>
+        <button onClick={() => setRunning(true)} className="bg-green-500 px-8 py-4 rounded-2xl hover:bg-green-600 transition">Iniciar</button>
+        <button onClick={() => setRunning(false)} className="bg-yellow-500 px-8 py-4 rounded-2xl hover:bg-yellow-600 transition">Pausar</button>
+        <button onClick={resetTimer} className="bg-red-500 px-8 py-4 rounded-2xl hover:bg-red-600 transition">Resetar</button>
       </div>
     </div>
   );
@@ -567,7 +570,7 @@ function Hydration() {
         </div>
         <div className="grid grid-cols-4 gap-4 mt-8">
           {[250, 500, 750, 1000].map(amount => (
-            <button key={amount} onClick={() => addWater(amount)} className="bg-cyan-500 p-4 rounded-xl">+{amount}ml</button>
+            <button key={amount} onClick={() => addWater(amount)} className="bg-cyan-500 p-4 rounded-xl hover:bg-cyan-600 transition">+{amount}ml</button>
           ))}
         </div>
       </div>
@@ -595,8 +598,8 @@ function CoachAI() {
         ))}
       </div>
       <div className="flex gap-3 mt-5">
-        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Pergunte algo..." className="flex-1 bg-zinc-900 p-4 rounded-xl" />
-        <button onClick={() => { if (!input) return; sendMessage(input); setInput(""); }} className="bg-cyan-500 px-8 rounded-xl">Enviar</button>
+        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Pergunte algo..." className="flex-1 bg-zinc-900 p-4 rounded-xl text-white" />
+        <button onClick={() => { if (!input) return; sendMessage(input); setInput(""); }} className="bg-cyan-500 px-8 rounded-xl hover:bg-cyan-600 transition">Enviar</button>
       </div>
     </div>
   );
@@ -666,7 +669,7 @@ function SettingsPage() {
     <div>
       <h1 className="text-5xl font-black mb-8">Configurações</h1>
       <div className="bg-zinc-900 p-6 rounded-3xl">
-        <button onClick={() => setDarkMode(!darkMode)} className="bg-cyan-500 px-8 py-4 rounded-xl">Alternar Tema</button>
+        <button onClick={() => setDarkMode(!darkMode)} className="bg-cyan-500 px-8 py-4 rounded-xl hover:bg-cyan-600 transition">Alternar Tema</button>
       </div>
     </div>
   );
@@ -678,7 +681,7 @@ function SettingsPage() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppProvider>
         <MainLayout>
           <div className="flex min-h-screen">
@@ -693,7 +696,7 @@ function App() {
                   <Route path="/hydration" element={<Hydration />} />
                   <Route path="/coach" element={<CoachAI />} />
                   <Route path="/profile" element={<Profile />} />
-                  <Route path="/achievements" element={<Dashboard />} /> {/* Redirecionando para dashboard já que conquistas estão lá */}
+                  <Route path="/achievements" element={<Dashboard />} />
                   <Route path="/timer" element={<TimerPage />} />
                   <Route path="/community" element={<Community />} />
                   <Route path="/settings" element={<SettingsPage />} />
@@ -704,7 +707,7 @@ function App() {
           </div>
         </MainLayout>
       </AppProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
