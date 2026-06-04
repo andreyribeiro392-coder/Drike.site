@@ -1,180 +1,296 @@
-import {
-  Dumbbell,
-  Flame,
-  Droplets,
-  Trophy,
-  Calendar,
-  Target,
-  Brain,
-  Users
-} from "lucide-react";
+/* ===================================== */
+/* AURA FITNESS PREMIUM */
+/* INDEX.CSS */
+/* ===================================== */
 
-export default function Dashboard() {
-  return (
-    <div className="min-h-screen bg-black text-white p-8">
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-      {/* Header */}
-      <div className="flex justify-between items-center mb-10">
-        <div>
-          <h1 className="text-5xl font-bold">
-            Bem-vindo de volta, Atleta 🚀
-          </h1>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
 
-          <p className="text-cyan-400 mt-2">
-            Nível 12 • 2.450 XP • Focado na missão
-          </p>
-        </div>
+html{
+scroll-behavior:smooth;
+}
 
-        <div className="bg-zinc-900 rounded-3xl p-4 border border-cyan-500">
-          <h3 className="font-bold">Sua Conta</h3>
-          <p className="text-zinc-400">Pro Member</p>
-        </div>
-      </div>
+body{
+background:#09090b;
+color:white;
+overflow-x:hidden;
+}
 
-      {/* Hero */}
-      <div className="bg-gradient-to-r from-cyan-600 to-purple-700 p-8 rounded-3xl mb-8">
-        <h2 className="text-4xl font-bold">
-          Meta da Semana
-        </h2>
+#root{
+min-height:100vh;
+}
 
-        <p className="mt-3 text-lg">
-          Complete 5 treinos e ganhe +500 XP.
-        </p>
+/* SCROLLBAR */
 
-        <div className="w-full bg-black/20 h-5 rounded-full mt-5">
-          <div className="bg-white h-5 rounded-full w-3/5"></div>
-        </div>
-      </div>
+::-webkit-scrollbar{
+width:10px;
+}
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
+::-webkit-scrollbar-track{
+background:#111827;
+}
 
-        <div className="bg-zinc-900 p-6 rounded-3xl">
-          <Flame size={30} />
-          <h3 className="text-zinc-400 mt-3">
-            Calorias Hoje
-          </h3>
-          <p className="text-4xl font-bold mt-2">
-            1.240
-          </p>
-        </div>
+::-webkit-scrollbar-thumb{
+background:#06b6d4;
+border-radius:999px;
+}
 
-        <div className="bg-zinc-900 p-6 rounded-3xl">
-          <Droplets size={30} />
-          <h3 className="text-zinc-400 mt-3">
-            Água
-          </h3>
-          <p className="text-4xl font-bold mt-2">
-            2.3L
-          </p>
-        </div>
+::-webkit-scrollbar-thumb:hover{
+background:#22d3ee;
+}
 
-        <div className="bg-zinc-900 p-6 rounded-3xl">
-          <Target size={30} />
-          <h3 className="text-zinc-400 mt-3">
-            Meta Peso
-          </h3>
-          <p className="text-4xl font-bold mt-2">
-            76kg
-          </p>
-        </div>
+/* ANIMAÇÕES */
 
-        <div className="bg-zinc-900 p-6 rounded-3xl">
-          <Trophy size={30} />
-          <h3 className="text-zinc-400 mt-3">
-            Sequência
-          </h3>
-          <p className="text-4xl font-bold mt-2">
-            18 Dias
-          </p>
-        </div>
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(15px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
 
-      </div>
+@keyframes pulseGlow{
+0%{
+box-shadow:0 0 0px rgba(34,211,238,.2);
+}
+50%{
+box-shadow:0 0 25px rgba(34,211,238,.7);
+}
+100%{
+box-shadow:0 0 0px rgba(34,211,238,.2);
+}
+}
 
-      {/* Treino e IA */}
-      <div className="grid grid-cols-2 gap-8 mb-8">
+@keyframes float{
+0%{
+transform:translateY(0px);
+}
+50%{
+transform:translateY(-10px);
+}
+100%{
+transform:translateY(0px);
+}
+}
 
-        <div className="bg-zinc-900 rounded-3xl p-6">
-          <div className="flex items-center gap-3">
-            <Dumbbell />
-            <h2 className="text-2xl font-bold">
-              Treino de Hoje
-            </h2>
-          </div>
+/* CARDS */
 
-          <div className="mt-5 space-y-4">
-            <div className="bg-zinc-800 p-4 rounded-xl">
-              Supino Reto - 4x12
-            </div>
+.card{
+background:#18181b;
+border:1px solid #27272a;
+border-radius:24px;
+padding:24px;
+transition:.3s;
+animation:fadeIn .4s ease;
+}
 
-            <div className="bg-zinc-800 p-4 rounded-xl">
-              Crucifixo - 4x10
-            </div>
+.card:hover{
+transform:translateY(-5px);
+border-color:#06b6d4;
+}
 
-            <div className="bg-zinc-800 p-4 rounded-xl">
-              Tríceps Pulley - 4x12
-            </div>
-          </div>
-        </div>
+/* BOTÕES */
 
-        <div className="bg-zinc-900 rounded-3xl p-6">
-          <div className="flex items-center gap-3">
-            <Brain />
-            <h2 className="text-2xl font-bold">
-              IA Coach
-            </h2>
-          </div>
+.btn{
+border:none;
+cursor:pointer;
+padding:14px 24px;
+border-radius:14px;
+font-weight:700;
+transition:.3s;
+}
 
-          <div className="mt-5 bg-zinc-800 p-4 rounded-xl">
-            Hoje seu rendimento está acima da média.
-            Recomendo aumentar a carga em 5%.
-          </div>
+.btn-primary{
+background:#06b6d4;
+color:white;
+}
 
-          <button className="mt-5 bg-cyan-500 px-6 py-3 rounded-xl font-bold">
-            Conversar com IA
-          </button>
-        </div>
+.btn-primary:hover{
+transform:translateY(-2px);
+animation:pulseGlow 1.5s infinite;
+}
 
-      </div>
+.btn-success{
+background:#22c55e;
+color:white;
+}
 
-      {/* Grid Inferior */}
-      <div className="grid grid-cols-3 gap-6">
+.btn-danger{
+background:#ef4444;
+color:white;
+}
 
-        <div className="bg-zinc-900 p-6 rounded-3xl">
-          <Calendar />
-          <h2 className="mt-3 text-xl font-bold">
-            Calendário
-          </h2>
+.btn-warning{
+background:#eab308;
+color:black;
+}
 
-          <p className="text-zinc-400 mt-2">
-            Próximo treino amanhã às 18h.
-          </p>
-        </div>
+/* INPUTS */
 
-        <div className="bg-zinc-900 p-6 rounded-3xl">
-          <Users />
-          <h2 className="mt-3 text-xl font-bold">
-            Comunidade
-          </h2>
+input{
+outline:none;
+border:none;
+}
 
-          <p className="text-zinc-400 mt-2">
-            3 amigos treinaram hoje.
-          </p>
-        </div>
+input:focus{
+box-shadow:0 0 0 2px #06b6d4;
+}
 
-        <div className="bg-zinc-900 p-6 rounded-3xl">
-          <Trophy />
-          <h2 className="mt-3 text-xl font-bold">
-            Conquistas
-          </h2>
+/* TÍTULOS */
 
-          <p className="text-zinc-400 mt-2">
-            Medalha de 15 dias desbloqueada.
-          </p>
-        </div>
+h1{
+font-weight:900;
+}
 
-      </div>
+h2{
+font-weight:800;
+}
 
-    </div>
-  );
+h3{
+font-weight:700;
+}
+
+/* DASHBOARD */
+
+.hero-banner{
+background:linear-gradient(
+135deg,
+#06b6d4,
+#8b5cf6,
+#ec4899
+);
+padding:50px;
+border-radius:30px;
+animation:fadeIn .5s ease;
+}
+
+.hero-banner h1{
+font-size:3rem;
+}
+
+.hero-banner p{
+margin-top:15px;
+font-size:1.2rem;
+}
+
+/* XP BAR */
+
+.xp-container{
+width:100%;
+height:16px;
+background:#27272a;
+border-radius:999px;
+overflow:hidden;
+}
+
+.xp-fill{
+height:100%;
+background:linear-gradient(
+90deg,
+#06b6d4,
+#8b5cf6
+);
+}
+
+/* PERFIL */
+
+.avatar{
+width:160px;
+height:160px;
+border-radius:50%;
+object-fit:cover;
+border:5px solid white;
+}
+
+/* CRONÔMETRO */
+
+.timer-circle{
+width:320px;
+height:320px;
+border-radius:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:5rem;
+font-weight:900;
+background:linear-gradient(
+135deg,
+#06b6d4,
+#8b5cf6
+);
+margin:auto;
+animation:pulseGlow 2s infinite;
+}
+
+/* EXERCÍCIOS */
+
+.exercise-card img{
+width:100%;
+height:220px;
+object-fit:cover;
+}
+
+.exercise-card{
+overflow:hidden;
+border-radius:24px;
+background:#18181b;
+transition:.3s;
+cursor:pointer;
+}
+
+.exercise-card:hover{
+transform:scale(1.03);
+}
+
+/* CONQUISTAS */
+
+.badge{
+display:flex;
+align-items:center;
+justify-content:center;
+padding:12px;
+border-radius:16px;
+background:#27272a;
+font-weight:700;
+}
+
+/* RESPONSIVO */
+
+@media(max-width:1200px){
+
+.grid-cols-4{
+grid-template-columns:
+repeat(2,minmax(0,1fr));
+}
+
+}
+
+@media(max-width:768px){
+
+.grid-cols-4,
+.grid-cols-3,
+.grid-cols-2{
+grid-template-columns:
+repeat(1,minmax(0,1fr));
+}
+
+.hero-banner h1{
+font-size:2rem;
+}
+
+.timer-circle{
+width:240px;
+height:240px;
+font-size:3rem;
+}
+
 }
