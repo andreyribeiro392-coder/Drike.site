@@ -678,7 +678,7 @@ function SettingsPage() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppProvider>
         <MainLayout>
           <div className="flex min-h-screen">
@@ -704,7 +704,7 @@ function App() {
           </div>
         </MainLayout>
       </AppProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
