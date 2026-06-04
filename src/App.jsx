@@ -8,7 +8,7 @@ import React, {
 } from "react";
 
 import {
-  HashRouter,
+  BrowserRouter,
   Routes,
   Route,
   Navigate
@@ -678,7 +678,7 @@ function SettingsPage() {
 
 function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <AppProvider>
         <MainLayout>
           <div className="flex min-h-screen">
@@ -704,7 +704,7 @@ function App() {
           </div>
         </MainLayout>
       </AppProvider>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 
