@@ -1,62 +1,10 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
-  useCallback
-} from "react";
-
-import {
-  HashRouter,
-  Routes,
-  Route,
-  Navigate,
-  useNavigate,
-  useLocation
-} from "react-router-dom";
-
-import {
-  Activity,
-  Flame,
-  Trophy,
-  Target,
-  Dumbbell,
-  Brain,
-  Calendar,
-  Droplets,
-  User,
-  Bell,
-  Settings,
-  Moon,
-  Sun,
-  Award,
-  Crown,
-  Zap,
-  Heart,
-  TrendingUp,
-  Clock,
-  Shield,
-  Star,
-  BarChart3,
-  Sparkles,
-  Timer,
-  Menu,
-  X,
-  CheckCircle,
-  AlertCircle,
-  Info,
-  Home,
-  ArrowLeft,
-  LogOut,
-  Filter,
-  Search
-} from "lucide-react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { Activity, Flame, Trophy, Target, Dumbbell, Brain, Calendar, Droplets, User, Bell, Settings, Moon, Sun, Award, Crown, Zap, Heart, TrendingUp, Clock, Shield, Star, BarChart3, Sparkles, Timer, Menu, X, CheckCircle, AlertCircle, Info, Home, ArrowLeft, LogOut, Filter, Search } from "lucide-react";
 
 // ======================================
 // CUSTOM HOOK - useLocalStorage
 // ======================================
-
 const useLocalStorage = (key, initialValue) => {
   const [storedValue, setStoredValue] = useState(() => {
     try {
@@ -86,7 +34,6 @@ const useLocalStorage = (key, initialValue) => {
 // ======================================
 // TOAST COMPONENT
 // ======================================
-
 const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
   useEffect(() => {
     const timer = setTimeout(onClose, duration);
@@ -121,7 +68,6 @@ const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
 // ======================================
 // NOT FOUND PAGE
 // ======================================
-
 const NotFound = () => {
   const navigate = useNavigate();
 
@@ -159,7 +105,6 @@ const NotFound = () => {
 // ======================================
 // AUTH CONTEXT
 // ======================================
-
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -236,13 +181,11 @@ function AuthProvider({ children }) {
 // ======================================
 // LOGIN PAGE
 // ======================================
-
 function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -291,7 +234,7 @@ function LoginPage() {
           <div className="mb-6">
             <label className="block text-sm font-bold mb-2">Senha</label>
             <input
-              type={showPassword ? 'text' : 'password'}
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -332,7 +275,6 @@ function LoginPage() {
 // ======================================
 // SIGN UP PAGE
 // ======================================
-
 function SignUpPage() {
   const navigate = useNavigate();
   const { signup } = useAuth();
@@ -340,7 +282,6 @@ function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -412,7 +353,7 @@ function SignUpPage() {
           <div className="mb-6">
             <label className="block text-sm font-bold mb-2">Senha</label>
             <input
-              type={showPassword ? 'text' : 'password'}
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -423,7 +364,7 @@ function SignUpPage() {
           <div className="mb-6">
             <label className="block text-sm font-bold mb-2">Confirmar Senha</label>
             <input
-              type={showPassword ? 'text' : 'password'}
+              type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="••••••••"
@@ -462,9 +403,8 @@ function SignUpPage() {
 }
 
 // ======================================
-// CONTEXTOS GLOBAIS
+// APP CONTEXT
 // ======================================
-
 const AppContext = createContext();
 
 export const useApp = () => {
@@ -474,7 +414,6 @@ export const useApp = () => {
 // ======================================
 // DADOS INICIAIS
 // ======================================
-
 const defaultUser = {
   id: 1,
   username: "Atleta",
@@ -522,7 +461,7 @@ const coachMessages = [
   { id: 3, role: "assistant", content: "Você ainda precisa beber 1.6 litros de água hoje." }
 ];
 
-// BANCO DE DADOS DE EXERCÍCIOS DE ACADEMIA
+// BANCO DE DADOS DE EXERCÍCIOS
 const workoutDatabase = [
   {
     id: 1,
@@ -534,53 +473,18 @@ const workoutDatabase = [
     rest: "90s",
     favorite: true,
     image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Costas apoiadas no banco",
-        "Pés fixos no chão",
-        "Cotovelos a 45 graus",
-        "Barra descendo até o peito"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Levantar o quadril do banco",
-        "Descer a barra de forma torta",
-        "Cotovelos muito abertos",
-        "Usar peso excessivo"
-      ]
-    },
-    instructions: {
-      setup: "Sente-se no banco com os pés firmemente no chão. Pegue a barra com as mãos um pouco mais largas que a largura dos ombros.",
-      execution: "Baixe a barra controladamente até o peito, depois empurre explosivamente de volta à posição inicial.",
-      breathing: "Inspire ao baixar, expire ao empurrar."
-    },
-    precautions: [
-      "Não trave completamente os cotovelos no topo",
-      "Mantenha as escápulas retraídas",
-      "Não use peso excessivo",
-      "Mantenha a barra alinhada com o peito"
-    ],
-    injuries: [
-      {
-        name: "Tendinite do ombro",
-        cause: "Cotovelos muito abertos ou peso excessivo",
-        prevention: "Mantenha cotovelos a 45 graus e use peso apropriado"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Costas apoiadas", "Pés fixos", "Cotovelos 45°", "Barra no peito"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Levantar quadril", "Barra torta", "Cotovelos abertos", "Peso excessivo"] },
+    instructions: { setup: "Sente-se no banco", execution: "Baixe e empurre", breathing: "Inspire ao baixar" },
+    precautions: ["Não trave cotovelos", "Mantenha escápulas", "Peso apropriado", "Barra alinhada"],
+    injuries: [{ name: "Tendinite", cause: "Cotovelos abertos", prevention: "Mantenha 45°" }],
     progression: [
       { week: 1, sets: 3, reps: "12-15", weight: "Leve" },
-      { week: 2, sets: 3, reps: "10-12", weight: "Moderado" },
-      { week: 3, sets: 4, reps: "8-10", weight: "Moderado" },
-      { week: 4, sets: 4, reps: "6-8", weight: "Pesado" }
+      { week: 2, sets: 3, reps: "10-12", weight: "Moderado" }
     ],
-    tips: ["Mantenha os pés fixos no chão.", "Controle a descida.", "Não trave completamente os cotovelos."],
-    mistakes: ["Levantar o quadril.", "Descer a barra torta.", "Usar peso excessivo."],
-    musclesWorked: ["Peitoral", "Tríceps", "Ombro Anterior"]
+    tips: ["Mantenha pés fixos", "Controle descida", "Não trave"],
+    mistakes: ["Levantar quadril", "Barra torta", "Peso excessivo"],
+    musclesWorked: ["Peitoral", "Tríceps", "Ombro"]
   },
   {
     id: 2,
@@ -592,52 +496,17 @@ const workoutDatabase = [
     rest: "120s",
     favorite: false,
     image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Coluna neutra",
-        "Joelhos alinhados com os pés",
-        "Peito para frente",
-        "Descer até paralelo ou abaixo"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Arredondar a coluna lombar",
-        "Joelhos caindo para dentro",
-        "Descer pouco (amplitude insuficiente)",
-        "Peso nos dedos dos pés"
-      ]
-    },
-    instructions: {
-      setup: "Fique em pé com os pés na largura dos ombros. Coloque a barra nos ombros, atrás do pescoço.",
-      execution: "Desça controladamente dobrando os joelhos e quadril, mantendo o peito para frente.",
-      breathing: "Inspire ao descer, expire ao subir."
-    },
-    precautions: [
-      "Mantenha a coluna neutra durante todo o movimento",
-      "Os joelhos devem acompanhar a direção dos pés",
-      "Não deixe os joelhos caírem para dentro",
-      "Mantenha o peso nos calcanhares"
-    ],
-    injuries: [
-      {
-        name: "Lesão no joelho",
-        cause: "Joelhos caindo para dentro ou amplitude insuficiente",
-        prevention: "Mantenha os joelhos alinhados e desça com amplitude completa"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Coluna neutra", "Joelhos alinhados", "Peito frente", "Descer paralelo"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Arredondar coluna", "Joelhos dentro", "Descer pouco", "Peso nos dedos"] },
+    instructions: { setup: "Pés largura ombros", execution: "Desça controlado", breathing: "Inspire ao descer" },
+    precautions: ["Coluna neutra", "Joelhos alinhados", "Não cair para dentro", "Peso calcanhares"],
+    injuries: [{ name: "Lesão joelho", cause: "Joelhos caindo", prevention: "Mantenha alinhados" }],
     progression: [
       { week: 1, sets: 4, reps: "12-15", weight: "Apenas barra" },
-      { week: 2, sets: 4, reps: "10-12", weight: "Leve" },
-      { week: 3, sets: 5, reps: "8-10", weight: "Moderado" },
-      { week: 4, sets: 5, reps: "6-8", weight: "Pesado" }
+      { week: 2, sets: 4, reps: "10-12", weight: "Leve" }
     ],
-    tips: ["Coluna neutra.", "Joelhos alinhados.", "Desça controladamente."],
-    mistakes: ["Arredondar lombar.", "Joelhos para dentro.", "Descer pouco."],
+    tips: ["Coluna neutra", "Joelhos alinhados", "Desça controlado"],
+    mistakes: ["Arredondar", "Joelhos dentro", "Descer pouco"],
     musclesWorked: ["Quadríceps", "Glúteos", "Posterior"]
   },
   {
@@ -650,57 +519,22 @@ const workoutDatabase = [
     rest: "60s",
     favorite: false,
     image: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Peito aberto",
-        "Puxar com as costas",
-        "Cotovelos descendo",
-        "Controlar o retorno"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Usar embalo do corpo",
-        "Puxar atrás da cabeça",
-        "Curvar a coluna lombar",
-        "Usar braços em vez de costas"
-      ]
-    },
-    instructions: {
-      setup: "Sente-se na máquina com os pés apoiados. Pegue a barra com as mãos um pouco mais largas que a largura dos ombros.",
-      execution: "Puxe a barra para baixo em direção ao peito, usando as costas.",
-      breathing: "Inspire ao retornar, expire ao puxar."
-    },
-    precautions: [
-      "Não use embalo do corpo",
-      "Mantenha o peito aberto",
-      "Não puxe atrás da cabeça",
-      "Controle o retorno da barra"
-    ],
-    injuries: [
-      {
-        name: "Lesão no ombro",
-        cause: "Puxar atrás da cabeça ou amplitude excessiva",
-        prevention: "Puxe para o peito e mantenha amplitude controlada"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Peito aberto", "Puxar costas", "Cotovelos descem", "Controlar retorno"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Usar embalo", "Puxar atrás cabeça", "Curvar coluna", "Usar braços"] },
+    instructions: { setup: "Sente-se máquina", execution: "Puxe para peito", breathing: "Inspire ao retornar" },
+    precautions: ["Sem embalo", "Peito aberto", "Não atrás cabeça", "Controle retorno"],
+    injuries: [{ name: "Lesão ombro", cause: "Puxar atrás", prevention: "Puxe para peito" }],
     progression: [
       { week: 1, sets: 3, reps: "12-15", weight: "Leve" },
-      { week: 2, sets: 3, reps: "10-12", weight: "Moderado" },
-      { week: 3, sets: 4, reps: "8-10", weight: "Moderado" },
-      { week: 4, sets: 4, reps: "6-8", weight: "Pesado" }
+      { week: 2, sets: 3, reps: "10-12", weight: "Moderado" }
     ],
-    tips: ["Peito aberto.", "Puxar com as costas.", "Controlar retorno."],
-    mistakes: ["Usar embalo.", "Puxar atrás da cabeça.", "Curvar lombar."],
+    tips: ["Peito aberto", "Puxar costas", "Controlar"],
+    mistakes: ["Usar embalo", "Puxar atrás", "Curvar"],
     musclesWorked: ["Latíssimo", "Trapézio", "Bíceps"]
   }
 ];
 
-// BANCO DE DADOS DE EXERCÍCIOS EM CASA
+// BANCO DE DADOS - TREINO EM CASA
 const homeWorkoutDatabase = [
   {
     id: 101,
@@ -712,57 +546,22 @@ const homeWorkoutDatabase = [
     rest: "60s",
     equipment: "Sem equipamento",
     image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Corpo em linha reta (cabeça aos pés)",
-        "Mãos na largura dos ombros",
-        "Cotovelos a 45 graus do corpo",
-        "Descer até o peito quase tocar o chão"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Quadril caído (corpo em forma de V)",
-        "Cotovelos muito abertos",
-        "Não descer o suficiente",
-        "Cabeça para frente"
-      ]
-    },
-    instructions: {
-      setup: "Deite-se de bruços com as mãos na largura dos ombros, pés juntos ou ligeiramente afastados.",
-      execution: "Empurre o corpo para cima até estender os braços, depois desça controladamente até o peito quase tocar o chão.",
-      breathing: "Inspire ao descer, expire ao subir."
-    },
-    precautions: [
-      "Mantenha o corpo em linha reta",
-      "Não deixe o quadril cair",
-      "Não trave completamente os cotovelos",
-      "Controle o movimento"
-    ],
-    injuries: [
-      {
-        name: "Tendinite do ombro",
-        cause: "Cotovelos muito abertos ou movimento descontrolado",
-        prevention: "Mantenha cotovelos a 45 graus e controle a descida"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Corpo reto", "Mãos largura ombros", "Cotovelos 45°", "Descer até peito"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Quadril caído", "Cotovelos abertos", "Não descer", "Cabeça frente"] },
+    instructions: { setup: "Deite-se de bruços", execution: "Empurre para cima", breathing: "Inspire ao descer" },
+    precautions: ["Corpo reto", "Não cair quadril", "Não trave", "Controle movimento"],
+    injuries: [{ name: "Tendinite ombro", cause: "Cotovelos abertos", prevention: "Mantenha 45°" }],
     progression: [
-      { week: 1, sets: 3, reps: "10-12", variation: "Flexão normal" },
-      { week: 2, sets: 3, reps: "12-15", variation: "Flexão normal" },
-      { week: 3, sets: 4, reps: "10-12", variation: "Flexão com pés elevados" },
-      { week: 4, sets: 4, reps: "12-15", variation: "Flexão com pés elevados" }
+      { week: 1, sets: 3, reps: "10-12", variation: "Normal" },
+      { week: 2, sets: 3, reps: "12-15", variation: "Normal" }
     ],
-    tips: ["Mantenha o corpo reto.", "Controle a descida.", "Respire corretamente."],
-    mistakes: ["Quadril caído.", "Cotovelos muito abertos.", "Não descer o suficiente."],
-    musclesWorked: ["Peitoral", "Tríceps", "Ombro Anterior", "Núcleo"]
+    tips: ["Corpo reto", "Controle descida", "Respire"],
+    mistakes: ["Quadril caído", "Cotovelos abertos", "Não descer"],
+    musclesWorked: ["Peitoral", "Tríceps", "Ombro", "Núcleo"]
   },
   {
     id: 102,
-    name: "Agachamento com Peso Corporal",
+    name: "Agachamento Peso Corporal",
     muscle: "Pernas",
     difficulty: "Iniciante",
     sets: 3,
@@ -770,53 +569,18 @@ const homeWorkoutDatabase = [
     rest: "90s",
     equipment: "Sem equipamento",
     image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Pés na largura dos ombros",
-        "Coluna neutra",
-        "Joelhos alinhados com os pés",
-        "Descer até as coxas ficarem paralelas ao chão"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Joelhos caindo para dentro",
-        "Coluna arredondada",
-        "Peso nos dedos dos pés",
-        "Descer pouco"
-      ]
-    },
-    instructions: {
-      setup: "Fique em pé com os pés na largura dos ombros, braços estendidos para frente.",
-      execution: "Desça dobrando os joelhos e quadril, mantendo o peito para frente e o peso nos calcanhares.",
-      breathing: "Inspire ao descer, expire ao subir."
-    },
-    precautions: [
-      "Mantenha a coluna reta",
-      "Os joelhos não devem ultrapassar muito os pés",
-      "Mantenha o peso nos calcanhares",
-      "Não deixe os joelhos caírem para dentro"
-    ],
-    injuries: [
-      {
-        name: "Lesão no joelho",
-        cause: "Joelhos caindo para dentro ou amplitude insuficiente",
-        prevention: "Mantenha os joelhos alinhados e desça com amplitude completa"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Pés largura ombros", "Coluna neutra", "Joelhos alinhados", "Descer paralelo"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Joelhos dentro", "Coluna arredonda", "Peso dedos", "Descer pouco"] },
+    instructions: { setup: "Pés largura ombros", execution: "Desça dobrando joelhos", breathing: "Inspire ao descer" },
+    precautions: ["Coluna reta", "Joelhos alinhados", "Peso calcanhares", "Não deixar cair"],
+    injuries: [{ name: "Lesão joelho", cause: "Joelhos caindo", prevention: "Mantenha alinhados" }],
     progression: [
-      { week: 1, sets: 3, reps: "15-20", variation: "Agachamento normal" },
-      { week: 2, sets: 3, reps: "20-25", variation: "Agachamento normal" },
-      { week: 3, sets: 4, reps: "15-20", variation: "Agachamento com pausa" },
-      { week: 4, sets: 4, reps: "20-25", variation: "Agachamento com pausa" }
+      { week: 1, sets: 3, reps: "15-20", variation: "Normal" },
+      { week: 2, sets: 3, reps: "20-25", variation: "Normal" }
     ],
-    tips: ["Mantenha o peito para frente.", "Peso nos calcanhares.", "Amplitude completa."],
-    mistakes: ["Joelhos para dentro.", "Coluna arredondada.", "Descer pouco."],
-    musclesWorked: ["Quadríceps", "Glúteos", "Posterior da coxa"]
+    tips: ["Peito frente", "Peso calcanhares", "Amplitude completa"],
+    mistakes: ["Joelhos dentro", "Coluna arredonda", "Descer pouco"],
+    musclesWorked: ["Quadríceps", "Glúteos", "Posterior"]
   },
   {
     id: 103,
@@ -828,52 +592,17 @@ const homeWorkoutDatabase = [
     rest: "60s",
     equipment: "Sem equipamento",
     image: "https://images.unsplash.com/photo-1588286840104-8957b019727f",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Corpo em linha reta",
-        "Cotovelos alinhados com os ombros",
-        "Núcleo contraído",
-        "Não deixar o quadril cair"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Quadril caído",
-        "Quadril muito elevado",
-        "Cabeça para frente",
-        "Cotovelos muito abertos"
-      ]
-    },
-    instructions: {
-      setup: "Deite-se de bruços, coloque os cotovelos embaixo dos ombros, pés juntos.",
-      execution: "Levante o corpo, mantendo-o em linha reta dos pés à cabeça. Mantenha a posição.",
-      breathing: "Respire normalmente, não prenda a respiração."
-    },
-    precautions: [
-      "Mantenha o corpo em linha reta",
-      "Não deixe o quadril cair",
-      "Não deixe o quadril muito elevado",
-      "Respire normalmente"
-    ],
-    injuries: [
-      {
-        name: "Dor nas costas",
-        cause: "Quadril caído ou muito elevado",
-        prevention: "Mantenha o corpo em linha reta"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Corpo reto", "Cotovelos ombros", "Núcleo contraído", "Quadril não cai"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Quadril caído", "Quadril elevado", "Cabeça frente", "Cotovelos abertos"] },
+    instructions: { setup: "Cotovelos ombros", execution: "Levante corpo", breathing: "Respire normalmente" },
+    precautions: ["Corpo reto", "Não deixar cair", "Não elevar muito", "Respire"],
+    injuries: [{ name: "Dor costas", cause: "Quadril caído", prevention: "Mantenha reto" }],
     progression: [
-      { week: 1, sets: 3, reps: "30s", variation: "Prancha normal" },
-      { week: 2, sets: 3, reps: "45s", variation: "Prancha normal" },
-      { week: 3, sets: 3, reps: "60s", variation: "Prancha normal" },
-      { week: 4, sets: 3, reps: "60s", variation: "Prancha com elevação de perna" }
+      { week: 1, sets: 3, reps: "30s", variation: "Normal" },
+      { week: 2, sets: 3, reps: "45s", variation: "Normal" }
     ],
-    tips: ["Mantenha o corpo reto.", "Contraia o núcleo.", "Respire normalmente."],
-    mistakes: ["Quadril caído.", "Quadril elevado.", "Cabeça para frente."],
+    tips: ["Corpo reto", "Contraia núcleo", "Respire"],
+    mistakes: ["Quadril caído", "Quadril elevado", "Cabeça frente"],
     musclesWorked: ["Abdominais", "Oblíquos", "Costas", "Ombros"]
   },
   {
@@ -886,55 +615,18 @@ const homeWorkoutDatabase = [
     rest: "90s",
     equipment: "Sem equipamento",
     image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Começar em pé",
-        "Agachar e colocar as mãos no chão",
-        "Pular para trás em posição de flexão",
-        "Fazer uma flexão",
-        "Pular para frente",
-        "Pular para cima"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Não fazer a flexão completa",
-        "Movimento descontrolado",
-        "Não estender os braços na flexão",
-        "Não pular corretamente"
-      ]
-    },
-    instructions: {
-      setup: "Fique em pé com os pés na largura dos ombros.",
-      execution: "Agache, coloque as mãos no chão, pule para trás em posição de flexão, faça uma flexão, pule para frente e pule para cima.",
-      breathing: "Inspire ao agachar, expire ao pular."
-    },
-    precautions: [
-      "Faça o movimento de forma controlada",
-      "Não force o joelho",
-      "Mantenha o núcleo contraído",
-      "Descanse entre as séries"
-    ],
-    injuries: [
-      {
-        name: "Lesão no joelho",
-        cause: "Movimento descontrolado ou pouso incorreto",
-        prevention: "Faça o movimento de forma controlada"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Começar em pé", "Agachar", "Pular para trás", "Fazer flexão", "Pular para cima"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Não fazer flexão", "Movimento rápido", "Não estender braços", "Não pular"] },
+    instructions: { setup: "Pés largura ombros", execution: "Agache, pule, flexão, pule, pule", breathing: "Inspire ao agachar" },
+    precautions: ["Movimento controlado", "Não force joelho", "Núcleo contraído", "Descanse"],
+    injuries: [{ name: "Lesão joelho", cause: "Movimento rápido", prevention: "Controle movimento" }],
     progression: [
-      { week: 1, sets: 3, reps: "5-8", variation: "Burpee modificado (sem flexão)" },
-      { week: 2, sets: 3, reps: "8-10", variation: "Burpee modificado" },
-      { week: 3, sets: 3, reps: "8-12", variation: "Burpee completo" },
-      { week: 4, sets: 4, reps: "10-15", variation: "Burpee com flexão profunda" }
+      { week: 1, sets: 3, reps: "5-8", variation: "Modificado" },
+      { week: 2, sets: 3, reps: "8-10", variation: "Modificado" }
     ],
-    tips: ["Movimento controlado.", "Respire corretamente.", "Descanse entre as séries."],
-    mistakes: ["Movimento rápido demais.", "Não fazer flexão.", "Pouso incorreto."],
-    musclesWorked: ["Peito", "Tríceps", "Pernas", "Núcleo", "Cardiovascular"]
+    tips: ["Movimento controlado", "Respire", "Descanse"],
+    mistakes: ["Rápido demais", "Não fazer flexão", "Pouso forte"],
+    musclesWorked: ["Peito", "Tríceps", "Pernas", "Núcleo", "Cardio"]
   },
   {
     id: 105,
@@ -946,57 +638,22 @@ const homeWorkoutDatabase = [
     rest: "45s",
     equipment: "Sem equipamento",
     image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Deitado de costas, joelhos dobrados",
-        "Mãos atrás da cabeça (sem puxar o pescoço)",
-        "Elevar o tronco usando os abdominais",
-        "Descer controladamente"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Puxar o pescoço com as mãos",
-        "Elevar muito o tronco",
-        "Movimento rápido demais",
-        "Não usar os abdominais"
-      ]
-    },
-    instructions: {
-      setup: "Deite-se de costas com os joelhos dobrados, pés apoiados no chão, mãos atrás da cabeça.",
-      execution: "Contraia os abdominais e eleve o tronco, depois desça controladamente.",
-      breathing: "Expire ao subir, inspire ao descer."
-    },
-    precautions: [
-      "Não puxe o pescoço",
-      "Mantenha o movimento controlado",
-      "Não force o pescoço",
-      "Use os abdominais"
-    ],
-    injuries: [
-      {
-        name: "Dor no pescoço",
-        cause: "Puxar o pescoço com as mãos",
-        prevention: "Mantenha as mãos leves atrás da cabeça"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Costas chão", "Joelhos dobrados", "Mãos atrás cabeça", "Elevar tronco"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Puxar pescoço", "Elevar muito", "Rápido demais", "Não usar abdominais"] },
+    instructions: { setup: "Costas chão", execution: "Contraia e eleve", breathing: "Expire ao subir" },
+    precautions: ["Não puxe pescoço", "Controle movimento", "Não force pescoço", "Use abdominais"],
+    injuries: [{ name: "Dor pescoço", cause: "Puxar pescoço", prevention: "Mãos leves" }],
     progression: [
-      { week: 1, sets: 3, reps: "15-20", variation: "Crunch normal" },
-      { week: 2, sets: 3, reps: "20-25", variation: "Crunch normal" },
-      { week: 3, sets: 3, reps: "15-20", variation: "Crunch com rotação" },
-      { week: 4, sets: 3, reps: "20-25", variation: "Crunch com rotação" }
+      { week: 1, sets: 3, reps: "15-20", variation: "Normal" },
+      { week: 2, sets: 3, reps: "20-25", variation: "Normal" }
     ],
-    tips: ["Não puxe o pescoço.", "Movimento controlado.", "Use os abdominais."],
-    mistakes: ["Puxar o pescoço.", "Movimento rápido.", "Não usar abdominais."],
-    musclesWorked: ["Abdominais retos", "Oblíquos"]
+    tips: ["Não puxe pescoço", "Controle", "Use abdominais"],
+    mistakes: ["Puxar pescoço", "Rápido", "Não usar abdominais"],
+    musclesWorked: ["Abdominais", "Oblíquos"]
   },
   {
     id: 106,
-    name: "Polichinelo (Jumping Jack)",
+    name: "Polichinelo",
     muscle: "Full Body",
     difficulty: "Iniciante",
     sets: 3,
@@ -1004,53 +661,18 @@ const homeWorkoutDatabase = [
     rest: "60s",
     equipment: "Sem equipamento",
     image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Começar em pé, pés juntos",
-        "Pular abrindo as pernas",
-        "Braços subindo para os lados",
-        "Voltar à posição inicial"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Movimento descontrolado",
-        "Não abrir as pernas o suficiente",
-        "Braços não acompanhando",
-        "Pouso muito forte"
-      ]
-    },
-    instructions: {
-      setup: "Fique em pé com os pés juntos e os braços ao lado do corpo.",
-      execution: "Pule abrindo as pernas e levantando os braços, depois volte à posição inicial.",
-      breathing: "Respire normalmente, mantendo um ritmo constante."
-    },
-    precautions: [
-      "Faça o movimento de forma controlada",
-      "Não force os joelhos",
-      "Mantenha um ritmo constante",
-      "Descanse se necessário"
-    ],
-    injuries: [
-      {
-        name: "Lesão no joelho",
-        cause: "Pouso muito forte ou movimento descontrolado",
-        prevention: "Faça o movimento de forma controlada"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Pés juntos", "Pular abrindo", "Braços subindo", "Voltar posição"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Movimento descontrolado", "Não abrir pernas", "Braços não acompanham", "Pouso forte"] },
+    instructions: { setup: "Pés juntos", execution: "Pule abrindo", breathing: "Respire normalmente" },
+    precautions: ["Controle movimento", "Não force joelho", "Ritmo constante", "Descanse"],
+    injuries: [{ name: "Lesão joelho", cause: "Pouso forte", prevention: "Controle movimento" }],
     progression: [
-      { week: 1, sets: 3, reps: "20-30", variation: "Polichinelo normal" },
-      { week: 2, sets: 3, reps: "30-40", variation: "Polichinelo normal" },
-      { week: 3, sets: 3, reps: "40-50", variation: "Polichinelo rápido" },
-      { week: 4, sets: 4, reps: "40-50", variation: "Polichinelo rápido" }
+      { week: 1, sets: 3, reps: "20-30", variation: "Normal" },
+      { week: 2, sets: 3, reps: "30-40", variation: "Normal" }
     ],
-    tips: ["Movimento controlado.", "Ritmo constante.", "Respire normalmente."],
-    mistakes: ["Movimento rápido demais.", "Não abrir as pernas.", "Pouso forte."],
-    musclesWorked: ["Pernas", "Ombros", "Cardiovascular"]
+    tips: ["Controle", "Ritmo constante", "Respire"],
+    mistakes: ["Rápido demais", "Não abrir pernas", "Pouso forte"],
+    musclesWorked: ["Pernas", "Ombros", "Cardio"]
   },
   {
     id: 107,
@@ -1058,61 +680,26 @@ const homeWorkoutDatabase = [
     muscle: "Pernas",
     difficulty: "Intermediário",
     sets: 3,
-    reps: "12-15 cada perna",
+    reps: "12-15 cada",
     rest: "90s",
     equipment: "Sem equipamento",
     image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Pé da frente com o joelho a 90 graus",
-        "Pé de trás com o joelho quase tocando o chão",
-        "Tronco reto",
-        "Peso distribuído entre os dois pés"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Joelho da frente ultrapassando muito o pé",
-        "Tronco inclinado",
-        "Passo muito curto",
-        "Joelho de trás batendo no chão"
-      ]
-    },
-    instructions: {
-      setup: "Fique em pé com os pés na largura dos ombros.",
-      execution: "Dê um passo para frente, dobrando os joelhos até que ambas as pernas formem um ângulo de 90 graus. Volte à posição inicial.",
-      breathing: "Inspire ao descer, expire ao subir."
-    },
-    precautions: [
-      "Mantenha o tronco reto",
-      "O joelho não deve ultrapassar muito o pé",
-      "Mantenha o equilíbrio",
-      "Não force o joelho"
-    ],
-    injuries: [
-      {
-        name: "Lesão no joelho",
-        cause: "Joelho ultrapassando muito o pé",
-        prevention: "Mantenha o joelho alinhado com o pé"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Joelho 90°", "Joelho trás quase chão", "Tronco reto", "Peso distribuído"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Joelho ultrapassando", "Tronco inclinado", "Passo curto", "Joelho batendo"] },
+    instructions: { setup: "Pés largura ombros", execution: "Passo frente", breathing: "Inspire ao descer" },
+    precautions: ["Tronco reto", "Joelho alinhado", "Mantenha equilíbrio", "Não force"],
+    injuries: [{ name: "Lesão joelho", cause: "Joelho ultrapassando", prevention: "Mantenha alinhado" }],
     progression: [
-      { week: 1, sets: 3, reps: "10-12 cada", variation: "Afundo estacionário" },
-      { week: 2, sets: 3, reps: "12-15 cada", variation: "Afundo estacionário" },
-      { week: 3, sets: 3, reps: "12-15 cada", variation: "Afundo caminhando" },
-      { week: 4, sets: 4, reps: "12-15 cada", variation: "Afundo caminhando" }
+      { week: 1, sets: 3, reps: "10-12", variation: "Estacionário" },
+      { week: 2, sets: 3, reps: "12-15", variation: "Estacionário" }
     ],
-    tips: ["Mantenha o tronco reto.", "Passo largo.", "Equilíbrio constante."],
-    mistakes: ["Joelho ultrapassando.", "Tronco inclinado.", "Passo curto."],
-    musclesWorked: ["Quadríceps", "Glúteos", "Posterior da coxa"]
+    tips: ["Tronco reto", "Passo largo", "Equilíbrio"],
+    mistakes: ["Joelho ultrapassando", "Tronco inclinado", "Passo curto"],
+    musclesWorked: ["Quadríceps", "Glúteos", "Posterior"]
   },
   {
     id: 108,
-    name: "Flexão de Tríceps (Dips)",
+    name: "Flexão Tríceps (Dips)",
     muscle: "Tríceps",
     difficulty: "Intermediário",
     sets: 3,
@@ -1120,52 +707,17 @@ const homeWorkoutDatabase = [
     rest: "90s",
     equipment: "Cadeira ou banco",
     image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438",
-    correctForm: {
-      color: "#10b981",
-      description: "Forma correta",
-      points: [
-        "Mãos na cadeira atrás de você",
-        "Corpo reto",
-        "Descer dobrando os cotovelos",
-        "Cotovelos a 90 graus"
-      ]
-    },
-    incorrectForm: {
-      color: "#ef4444",
-      description: "Forma incorreta",
-      mistakes: [
-        "Cotovelos muito abertos",
-        "Corpo inclinado para frente",
-        "Não descer o suficiente",
-        "Ombros para cima"
-      ]
-    },
-    instructions: {
-      setup: "Sente-se em uma cadeira, coloque as mãos na beira da cadeira atrás de você, pés no chão.",
-      execution: "Desça o corpo dobrando os cotovelos, depois suba empurrando com os tríceps.",
-      breathing: "Inspire ao descer, expire ao subir."
-    },
-    precautions: [
-      "Mantenha os cotovelos próximos ao corpo",
-      "Não desça muito",
-      "Mantenha o corpo reto",
-      "Não force os ombros"
-    ],
-    injuries: [
-      {
-        name: "Lesão no ombro",
-        cause: "Cotovelos muito abertos ou movimento descontrolado",
-        prevention: "Mantenha os cotovelos próximos ao corpo"
-      }
-    ],
+    correctForm: { color: "#10b981", description: "Forma correta", points: ["Mãos cadeira atrás", "Corpo reto", "Descer cotovelos", "Cotovelos 90°"] },
+    incorrectForm: { color: "#ef4444", description: "Forma incorreta", mistakes: ["Cotovelos abertos", "Corpo inclinado", "Não descer", "Ombros para cima"] },
+    instructions: { setup: "Mãos cadeira atrás", execution: "Desça e suba", breathing: "Inspire ao descer" },
+    precautions: ["Cotovelos próximos", "Não desça muito", "Corpo reto", "Não force ombros"],
+    injuries: [{ name: "Lesão ombro", cause: "Cotovelos abertos", prevention: "Mantenha próximos" }],
     progression: [
-      { week: 1, sets: 3, reps: "8-10", variation: "Dips com pés no chão" },
-      { week: 2, sets: 3, reps: "10-12", variation: "Dips com pés no chão" },
-      { week: 3, sets: 3, reps: "8-10", variation: "Dips com pés elevados" },
-      { week: 4, sets: 3, reps: "10-12", variation: "Dips com pés elevados" }
+      { week: 1, sets: 3, reps: "8-10", variation: "Pés chão" },
+      { week: 2, sets: 3, reps: "10-12", variation: "Pés chão" }
     ],
-    tips: ["Cotovelos próximos ao corpo.", "Movimento controlado.", "Não desça muito."],
-    mistakes: ["Cotovelos abertos.", "Corpo inclinado.", "Ombros para cima."],
+    tips: ["Cotovelos próximos", "Controle", "Não desça muito"],
+    mistakes: ["Cotovelos abertos", "Corpo inclinado", "Ombros para cima"],
     musclesWorked: ["Tríceps", "Peito", "Ombros"]
   }
 ];
@@ -1173,7 +725,6 @@ const homeWorkoutDatabase = [
 // ======================================
 // PROVIDER
 // ======================================
-
 function AppProvider({ children }) {
   const [darkMode, setDarkMode] = useLocalStorage('darkMode', true);
   const [appUser, setAppUser] = useLocalStorage('appUser', defaultUser);
@@ -1205,7 +756,7 @@ function AppProvider({ children }) {
         level++;
         nextXP += 500;
       }
-      setToast({ message: `+${amount} XP! Você está no nível ${level}!`, type: 'success' });
+      setToast({ message: `+${amount} XP! Nível ${level}!`, type: 'success' });
       return {
         ...prev,
         xp: newXP,
@@ -1230,7 +781,7 @@ function AppProvider({ children }) {
         {
           id: Date.now() + 1,
           role: "assistant",
-          content: "Analisando seus dados. Recomendo manter o foco na meta semanal."
+          content: "Analisando seus dados. Recomendo manter foco na meta semanal."
         }
       ]);
     }, 1000);
@@ -1255,21 +806,493 @@ function AppProvider({ children }) {
 }
 
 // ======================================
-// LAYOUT PRINCIPAL
+// PAGES
 // ======================================
 
-function MainLayout({ children }) {
-  const { darkMode } = useApp();
+function Dashboard() {
+  const { user, missions, achievements, addWater, addXP } = useApp();
+  const progressPercent = (user.xp / user.nextLevelXp) * 100;
+  const waterPercent = (user.waterToday / user.waterGoal) * 100;
+
   return (
-    <div className={`min-h-screen transition-all duration-500 ${darkMode ? "bg-zinc-950 text-white" : "bg-white text-black"}`}>
-      {children}
+    <div className="p-8 space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-zinc-400 text-sm">Nível</p>
+              <h3 className="text-4xl font-black">{user.level}</h3>
+            </div>
+            <Crown className="text-yellow-500" size={32} />
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-zinc-400 text-sm">XP</p>
+              <h3 className="text-2xl font-black">{user.xp}/{user.nextLevelXp}</h3>
+            </div>
+            <Zap className="text-cyan-500" size={32} />
+          </div>
+          <div className="w-full bg-zinc-800 rounded-full h-2 mt-4">
+            <div className="bg-cyan-500 h-2 rounded-full" style={{ width: `${progressPercent}%` }}></div>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-zinc-400 text-sm">Água</p>
+              <h3 className="text-2xl font-black">{user.waterToday}ml</h3>
+            </div>
+            <Droplets className="text-blue-500" size={32} />
+          </div>
+          <div className="w-full bg-zinc-800 rounded-full h-2 mt-4">
+            <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${Math.min(waterPercent, 100)}%` }}></div>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-zinc-400 text-sm">Streak</p>
+              <h3 className="text-4xl font-black">{user.streak}</h3>
+            </div>
+            <Flame className="text-orange-500" size={32} />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
+          <h2 className="text-2xl font-bold mb-6">Missões do Dia</h2>
+          <div className="space-y-4">
+            {missions.map((mission) => (
+              <div key={mission.id} className={`p-4 rounded-xl border-2 ${mission.completed ? 'bg-green-900/20 border-green-500' : 'bg-zinc-800 border-zinc-700'}`}>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-bold">{mission.title}</p>
+                    <p className="text-sm text-zinc-400">+{mission.xp} XP</p>
+                  </div>
+                  {mission.completed ? <CheckCircle className="text-green-500" /> : <AlertCircle className="text-yellow-500" />}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
+          <h2 className="text-2xl font-bold mb-6">Ações Rápidas</h2>
+          <div className="space-y-4">
+            <button onClick={() => addWater(250)} className="w-full bg-blue-500 hover:bg-blue-600 p-4 rounded-xl font-bold transition">
+              💧 Adicionar 250ml de Água
+            </button>
+            <button onClick={() => addXP(50)} className="w-full bg-cyan-500 hover:bg-cyan-600 p-4 rounded-xl font-bold transition">
+              ⚡ Adicionar 50 XP
+            </button>
+            <button className="w-full bg-purple-500 hover:bg-purple-600 p-4 rounded-xl font-bold transition">
+              🎯 Iniciar Treino
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Workouts() {
+  const [selectedExercise, setSelectedExercise] = useState(null);
+  const [filterDifficulty, setFilterDifficulty] = useState('all');
+
+  const filtered = filterDifficulty === 'all' ? workoutDatabase : workoutDatabase.filter(e => e.difficulty === filterDifficulty);
+
+  return (
+    <div className="p-8">
+      <h1 className="text-4xl font-black mb-8">Treinos de Academia</h1>
+
+      <div className="mb-8 flex gap-4 flex-wrap">
+        {['all', 'Iniciante', 'Intermediário', 'Avançado'].map((diff) => (
+          <button
+            key={diff}
+            onClick={() => setFilterDifficulty(diff)}
+            className={`px-6 py-2 rounded-xl font-bold transition ${
+              filterDifficulty === diff
+                ? 'bg-cyan-500 text-white'
+                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+            }`}
+          >
+            {diff === 'all' ? 'Todos' : diff}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filtered.map((exercise) => (
+          <div
+            key={exercise.id}
+            onClick={() => setSelectedExercise(exercise)}
+            className="bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-cyan-500 transition cursor-pointer"
+          >
+            <img src={exercise.image} alt={exercise.name} className="w-full h-48 object-cover" />
+            <div className="p-6">
+              <h3 className="text-xl font-bold mb-2">{exercise.name}</h3>
+              <p className="text-zinc-400 mb-4">{exercise.muscle}</p>
+              <div className="flex justify-between text-sm">
+                <span className="bg-zinc-800 px-3 py-1 rounded-full">{exercise.difficulty}</span>
+                <span className="bg-zinc-800 px-3 py-1 rounded-full">{exercise.sets}x{exercise.reps}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {selectedExercise && (
+        <div className="fixed inset-0 bg-black/80 z-50 overflow-auto">
+          <div className="max-w-4xl mx-auto bg-zinc-950 min-h-screen p-8">
+            <button
+              onClick={() => setSelectedExercise(null)}
+              className="mb-6 bg-red-500 px-4 py-2 rounded-xl hover:bg-red-600 transition"
+            >
+              ✕ Fechar
+            </button>
+            <h1 className="text-4xl font-black mb-6">{selectedExercise.name}</h1>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <img src={selectedExercise.image} alt={selectedExercise.name} className="w-full rounded-2xl mb-6" />
+              </div>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Informações</h3>
+                  <p><strong>Músculo:</strong> {selectedExercise.muscle}</p>
+                  <p><strong>Dificuldade:</strong> {selectedExercise.difficulty}</p>
+                  <p><strong>Series:</strong> {selectedExercise.sets}</p>
+                  <p><strong>Repetições:</strong> {selectedExercise.reps}</p>
+                  <p><strong>Descanso:</strong> {selectedExercise.rest}</p>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Forma Correta</h3>
+                  <ul className="list-disc list-inside space-y-1 text-zinc-400">
+                    {selectedExercise.correctForm.points.map((point, i) => (
+                      <li key={i}>{point}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Cuidados</h3>
+                  <ul className="list-disc list-inside space-y-1 text-zinc-400">
+                    {selectedExercise.precautions.map((precaution, i) => (
+                      <li key={i}>{precaution}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function HomeWorkouts() {
+  const [selectedExercise, setSelectedExercise] = useState(null);
+  const [filterDifficulty, setFilterDifficulty] = useState('all');
+
+  const filtered = filterDifficulty === 'all' ? homeWorkoutDatabase : homeWorkoutDatabase.filter(e => e.difficulty === filterDifficulty);
+
+  return (
+    <div className="p-8">
+      <h1 className="text-4xl font-black mb-8">Treinos em Casa</h1>
+
+      <div className="mb-8 flex gap-4 flex-wrap">
+        {['all', 'Iniciante', 'Intermediário', 'Avançado'].map((diff) => (
+          <button
+            key={diff}
+            onClick={() => setFilterDifficulty(diff)}
+            className={`px-6 py-2 rounded-xl font-bold transition ${
+              filterDifficulty === diff
+                ? 'bg-cyan-500 text-white'
+                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+            }`}
+          >
+            {diff === 'all' ? 'Todos' : diff}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filtered.map((exercise) => (
+          <div
+            key={exercise.id}
+            onClick={() => setSelectedExercise(exercise)}
+            className="bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-cyan-500 transition cursor-pointer"
+          >
+            <img src={exercise.image} alt={exercise.name} className="w-full h-48 object-cover" />
+            <div className="p-6">
+              <h3 className="text-xl font-bold mb-2">{exercise.name}</h3>
+              <p className="text-zinc-400 mb-4">{exercise.muscle}</p>
+              <div className="flex justify-between text-sm">
+                <span className="bg-zinc-800 px-3 py-1 rounded-full">{exercise.difficulty}</span>
+                <span className="bg-zinc-800 px-3 py-1 rounded-full">{exercise.equipment}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {selectedExercise && (
+        <div className="fixed inset-0 bg-black/80 z-50 overflow-auto">
+          <div className="max-w-4xl mx-auto bg-zinc-950 min-h-screen p-8">
+            <button
+              onClick={() => setSelectedExercise(null)}
+              className="mb-6 bg-red-500 px-4 py-2 rounded-xl hover:bg-red-600 transition"
+            >
+              ✕ Fechar
+            </button>
+            <h1 className="text-4xl font-black mb-6">{selectedExercise.name}</h1>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <img src={selectedExercise.image} alt={selectedExercise.name} className="w-full rounded-2xl mb-6" />
+              </div>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Informações</h3>
+                  <p><strong>Músculo:</strong> {selectedExercise.muscle}</p>
+                  <p><strong>Dificuldade:</strong> {selectedExercise.difficulty}</p>
+                  <p><strong>Series:</strong> {selectedExercise.sets}</p>
+                  <p><strong>Repetições:</strong> {selectedExercise.reps}</p>
+                  <p><strong>Equipamento:</strong> {selectedExercise.equipment}</p>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Forma Correta</h3>
+                  <ul className="list-disc list-inside space-y-1 text-zinc-400">
+                    {selectedExercise.correctForm.points.map((point, i) => (
+                      <li key={i}>{point}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Cuidados</h3>
+                  <ul className="list-disc list-inside space-y-1 text-zinc-400">
+                    {selectedExercise.precautions.map((precaution, i) => (
+                      <li key={i}>{precaution}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Coach() {
+  const { messages, sendMessage } = useApp();
+  const [input, setInput] = useState('');
+
+  return (
+    <div className="p-8 h-full flex flex-col">
+      <h1 className="text-4xl font-black mb-8">IA Coach</h1>
+      <div className="flex-1 overflow-y-auto mb-6 space-y-4">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-xs p-4 rounded-2xl ${msg.role === 'user' ? 'bg-cyan-500 text-white' : 'bg-zinc-800 text-zinc-200'}`}>
+              {msg.content}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              sendMessage(input);
+              setInput('');
+            }
+          }}
+          placeholder="Pergunte algo..."
+          className="flex-1 bg-zinc-800 px-4 py-3 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+        />
+        <button
+          onClick={() => {
+            sendMessage(input);
+            setInput('');
+          }}
+          className="bg-cyan-500 hover:bg-cyan-600 px-6 py-3 rounded-xl font-bold transition"
+        >
+          Enviar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Hydration() {
+  const { user, addWater } = useApp();
+  const waterPercent = (user.waterToday / user.waterGoal) * 100;
+
+  return (
+    <div className="p-8">
+      <h1 className="text-4xl font-black mb-8">Hidratação</h1>
+      <div className="max-w-md mx-auto">
+        <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800 text-center">
+          <Droplets className="mx-auto mb-6 text-blue-500" size={64} />
+          <h2 className="text-5xl font-black mb-2">{user.waterToday}ml</h2>
+          <p className="text-zinc-400 mb-6">de {user.waterGoal}ml</p>
+          <div className="w-full bg-zinc-800 rounded-full h-4 mb-6">
+            <div className="bg-blue-500 h-4 rounded-full transition-all" style={{ width: `${Math.min(waterPercent, 100)}%` }}></div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <button onClick={() => addWater(250)} className="bg-blue-500 hover:bg-blue-600 p-4 rounded-xl font-bold transition">
+              +250ml
+            </button>
+            <button onClick={() => addWater(500)} className="bg-blue-500 hover:bg-blue-600 p-4 rounded-xl font-bold transition">
+              +500ml
+            </button>
+            <button onClick={() => addWater(750)} className="bg-blue-500 hover:bg-blue-600 p-4 rounded-xl font-bold transition">
+              +750ml
+            </button>
+            <button onClick={() => addWater(1000)} className="bg-blue-500 hover:bg-blue-600 p-4 rounded-xl font-bold transition">
+              +1L
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Achievements() {
+  const { achievements } = useApp();
+
+  return (
+    <div className="p-8">
+      <h1 className="text-4xl font-black mb-8">Conquistas</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {achievements.map((achievement) => (
+          <div
+            key={achievement.id}
+            className={`rounded-2xl p-6 border-2 ${
+              achievement.unlocked
+                ? 'bg-yellow-900/20 border-yellow-500'
+                : 'bg-zinc-900 border-zinc-800'
+            }`}
+          >
+            <div className="text-5xl mb-4">{achievement.icon}</div>
+            <h3 className="text-xl font-bold mb-2">{achievement.title}</h3>
+            <p className="text-zinc-400 text-sm mb-4">{achievement.description}</p>
+            {!achievement.unlocked && achievement.progress && (
+              <div className="w-full bg-zinc-800 rounded-full h-2">
+                <div
+                  className="bg-cyan-500 h-2 rounded-full"
+                  style={{ width: `${(achievement.progress / 100) * 100}%` }}
+                ></div>
+              </div>
+            )}
+            {achievement.unlocked && (
+              <p className="text-yellow-400 text-sm">Desbloqueado em {achievement.unlockedDate}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Profile() {
+  const { user } = useApp();
+
+  return (
+    <div className="p-8">
+      <h1 className="text-4xl font-black mb-8">Perfil</h1>
+      <div className="max-w-2xl space-y-6">
+        <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800 text-center">
+          <img src={user.avatar} alt="Avatar" className="w-32 h-32 rounded-full mx-auto mb-6" />
+          <h2 className="text-3xl font-bold mb-2">{user.username}</h2>
+          <p className="text-zinc-400 mb-6">{user.email}</p>
+          <div className="grid grid-cols-2 gap-4 text-left">
+            <div>
+              <p className="text-zinc-400">Idade</p>
+              <p className="text-2xl font-bold">{user.age} anos</p>
+            </div>
+            <div>
+              <p className="text-zinc-400">Altura</p>
+              <p className="text-2xl font-bold">{user.height}cm</p>
+            </div>
+            <div>
+              <p className="text-zinc-400">Peso</p>
+              <p className="text-2xl font-bold">{user.weight}kg</p>
+            </div>
+            <div>
+              <p className="text-zinc-400">Objetivo</p>
+              <p className="text-2xl font-bold">{user.objective}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Settings() {
+  const { darkMode, setDarkMode } = useApp();
+
+  return (
+    <div className="p-8">
+      <h1 className="text-4xl font-black mb-8">Configurações</h1>
+      <div className="max-w-2xl space-y-6">
+        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 flex justify-between items-center">
+          <div>
+            <h3 className="text-xl font-bold">Tema Escuro</h3>
+            <p className="text-zinc-400">Alterne entre tema claro e escuro</p>
+          </div>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`px-6 py-2 rounded-xl font-bold transition ${
+              darkMode ? 'bg-cyan-500' : 'bg-zinc-700'
+            }`}
+          >
+            {darkMode ? 'Ativo' : 'Inativo'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
 // ======================================
-// SIDEBAR PREMIUM COM RESPONSIVIDADE
+// MAIN LAYOUT
 // ======================================
+function MainLayout({ children }) {
+  const { darkMode } = useApp();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  return (
+    <div className={`min-h-screen transition-all duration-500 ${darkMode ? "bg-zinc-950 text-white" : "bg-white text-black"}`}>
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 flex flex-col">
+          <Navbar />
+          <main className="flex-1 overflow-y-auto">
+            {children}
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Sidebar() {
   const navigate = useNavigate();
@@ -1282,9 +1305,7 @@ function Sidebar() {
     { icon: Home, title: "Treinos em Casa", path: "/home-workouts" },
     { icon: Brain, title: "IA Coach", path: "/coach" },
     { icon: Droplets, title: "Hidratação", path: "/hydration" },
-    { icon: Flame, title: "Nutrição", path: "/nutrition" },
     { icon: Trophy, title: "Conquistas", path: "/achievements" },
-    { icon: Timer, title: "Cronômetro", path: "/timer" },
     { icon: User, title: "Perfil", path: "/profile" },
     { icon: Settings, title: "Configurações", path: "/settings" }
   ];
@@ -1346,10 +1367,6 @@ function Sidebar() {
   );
 }
 
-// ======================================
-// NAVBAR PREMIUM
-// ======================================
-
 function Navbar() {
   const { darkMode, setDarkMode, notifications } = useApp();
   return (
@@ -1374,102 +1391,115 @@ function Navbar() {
 }
 
 // ======================================
-// COMPONENTES AUXILIARES
+// APP ROUTER
 // ======================================
+function AppRouter() {
+  const { isAuthenticated } = useAuth();
+  const { toast, setToast } = useApp();
 
-function StatCard({ icon, title, value }) {
-  const Icon = icon;
   return (
-    <div className="bg-zinc-900 rounded-3xl p-6 border border-zinc-800 hover:border-cyan-500 transition-all">
-      <div className="flex justify-between">
-        <div>
-          <p className="text-zinc-400">{title}</p>
-          <h3 className="text-4xl font-black mt-3">{value}</h3>
-        </div>
-        <Icon size={32} />
-      </div>
-    </div>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
+      <Route
+        path="/"
+        element={
+          <MainLayout>
+            <Dashboard />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/workouts"
+        element={
+          <MainLayout>
+            <Workouts />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/home-workouts"
+        element={
+          <MainLayout>
+            <HomeWorkouts />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/coach"
+        element={
+          <MainLayout>
+            <Coach />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/hydration"
+        element={
+          <MainLayout>
+            <Hydration />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/achievements"
+        element={
+          <MainLayout>
+            <Achievements />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <MainLayout>
+            <Profile />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <MainLayout>
+            <Settings />
+          </MainLayout>
+        }
+      />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
 // ======================================
-// EXERCISE DETAILS ENHANCED
+// MAIN APP
 // ======================================
+export default function App() {
+  return (
+    <HashRouter>
+      <AuthProvider>
+        <AppProvider>
+          <div className="min-h-screen bg-zinc-950 text-white">
+            <AppRouter />
+            <ToastContainer />
+          </div>
+        </AppProvider>
+      </AuthProvider>
+    </HashRouter>
+  );
+}
 
-function ExerciseDetailsEnhanced({ exercise, onClose }) {
-  const [activeTab, setActiveTab] = useState('form');
-  const [formFeedback, setFormFeedback] = useState('correct');
-
-  if (!exercise) return null;
+function ToastContainer() {
+  const { toast, setToast } = useApp();
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 overflow-auto">
-      <div className="max-w-7xl mx-auto bg-zinc-950 min-h-screen p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-5xl font-black">{exercise.name}</h1>
-          <button onClick={onClose} className="bg-red-500 px-4 py-2 rounded-xl hover:bg-red-600 transition">
-            <X size={24} />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <div className="lg:col-span-1">
-            <div className="bg-zinc-900 rounded-3xl overflow-hidden">
-              <img
-                src={exercise.image}
-                alt={exercise.name}
-                className="w-full h-96 object-cover"
-              />
-              <div className="p-6 text-center text-zinc-400">
-                <p className="text-sm">Modelo 3D virá aqui</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-2">
-            <div className="flex gap-2 mb-6 flex-wrap">
-              {['form', 'precautions', 'injuries', 'progression'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-3 rounded-xl font-bold transition ${
-                    activeTab === tab
-                      ? 'bg-cyan-500 text-white'
-                      : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-                  }`}
-                >
-                  {tab === 'form' && 'Forma'}
-                  {tab === 'precautions' && 'Cuidados'}
-                  {tab === 'injuries' && 'Lesões'}
-                  {tab === 'progression' && 'Progressão'}
-                </button>
-              ))}
-            </div>
-
-            {activeTab === 'form' && (
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setFormFeedback('correct')}
-                    className={`flex-1 p-4 rounded-2xl font-bold transition ${
-                      formFeedback === 'correct'
-                        ? 'bg-green-500/20 border-2 border-green-500 text-green-400'
-                        : 'bg-zinc-800 border-2 border-zinc-700 text-zinc-400'
-                    }`}
-                  >
-                    ✅ Forma Correta
-                  </button>
-                  <button
-                    onClick={() => setFormFeedback('incorrect')}
-                    className={`flex-1 p-4 rounded-2xl font-bold transition ${
-                      formFeedback === 'incorrect'
-                        ? 'bg-red-500/20 border-2 border-red-500 text-red-400'
-                        : 'bg-zinc-800 border-2 border-zinc-700 text-zinc-400'
-                    }`}
-                  >
-                    ❌ Forma Incorreta
-                  </button>
-                </div>
-
-                {formFeedback === 'correct' && (
-                  <div className="bg-green-900/20 border-2 border-green-500
+    <>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </>
+  );
+}
