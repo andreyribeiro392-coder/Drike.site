@@ -1,23 +1,11 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCXM-nEcv5HAwXeBVKQ4eSZK8DIzGpRXHE",
-  authDomain: "drik-streaming.firebaseapp.com",
-  projectId: "drik-streaming",
-  storageBucket: "drik-streaming.firebasestorage.app",
-  messagingSenderId: "366702155857",
-  appId: "1:366702155857:web:7a0a922ce0f63c78f50070",
-  measurementId: "G-NVTTBB1PLF"
+// Configuração futura do Firebase para controle de usuários da Kiwify
+export const firebaseConfig = {
+  apiKey: "SEU_API_KEY_AQUI",
+  authDomain: "seu-projeto.firebaseapp.com",
+  projectId: "seu-projeto",
+  storageBucket: "seu-projeto.appspot.com",
+  messagingSenderId: "seu-id",
+  appId: "seu-app-id"
 };
 
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-const db = getFirestore(app);
-const storage = getStorage(app);
-
-export { auth, provider, db, storage };
+console.log("Firebase carregado e aguardando chaves de produção.");
