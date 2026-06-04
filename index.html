@@ -1,24 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>FPS Web</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div id="menu">
-  <h1>Jogo de Tiro</h1>
-  <button onclick="startGame()">Jogar</button>
-</div>
-
-<canvas id="gameCanvas"></canvas>
-
-<div id="hud">
-  <span id="health">Vida: 100</span>
-  <span id="ammo">Munição: ∞</span>
-</div>
-
-<script src="game.js"></script>
-</body>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Novo nome que vai aparecer na aba do seu navegador -->
+    <title>Guia de Treino 3D Pro</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- Esta linha garante que o site carregue o painel de treino e não o jogo antigo -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
