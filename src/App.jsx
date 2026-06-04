@@ -47,7 +47,8 @@ import {
   AlertCircle,
   Info,
   Home,
-  ArrowLeft
+  ArrowLeft,
+  LogOut
 } from "lucide-react";
 
 // ======================================
@@ -154,6 +155,320 @@ const NotFound = () => {
 };
 
 // ======================================
+// AUTH CONTEXT
+// ======================================
+
+const AuthContext = createContext();
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
+
+function AuthProvider({ children }) {
+  const [user, setUser] = useLocalStorage('user', null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const signup = useCallback(async (email, password, name) => {
+    try {
+      setError(null);
+      // TODO: Integrar com Firebase aqui
+      // const result = await createUserWithEmailAndPassword(auth, email, password);
+      // await updateProfile(result.user, { displayName: name });
+      
+      const newUser = {
+        id: Date.now(),
+        email,
+        name,
+        createdAt: new Date().toISOString()
+      };
+      setUser(newUser);
+      return { success: true };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
+    }
+  }, [setUser]);
+
+  const login = useCallback(async (email, password) => {
+    try {
+      setError(null);
+      // TODO: Integrar com Firebase aqui
+      // const result = await signInWithEmailAndPassword(auth, email, password);
+      
+      const mockUser = {
+        id: 1,
+        email,
+        name: "Usuário",
+        createdAt: new Date().toISOString()
+      };
+      setUser(mockUser);
+      return { success: true };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
+    }
+  }, [setUser]);
+
+  const logout = useCallback(async () => {
+    try {
+      setError(null);
+      // TODO: Integrar com Firebase aqui
+      // await signOut(auth);
+      setUser(null);
+      return { success: true };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
+    }
+  }, [setUser]);
+
+  const value = useMemo(() => ({
+    user,
+    loading,
+    error,
+    signup,
+    login,
+    logout,
+    isAuthenticated: !!user
+  }), [user, loading, error, signup, login, logout]);
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// ======================================
+// LOGIN PAGE
+// ======================================
+
+function LoginPage() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    if (!email || !password) {
+      setError('Preencha todos os campos');
+      setLoading(false);
+      return;
+    }
+
+    const result = await login(email, password);
+    if (result.success) {
+      navigate('/');
+    } else {
+      setError(result.error || 'Erro ao fazer login');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent mb-2">
+            Aura Fitness
+          </h1>
+          <p className="text-zinc-400">Bem-vindo de volta</p>
+        </div>
+
+        <form onSubmit={handleLogin} className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800">
+          <div className="mb-6">
+            <label className="block text-sm font-bold mb-2">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              className="w-full bg-zinc-800 px-4 py-3 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold mb-2">Senha</label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-zinc-800 px-4 py-3 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+
+          {error && (
+            <div className="mb-6 bg-red-900/30 border border-red-500 p-4 rounded-xl text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 py-3 rounded-xl font-bold transition disabled:opacity-50"
+          >
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+
+          <p className="text-center mt-6 text-zinc-400">
+            Não tem conta?{' '}
+            <button
+              type="button"
+              onClick={() => navigate('/signup')}
+              className="text-cyan-400 hover:text-cyan-300 font-bold"
+            >
+              Criar conta
+            </button>
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ======================================
+// SIGN UP PAGE
+// ======================================
+
+function SignUpPage() {
+  const navigate = useNavigate();
+  const { signup } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    if (!name || !email || !password || !confirmPassword) {
+      setError('Preencha todos os campos');
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('As senhas não conferem');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres');
+      setLoading(false);
+      return;
+    }
+
+    const result = await signup(email, password, name);
+    if (result.success) {
+      navigate('/');
+    } else {
+      setError(result.error || 'Erro ao criar conta');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent mb-2">
+            Aura Fitness
+          </h1>
+          <p className="text-zinc-400">Crie sua conta</p>
+        </div>
+
+        <form onSubmit={handleSignUp} className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800">
+          <div className="mb-6">
+            <label className="block text-sm font-bold mb-2">Nome Completo</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Seu nome"
+              className="w-full bg-zinc-800 px-4 py-3 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold mb-2">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              className="w-full bg-zinc-800 px-4 py-3 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold mb-2">Senha</label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-zinc-800 px-4 py-3 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold mb-2">Confirmar Senha</label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-zinc-800 px-4 py-3 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+
+          {error && (
+            <div className="mb-6 bg-red-900/30 border border-red-500 p-4 rounded-xl text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 py-3 rounded-xl font-bold transition disabled:opacity-50"
+          >
+            {loading ? 'Criando conta...' : 'Criar Conta'}
+          </button>
+
+          <p className="text-center mt-6 text-zinc-400">
+            Já tem conta?{' '}
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="text-cyan-400 hover:text-cyan-300 font-bold"
+            >
+              Entrar
+            </button>
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ======================================
 // CONTEXTOS GLOBAIS
 // ======================================
 
@@ -214,6 +529,7 @@ const coachMessages = [
   { id: 3, role: "assistant", content: "Você ainda precisa beber 1.6 litros de água hoje." }
 ];
 
+// BANCO DE DADOS COMPLETO DE EXERCÍCIOS
 const workoutDatabase = [
   {
     id: 1,
@@ -225,6 +541,55 @@ const workoutDatabase = [
     rest: "90s",
     favorite: true,
     image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438",
+    correctForm: {
+      color: "#10b981",
+      description: "Forma correta",
+      points: [
+        "Costas apoiadas no banco",
+        "Pés fixos no chão",
+        "Cotovelos a 45 graus",
+        "Barra descendo até o peito"
+      ]
+    },
+    incorrectForm: {
+      color: "#ef4444",
+      description: "Forma incorreta",
+      mistakes: [
+        "Levantar o quadril do banco",
+        "Descer a barra de forma torta",
+        "Cotovelos muito abertos",
+        "Usar peso excessivo"
+      ]
+    },
+    instructions: {
+      setup: "Sente-se no banco com os pés firmemente no chão. Pegue a barra com as mãos um pouco mais largas que a largura dos ombros.",
+      execution: "Baixe a barra controladamente até o peito, depois empurre explosivamente de volta à posição inicial.",
+      breathing: "Inspire ao baixar, expire ao empurrar."
+    },
+    precautions: [
+      "Não trave completamente os cotovelos no topo",
+      "Mantenha as escápulas retraídas",
+      "Não use peso excessivo",
+      "Mantenha a barra alinhada com o peito"
+    ],
+    injuries: [
+      {
+        name: "Tendinite do ombro",
+        cause: "Cotovelos muito abertos ou peso excessivo",
+        prevention: "Mantenha cotovelos a 45 graus e use peso apropriado"
+      },
+      {
+        name: "Lesão no manguito rotador",
+        cause: "Movimento descontrolado ou amplitude excessiva",
+        prevention: "Controle o movimento e não desça abaixo da linha do peito"
+      }
+    ],
+    progression: [
+      { week: 1, sets: 3, reps: "12-15", weight: "Leve" },
+      { week: 2, sets: 3, reps: "10-12", weight: "Moderado" },
+      { week: 3, sets: 4, reps: "8-10", weight: "Moderado" },
+      { week: 4, sets: 4, reps: "6-8", weight: "Pesado" }
+    ],
     tips: ["Mantenha os pés fixos no chão.", "Controle a descida.", "Não trave completamente os cotovelos."],
     mistakes: ["Levantar o quadril.", "Descer a barra torta.", "Usar peso excessivo."],
     musclesWorked: ["Peitoral", "Tríceps", "Ombro Anterior"]
@@ -239,6 +604,50 @@ const workoutDatabase = [
     rest: "120s",
     favorite: false,
     image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b",
+    correctForm: {
+      color: "#10b981",
+      description: "Forma correta",
+      points: [
+        "Coluna neutra",
+        "Joelhos alinhados com os pés",
+        "Peito para frente",
+        "Descer até paralelo ou abaixo"
+      ]
+    },
+    incorrectForm: {
+      color: "#ef4444",
+      description: "Forma incorreta",
+      mistakes: [
+        "Arredondar a coluna lombar",
+        "Joelhos caindo para dentro",
+        "Descer pouco (amplitude insuficiente)",
+        "Peso nos dedos dos pés"
+      ]
+    },
+    instructions: {
+      setup: "Fique em pé com os pés na largura dos ombros. Coloque a barra nos ombros, atrás do pescoço.",
+      execution: "Desça controladamente dobrando os joelhos e quadril, mantendo o peito para frente.",
+      breathing: "Inspire ao descer, expire ao subir."
+    },
+    precautions: [
+      "Mantenha a coluna neutra durante todo o movimento",
+      "Os joelhos devem acompanhar a direção dos pés",
+      "Não deixe os joelhos caírem para dentro",
+      "Mantenha o peso nos calcanhares"
+    ],
+    injuries: [
+      {
+        name: "Lesão no joelho",
+        cause: "Joelhos caindo para dentro ou amplitude insuficiente",
+        prevention: "Mantenha os joelhos alinhados e desça com amplitude completa"
+      }
+    ],
+    progression: [
+      { week: 1, sets: 4, reps: "12-15", weight: "Apenas barra" },
+      { week: 2, sets: 4, reps: "10-12", weight: "Leve" },
+      { week: 3, sets: 5, reps: "8-10", weight: "Moderado" },
+      { week: 4, sets: 5, reps: "6-8", weight: "Pesado" }
+    ],
     tips: ["Coluna neutra.", "Joelhos alinhados.", "Desça controladamente."],
     mistakes: ["Arredondar lombar.", "Joelhos para dentro.", "Descer pouco."],
     musclesWorked: ["Quadríceps", "Glúteos", "Posterior"]
@@ -253,6 +662,50 @@ const workoutDatabase = [
     rest: "60s",
     favorite: false,
     image: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e",
+    correctForm: {
+      color: "#10b981",
+      description: "Forma correta",
+      points: [
+        "Peito aberto",
+        "Puxar com as costas",
+        "Cotovelos descendo",
+        "Controlar o retorno"
+      ]
+    },
+    incorrectForm: {
+      color: "#ef4444",
+      description: "Forma incorreta",
+      mistakes: [
+        "Usar embalo do corpo",
+        "Puxar atrás da cabeça",
+        "Curvar a coluna lombar",
+        "Usar braços em vez de costas"
+      ]
+    },
+    instructions: {
+      setup: "Sente-se na máquina com os pés apoiados. Pegue a barra com as mãos um pouco mais largas que a largura dos ombros.",
+      execution: "Puxe a barra para baixo em direção ao peito, usando as costas.",
+      breathing: "Inspire ao retornar, expire ao puxar."
+    },
+    precautions: [
+      "Não use embalo do corpo",
+      "Mantenha o peito aberto",
+      "Não puxe atrás da cabeça",
+      "Controle o retorno da barra"
+    ],
+    injuries: [
+      {
+        name: "Lesão no ombro",
+        cause: "Puxar atrás da cabeça ou amplitude excessiva",
+        prevention: "Puxe para o peito e mantenha amplitude controlada"
+      }
+    ],
+    progression: [
+      { week: 1, sets: 3, reps: "12-15", weight: "Leve" },
+      { week: 2, sets: 3, reps: "10-12", weight: "Moderado" },
+      { week: 3, sets: 4, reps: "8-10", weight: "Moderado" },
+      { week: 4, sets: 4, reps: "6-8", weight: "Pesado" }
+    ],
     tips: ["Peito aberto.", "Puxar com as costas.", "Controlar retorno."],
     mistakes: ["Usar embalo.", "Puxar atrás da cabeça.", "Curvar lombar."],
     musclesWorked: ["Latíssimo", "Trapézio", "Bíceps"]
@@ -265,7 +718,7 @@ const workoutDatabase = [
 
 function AppProvider({ children }) {
   const [darkMode, setDarkMode] = useLocalStorage('darkMode', true);
-  const [user, setUser] = useLocalStorage('user', defaultUser);
+  const [appUser, setAppUser] = useLocalStorage('appUser', defaultUser);
   const [missions, setMissions] = useLocalStorage('missions', defaultMissions);
   const [achievements, setAchievements] = useLocalStorage('achievements', defaultAchievements);
   const [messages, setMessages] = useLocalStorage('messages', coachMessages);
@@ -277,15 +730,15 @@ function AppProvider({ children }) {
   const [toast, setToast] = useState(null);
 
   const addWater = useCallback((amount) => {
-    setUser((prev) => ({
+    setAppUser((prev) => ({
       ...prev,
       waterToday: prev.waterToday + amount
     }));
     setToast({ message: `+${amount}ml de água adicionado!`, type: 'success' });
-  }, [setUser]);
+  }, [setAppUser]);
 
   const addXP = useCallback((amount) => {
-    setUser((prev) => {
+    setAppUser((prev) => {
       let newXP = prev.xp + amount;
       let level = prev.level;
       let nextXP = prev.nextLevelXp;
@@ -302,7 +755,7 @@ function AppProvider({ children }) {
         nextLevelXp: nextXP
       };
     });
-  }, [setUser]);
+  }, [setAppUser]);
 
   const sendMessage = useCallback((message) => {
     if (!message.trim()) {
@@ -327,14 +780,14 @@ function AppProvider({ children }) {
 
   const value = useMemo(() => ({
     darkMode, setDarkMode,
-    user, setUser,
+    user: appUser, setUser: setAppUser,
     missions, setMissions,
     achievements, setAchievements,
     messages, sendMessage,
     addWater, addXP,
     notifications, setNotifications,
     toast, setToast
-  }), [darkMode, setDarkMode, user, setUser, missions, setMissions, achievements, setAchievements, messages, sendMessage, addWater, addXP, notifications, setNotifications, toast, setToast]);
+  }), [darkMode, setDarkMode, appUser, setAppUser, missions, setMissions, achievements, setAchievements, messages, sendMessage, addWater, addXP, notifications, setNotifications, toast, setToast]);
 
   return (
     <AppContext.Provider value={value}>
@@ -362,6 +815,7 @@ function MainLayout({ children }) {
 
 function Sidebar() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
@@ -376,9 +830,13 @@ function Sidebar() {
     { icon: Settings, title: "Configurações", path: "/settings" }
   ];
 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
   return (
     <>
-      {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="md:hidden fixed top-4 left-4 z-40 bg-cyan-500 p-2 rounded-lg"
@@ -386,14 +844,13 @@ function Sidebar() {
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Sidebar */}
-      <aside className={`${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:relative w-72 min-h-screen border-r border-zinc-800 p-5 transition-transform duration-300 z-30 bg-zinc-950`}>
+      <aside className={`${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:relative w-72 min-h-screen border-r border-zinc-800 p-5 transition-transform duration-300 z-30 bg-zinc-950 flex flex-col`}>
         <div className="mb-10">
           <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
             Aura Fitness
           </h1>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 flex-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -411,9 +868,15 @@ function Sidebar() {
             );
           })}
         </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 p-4 rounded-xl hover:bg-red-900/30 transition-all text-red-400 font-bold"
+        >
+          <LogOut size={20} />
+          <span>Sair</span>
+        </button>
       </aside>
 
-      {/* Mobile Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 md:hidden z-20"
@@ -465,6 +928,173 @@ function StatCard({ icon, title, value }) {
           <h3 className="text-4xl font-black mt-3">{value}</h3>
         </div>
         <Icon size={32} />
+      </div>
+    </div>
+  );
+}
+
+// ======================================
+// EXERCISE DETAILS ENHANCED
+// ======================================
+
+function ExerciseDetailsEnhanced({ exercise, onClose }) {
+  const [activeTab, setActiveTab] = useState('form');
+  const [formFeedback, setFormFeedback] = useState('correct');
+
+  if (!exercise) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/80 z-50 overflow-auto">
+      <div className="max-w-7xl mx-auto bg-zinc-950 min-h-screen p-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-5xl font-black">{exercise.name}</h1>
+          <button onClick={onClose} className="bg-red-500 px-4 py-2 rounded-xl hover:bg-red-600 transition">
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="lg:col-span-1">
+            <div className="bg-zinc-900 rounded-3xl overflow-hidden">
+              <img
+                src={exercise.image}
+                alt={exercise.name}
+                className="w-full h-96 object-cover"
+              />
+              <div className="p-6 text-center text-zinc-400">
+                <p className="text-sm">Modelo 3D virá aqui</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-2">
+            <div className="flex gap-2 mb-6 flex-wrap">
+              {['form', 'precautions', 'injuries', 'progression'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-6 py-3 rounded-xl font-bold transition ${
+                    activeTab === tab
+                      ? 'bg-cyan-500 text-white'
+                      : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                  }`}
+                >
+                  {tab === 'form' && 'Forma'}
+                  {tab === 'precautions' && 'Cuidados'}
+                  {tab === 'injuries' && 'Lesões'}
+                  {tab === 'progression' && 'Progressão'}
+                </button>
+              ))}
+            </div>
+
+            {activeTab === 'form' && (
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setFormFeedback('correct')}
+                    className={`flex-1 p-4 rounded-2xl font-bold transition ${
+                      formFeedback === 'correct'
+                        ? 'bg-green-500/20 border-2 border-green-500 text-green-400'
+                        : 'bg-zinc-800 border-2 border-zinc-700 text-zinc-400'
+                    }`}
+                  >
+                    ✅ Forma Correta
+                  </button>
+                  <button
+                    onClick={() => setFormFeedback('incorrect')}
+                    className={`flex-1 p-4 rounded-2xl font-bold transition ${
+                      formFeedback === 'incorrect'
+                        ? 'bg-red-500/20 border-2 border-red-500 text-red-400'
+                        : 'bg-zinc-800 border-2 border-zinc-700 text-zinc-400'
+                    }`}
+                  >
+                    ❌ Forma Incorreta
+                  </button>
+                </div>
+
+                {formFeedback === 'correct' && (
+                  <div className="bg-green-900/20 border-2 border-green-500 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-green-400 mb-4">✅ Forma Correta</h3>
+                    <ul className="space-y-3">
+                      {exercise.correctForm.points.map((point, idx) => (
+                        <li key={idx} className="flex items-start gap-3 text-green-300">
+                          <CheckCircle size={20} className="mt-1 flex-shrink-0" />
+                          <span>{point}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {formFeedback === 'incorrect' && (
+                  <div className="bg-red-900/20 border-2 border-red-500 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-red-400 mb-4">❌ Erros Comuns</h3>
+                    <ul className="space-y-3">
+                      {exercise.incorrectForm.mistakes.map((mistake, idx) => (
+                        <li key={idx} className="flex items-start gap-3 text-red-300">
+                          <AlertCircle size={20} className="mt-1 flex-shrink-0" />
+                          <span>{mistake}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'precautions' && (
+              <div className="bg-yellow-900/20 border-2 border-yellow-500 rounded-2xl p-6">
+                <h3 className="text-xl font-bold text-yellow-400 mb-4">⚠️ Cuidados</h3>
+                <ul className="space-y-3">
+                  {exercise.precautions.map((precaution, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-yellow-300">
+                      <AlertCircle size={20} className="mt-1 flex-shrink-0" />
+                      <span>{precaution}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {activeTab === 'injuries' && (
+              <div className="space-y-4">
+                {exercise.injuries.map((injury, idx) => (
+                  <div key={idx} className="bg-red-900/20 border-2 border-red-500 rounded-2xl p-6">
+                    <h4 className="font-bold text-red-400 mb-2">🚨 {injury.name}</h4>
+                    <div className="space-y-2 text-red-300">
+                      <p><span className="font-bold">Causa:</span> {injury.cause}</p>
+                      <p><span className="font-bold">Prevenção:</span> {injury.prevention}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'progression' && (
+              <div className="space-y-4">
+                {exercise.progression.map((week, idx) => (
+                  <div key={idx} className="bg-zinc-900 rounded-2xl p-6 border border-cyan-500/30">
+                    <h4 className="font-bold text-lg mb-3">Semana {week.week}</h4>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-zinc-400">Séries</p>
+                        <p className="text-xl font-bold text-cyan-400">{week.sets}</p>
+                      </div>
+                      <div>
+                        <p className="text-zinc-400">Repetições</p>
+                        <p className="text-xl font-bold text-cyan-400">{week.reps}</p>
+                      </div>
+                      <div>
+                        <p className="text-zinc-400">Peso</p>
+                        <p className="text-xl font-bold text-cyan-400">{week.weight}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -565,56 +1195,6 @@ function ExerciseCard({ exercise, onSelect }) {
   );
 }
 
-function ExerciseDetails({ exercise, onClose }) {
-  const [imageError, setImageError] = useState(false);
-
-  if (!exercise) return null;
-  return (
-    <div className="fixed inset-0 bg-black/80 z-50 overflow-auto">
-      <div className="max-w-5xl mx-auto bg-zinc-950 min-h-screen p-8">
-        <button onClick={onClose} className="mb-6 bg-red-500 px-4 py-2 rounded-xl hover:bg-red-600 transition">Fechar</button>
-        {!imageError ? (
-          <img
-            src={exercise.image}
-            alt={exercise.name}
-            className="w-full h-96 object-cover rounded-3xl"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <div className="w-full h-96 bg-zinc-800 flex items-center justify-center rounded-3xl">
-            <Dumbbell size={64} className="text-zinc-600" />
-          </div>
-        )}
-        <h1 className="text-5xl font-black mt-6">{exercise.name}</h1>
-        <p className="text-cyan-400 text-xl mt-2">{exercise.muscle}</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-          <div className="bg-zinc-900 p-5 rounded-2xl"><h3>Séries</h3><p className="text-3xl font-bold">{exercise.sets}</p></div>
-          <div className="bg-zinc-900 p-5 rounded-2xl"><h3>Repetições</h3><p className="text-3xl font-bold">{exercise.reps}</p></div>
-          <div className="bg-zinc-900 p-5 rounded-2xl"><h3>Descanso</h3><p className="text-3xl font-bold">{exercise.rest}</p></div>
-        </div>
-        <div className="bg-zinc-900 rounded-3xl p-6 mt-8">
-          <h2 className="text-2xl font-bold mb-4">Músculos Trabalhados</h2>
-          {exercise.musclesWorked.map((muscle, index) => (
-            <div key={index} className="bg-zinc-800 p-3 rounded-xl mb-2">{muscle}</div>
-          ))}
-        </div>
-        <div className="bg-zinc-900 rounded-3xl p-6 mt-8">
-          <h2 className="text-2xl font-bold mb-4">Dicas Profissionais</h2>
-          {exercise.tips.map((tip, index) => (
-            <div key={index} className="bg-green-900/30 p-4 rounded-xl mb-3">✅ {tip}</div>
-          ))}
-        </div>
-        <div className="bg-zinc-900 rounded-3xl p-6 mt-8">
-          <h2 className="text-2xl font-bold mb-4">Erros Comuns</h2>
-          {exercise.mistakes.map((error, index) => (
-            <div key={index} className="bg-red-900/30 p-4 rounded-xl mb-3">❌ {error}</div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function Workouts() {
   const [search, setSearch] = useState("");
   const [selectedExercise, setSelectedExercise] = useState(null);
@@ -642,19 +1222,18 @@ function Workouts() {
           <p className="text-zinc-400 text-lg">Nenhum exercício encontrado para "{search}"</p>
         </div>
       )}
-      <ExerciseDetails exercise={selectedExercise} onClose={() => setSelectedExercise(null)} />
+      <ExerciseDetailsEnhanced exercise={selectedExercise} onClose={() => setSelectedExercise(null)} />
     </div>
   );
 }
 
 // ======================================
-// CRONÔMETRO PREMIUM
+// OUTRAS PÁGINAS (Resumidas)
 // ======================================
 
 function TimerPage() {
   const [seconds, setSeconds] = useState(60);
   const [running, setRunning] = useState(false);
-  const [mode, setMode] = useState("descanso");
 
   useEffect(() => {
     let interval;
@@ -672,43 +1251,22 @@ function TimerPage() {
     return () => clearInterval(interval);
   }, [running]);
 
-  const resetTimer = () => {
-    if (mode === "descanso") setSeconds(60);
-    if (mode === "hiit") setSeconds(30);
-    if (mode === "tabata") setSeconds(20);
-  };
-
   return (
     <div>
       <h1 className="text-5xl font-black mb-10">Cronômetro Premium</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-        <button onClick={() => { setMode("descanso"); setSeconds(60); }} className="bg-zinc-900 p-5 rounded-2xl hover:bg-zinc-800 transition">Descanso (60s)</button>
-        <button onClick={() => { setMode("hiit"); setSeconds(30); }} className="bg-zinc-900 p-5 rounded-2xl hover:bg-zinc-800 transition">HIIT (30s)</button>
-        <button onClick={() => { setMode("tabata"); setSeconds(20); }} className="bg-zinc-900 p-5 rounded-2xl hover:bg-zinc-800 transition">Tabata (20s)</button>
-      </div>
       <div className="bg-zinc-900 rounded-full w-80 h-80 mx-auto flex items-center justify-center text-7xl font-black mb-10">
         {seconds}
       </div>
       <div className="flex justify-center gap-5 flex-wrap">
         <button onClick={() => setRunning(true)} className="bg-green-500 px-8 py-4 rounded-2xl hover:bg-green-600 transition font-bold">Iniciar</button>
         <button onClick={() => setRunning(false)} className="bg-yellow-500 px-8 py-4 rounded-2xl hover:bg-yellow-600 transition font-bold">Pausar</button>
-        <button onClick={resetTimer} className="bg-red-500 px-8 py-4 rounded-2xl hover:bg-red-600 transition font-bold">Resetar</button>
+        <button onClick={() => setSeconds(60)} className="bg-red-500 px-8 py-4 rounded-2xl hover:bg-red-600 transition font-bold">Resetar</button>
       </div>
     </div>
   );
 }
 
-// ======================================
-// NUTRIÇÃO
-// ======================================
-
 function Nutrition() {
-  const meals = [
-    { name: "Café da Manhã", calories: 420, protein: 25 },
-    { name: "Almoço", calories: 700, protein: 45 },
-    { name: "Jantar", calories: 650, protein: 38 }
-  ];
-
   return (
     <div>
       <h1 className="text-5xl font-black mb-8">Nutrição</h1>
@@ -718,22 +1276,9 @@ function Nutrition() {
         <div className="bg-zinc-900 p-6 rounded-3xl"><h3>Carboidratos</h3><p className="text-4xl font-black">230g</p></div>
         <div className="bg-zinc-900 p-6 rounded-3xl"><h3>Gorduras</h3><p className="text-4xl font-black">54g</p></div>
       </div>
-      <div className="bg-zinc-900 rounded-3xl p-6">
-        <h2 className="text-2xl font-bold mb-5">Refeições</h2>
-        {meals.map((meal, index) => (
-          <div key={index} className="bg-zinc-800 p-4 rounded-xl mb-3">
-            <h3>{meal.name}</h3>
-            <p>{meal.calories} kcal | {meal.protein}g proteína</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
-
-// ======================================
-// HIDRATAÇÃO
-// ======================================
 
 function Hydration() {
   const { user, addWater } = useApp();
@@ -748,7 +1293,6 @@ function Hydration() {
         <div className="bg-zinc-800 h-5 rounded-full mt-5">
           <div style={{ width: `${Math.min(percent, 100)}%` }} className="bg-cyan-500 h-full rounded-full transition-all" />
         </div>
-        <p className="text-zinc-400 mt-2">{Math.round(percent)}% da meta</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
           {[250, 500, 750, 1000].map(amount => (
             <button key={amount} onClick={() => addWater(amount)} className="bg-cyan-500 p-4 rounded-xl hover:bg-cyan-600 transition font-bold">+{amount}ml</button>
@@ -758,10 +1302,6 @@ function Hydration() {
     </div>
   );
 }
-
-// ======================================
-// IA COACH PREMIUM
-// ======================================
 
 function CoachAI() {
   const { messages, sendMessage } = useApp();
@@ -786,10 +1326,6 @@ function CoachAI() {
   );
 }
 
-// ======================================
-// PERFIL PREMIUM
-// ======================================
-
 function Profile() {
   const { user } = useApp();
   return (
@@ -798,8 +1334,7 @@ function Profile() {
       <div className="bg-zinc-900 rounded-3xl overflow-hidden">
         <div className="h-48 bg-gradient-to-r from-cyan-500 to-purple-600" />
         <div className="p-8">
-          <img src={user.avatar} alt="avatar" className="w-40 h-40 rounded-full border-4 border-white -translate-y-20" />
-          <h2 className="text-4xl font-black -mt-12">{user.username}</h2>
+          <h2 className="text-4xl font-black">{user.username}</h2>
           <p className="text-zinc-400">Objetivo: {user.objective}</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-8">
             <div className="bg-zinc-800 p-5 rounded-xl">Peso<h3 className="text-3xl">{user.weight}kg</h3></div>
@@ -812,10 +1347,6 @@ function Profile() {
     </div>
   );
 }
-
-// ======================================
-// CONQUISTAS COMPLETA
-// ======================================
 
 function Achievements() {
   const { achievements } = useApp();
@@ -839,7 +1370,7 @@ function Achievements() {
             {achievement.unlocked ? (
               <div className="flex items-center gap-2 text-green-400">
                 <CheckCircle size={20} />
-                <span>Desbloqueado em {achievement.unlockedDate}</span>
+                <span>Desbloqueado</span>
               </div>
             ) : (
               <div>
@@ -859,40 +1390,6 @@ function Achievements() {
   );
 }
 
-// ======================================
-// RANKING
-// ======================================
-
-function Community() {
-  const ranking = [
-    { name: "Carlos", xp: 4500 },
-    { name: "João", xp: 3800 },
-    { name: "Maria", xp: 3600 },
-    { name: "Ana", xp: 3400 }
-  ];
-
-  return (
-    <div>
-      <h1 className="text-5xl font-black mb-8">Ranking Global</h1>
-      <div className="bg-zinc-900 rounded-3xl p-6">
-        {ranking.map((user, index) => (
-          <div key={index} className="flex justify-between bg-zinc-800 p-5 rounded-xl mb-3">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl font-black text-cyan-500">#{index + 1}</span>
-              <span>{user.name}</span>
-            </div>
-            <span className="font-bold">{user.xp} XP</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ======================================
-// CONFIGURAÇÕES
-// ======================================
-
 function SettingsPage() {
   const { darkMode, setDarkMode } = useApp();
   return (
@@ -905,13 +1402,30 @@ function SettingsPage() {
             {darkMode ? 'Ativar Claro' : 'Ativar Escuro'}
           </button>
         </div>
-        <div className="border-t border-zinc-700 pt-6">
-          <p className="text-zinc-400">Versão: 1.0.0</p>
-          <p className="text-zinc-400">Desenvolvido com ❤️</p>
-        </div>
       </div>
     </div>
   );
+}
+
+// ======================================
+// PROTECTED ROUTE
+// ======================================
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return children;
 }
 
 // ======================================
@@ -932,7 +1446,6 @@ function ContentWrapper() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/achievements" element={<Achievements />} />
         <Route path="/timer" element={<TimerPage />} />
-        <Route path="/community" element={<Community />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -949,10 +1462,22 @@ function ContentWrapper() {
 }
 
 // ======================================
-// APP FINAL
+// APP CONTENT
 // ======================================
 
 function AppContent() {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    );
+  }
+
   return (
     <MainLayout>
       <div className="flex min-h-screen flex-col md:flex-row">
@@ -968,12 +1493,18 @@ function AppContent() {
   );
 }
 
+// ======================================
+// APP FINAL
+// ======================================
+
 function App() {
   return (
     <HashRouter>
-      <AppProvider>
-        <AppContent />
-      </AppProvider>
+      <AuthProvider>
+        <AppProvider>
+          <AppContent />
+        </AppProvider>
+      </AuthProvider>
     </HashRouter>
   );
 }
