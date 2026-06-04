@@ -12,7 +12,8 @@ import {
   Routes,
   Route,
   Navigate,
-  useNavigate
+  useNavigate,
+  useLocation
 } from "react-router-dom";
 
 import {
@@ -104,7 +105,7 @@ const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
   }[type];
 
   return (
-    <div className={`fixed bottom-4 right-4 ${bgColor} text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-bounce z-50`}>
+    <div className={`fixed bottom-4 right-4 ${bgColor} text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 z-50`}>
       <Icon size={20} />
       <span>{message}</span>
       <button onClick={onClose} className="ml-2">
@@ -914,47 +915,65 @@ function SettingsPage() {
 }
 
 // ======================================
-// APP FINAL
+// CONTENT WRAPPER
 // ======================================
 
-function App() {
-  const { toast, setToast } = useApp();
+function ContentWrapper() {
+  const { toast } = useApp();
 
   return (
-    <HashRouter>
-      <AppProvider>
-        <MainLayout>
-          <div className="flex min-h-screen flex-col md:flex-row">
-            <Sidebar />
-            <div className="flex-1 w-full">
-              <Navbar />
-              <div className="p-4 md:p-8">
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/workouts" element={<Workouts />} />
-                  <Route path="/nutrition" element={<Nutrition />} />
-                  <Route path="/hydration" element={<Hydration />} />
-                  <Route path="/coach" element={<CoachAI />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/achievements" element={<Achievements />} />
-                  <Route path="/timer" element={<TimerPage />} />
-                  <Route path="/community" element={<Community />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </div>
-            </div>
-          </div>
-        </MainLayout>
-      </AppProvider>
+    <>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/workouts" element={<Workouts />} />
+        <Route path="/nutrition" element={<Nutrition />} />
+        <Route path="/hydration" element={<Hydration />} />
+        <Route path="/coach" element={<CoachAI />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/achievements" element={<Achievements />} />
+        <Route path="/timer" element={<TimerPage />} />
+        <Route path="/community" element={<Community />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
       {toast && (
         <Toast
           message={toast.message}
           type={toast.type}
-          onClose={() => setToast(null)}
+          onClose={() => {}}
           duration={toast.duration || 3000}
         />
       )}
+    </>
+  );
+}
+
+// ======================================
+// APP FINAL
+// ======================================
+
+function AppContent() {
+  return (
+    <MainLayout>
+      <div className="flex min-h-screen flex-col md:flex-row">
+        <Sidebar />
+        <div className="flex-1 w-full">
+          <Navbar />
+          <div className="p-4 md:p-8">
+            <ContentWrapper />
+          </div>
+        </div>
+      </div>
+    </MainLayout>
+  );
+}
+
+function App() {
+  return (
+    <HashRouter>
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
     </HashRouter>
   );
 }
