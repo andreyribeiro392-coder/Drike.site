@@ -1,284 +1,180 @@
-:root {
-  /* Estética Sombria e Premium */
-  --bg-void: #030305;
-  --bg-glass: rgba(18, 18, 24, 0.65);
-  --border-glass: rgba(255, 255, 255, 0.05);
-  
-  /* Cores Tecnológicas */
-  --neon-cyan: #00f0ff;
-  --neon-purple: #8a2be2;
-  --fitness-green: #00ffa3;
-  --danger-red: #ff3366;
-  
-  --text-main: #ffffff;
-  --text-muted: #8a8d98;
-}
+import {
+  Dumbbell,
+  Flame,
+  Droplets,
+  Trophy,
+  Calendar,
+  Target,
+  Brain,
+  Users
+} from "lucide-react";
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
+export default function Dashboard() {
+  return (
+    <div className="min-h-screen bg-black text-white p-8">
 
-body {
-  background-color: var(--bg-void);
-  color: var(--text-main);
-  background-image: 
-    radial-gradient(circle at 15% 50%, rgba(138, 43, 226, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 85% 30%, rgba(0, 240, 255, 0.05) 0%, transparent 50%);
-  background-attachment: fixed;
-  overflow-x: hidden;
-}
+      {/* Header */}
+      <div className="flex justify-between items-center mb-10">
+        <div>
+          <h1 className="text-5xl font-bold">
+            Bem-vindo de volta, Atleta 🚀
+          </h1>
 
-/* Animações Framer Motion simuladas via CSS para performance */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+          <p className="text-cyan-400 mt-2">
+            Nível 12 • 2.450 XP • Focado na missão
+          </p>
+        </div>
 
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 15px rgba(0, 255, 163, 0.1); }
-  50% { box-shadow: 0 0 30px rgba(0, 255, 163, 0.3); }
-  100% { box-0 0 15px rgba(0, 255, 163, 0.1); }
-}
+        <div className="bg-zinc-900 rounded-3xl p-4 border border-cyan-500">
+          <h3 className="font-bold">Sua Conta</h3>
+          <p className="text-zinc-400">Pro Member</p>
+        </div>
+      </div>
 
-@keyframes fillBar {
-  from { width: 0; }
-}
+      {/* Hero */}
+      <div className="bg-gradient-to-r from-cyan-600 to-purple-700 p-8 rounded-3xl mb-8">
+        <h2 className="text-4xl font-bold">
+          Meta da Semana
+        </h2>
 
-/* Layout Core */
-.app-container {
-  display: flex;
-  min-height: 100vh;
-}
+        <p className="mt-3 text-lg">
+          Complete 5 treinos e ganhe +500 XP.
+        </p>
 
-/* Sidebar Premium */
-.sidebar {
-  width: 260px;
-  background: rgba(8, 8, 12, 0.8);
-  backdrop-filter: blur(20px);
-  border-right: 1px solid var(--border-glass);
-  padding: 30px 20px;
-  display: flex;
-  flex-direction: column;
-  z-index: 50;
-}
+        <div className="w-full bg-black/20 h-5 rounded-full mt-5">
+          <div className="bg-white h-5 rounded-full w-3/5"></div>
+        </div>
+      </div>
 
-.logo-area {
-  font-size: 2rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: -1.5px;
-  margin-bottom: 40px;
-  background: linear-gradient(to right, var(--text-main), var(--text-muted));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-6 mb-8">
 
-.logo-area span {
-  color: var(--fitness-green);
-  -webkit-text-fill-color: var(--fitness-green);
-}
+        <div className="bg-zinc-900 p-6 rounded-3xl">
+          <Flame size={30} />
+          <h3 className="text-zinc-400 mt-3">
+            Calorias Hoje
+          </h3>
+          <p className="text-4xl font-bold mt-2">
+            1.240
+          </p>
+        </div>
 
-.nav-item {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  padding: 16px;
-  border-radius: 12px;
-  text-align: left;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
+        <div className="bg-zinc-900 p-6 rounded-3xl">
+          <Droplets size={30} />
+          <h3 className="text-zinc-400 mt-3">
+            Água
+          </h3>
+          <p className="text-4xl font-bold mt-2">
+            2.3L
+          </p>
+        </div>
 
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-main);
-}
+        <div className="bg-zinc-900 p-6 rounded-3xl">
+          <Target size={30} />
+          <h3 className="text-zinc-400 mt-3">
+            Meta Peso
+          </h3>
+          <p className="text-4xl font-bold mt-2">
+            76kg
+          </p>
+        </div>
 
-.nav-item.active {
-  background: rgba(0, 240, 255, 0.1);
-  color: var(--neon-cyan);
-  border-left: 3px solid var(--neon-cyan);
-}
+        <div className="bg-zinc-900 p-6 rounded-3xl">
+          <Trophy size={30} />
+          <h3 className="text-zinc-400 mt-3">
+            Sequência
+          </h3>
+          <p className="text-4xl font-bold mt-2">
+            18 Dias
+          </p>
+        </div>
 
-/* Área Principal */
-.main-content {
-  flex: 1;
-  padding: 40px 50px;
-  overflow-y: auto;
-}
+      </div>
 
-/* Gamificação e XP */
-.top-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
-  animation: fadeInUp 0.5s ease;
-}
+      {/* Treino e IA */}
+      <div className="grid grid-cols-2 gap-8 mb-8">
 
-.user-level-badge {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  background: var(--bg-glass);
-  border: 1px solid var(--border-glass);
-  padding: 10px 20px;
-  border-radius: 50px;
-  backdrop-filter: blur(10px);
-}
+        <div className="bg-zinc-900 rounded-3xl p-6">
+          <div className="flex items-center gap-3">
+            <Dumbbell />
+            <h2 className="text-2xl font-bold">
+              Treino de Hoje
+            </h2>
+          </div>
 
-.level-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  font-size: 1.1rem;
-}
+          <div className="mt-5 space-y-4">
+            <div className="bg-zinc-800 p-4 rounded-xl">
+              Supino Reto - 4x12
+            </div>
 
-.xp-bar-container {
-  width: 150px;
-}
+            <div className="bg-zinc-800 p-4 rounded-xl">
+              Crucifixo - 4x10
+            </div>
 
-.xp-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
+            <div className="bg-zinc-800 p-4 rounded-xl">
+              Tríceps Pulley - 4x12
+            </div>
+          </div>
+        </div>
 
-.xp-track {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-}
+        <div className="bg-zinc-900 rounded-3xl p-6">
+          <div className="flex items-center gap-3">
+            <Brain />
+            <h2 className="text-2xl font-bold">
+              IA Coach
+            </h2>
+          </div>
 
-.xp-fill {
-  height: 100%;
-  background: var(--neon-cyan);
-  border-radius: 10px;
-  animation: fillBar 1.5s ease-out forwards;
-}
+          <div className="mt-5 bg-zinc-800 p-4 rounded-xl">
+            Hoje seu rendimento está acima da média.
+            Recomendo aumentar a carga em 5%.
+          </div>
 
-/* Grid do Dashboard */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 25px;
-  animation: fadeInUp 0.6s ease;
-}
+          <button className="mt-5 bg-cyan-500 px-6 py-3 rounded-xl font-bold">
+            Conversar com IA
+          </button>
+        </div>
 
-/* Glass Cards */
-.bento-card {
-  background: var(--bg-glass);
-  backdrop-filter: blur(15px);
-  border: 1px solid var(--border-glass);
-  border-radius: 24px;
-  padding: 30px;
-  transition: transform 0.3s ease, border-color 0.3s ease;
-}
+      </div>
 
-.bento-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(255, 255, 255, 0.15);
-}
+      {/* Grid Inferior */}
+      <div className="grid grid-cols-3 gap-6">
 
-.card-title {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-}
+        <div className="bg-zinc-900 p-6 rounded-3xl">
+          <Calendar />
+          <h2 className="mt-3 text-xl font-bold">
+            Calendário
+          </h2>
 
-/* Tamanhos dos Cards na Grid */
-.span-4 { grid-column: span 4; }
-.span-8 { grid-column: span 8; }
-.span-12 { grid-column: span 12; }
+          <p className="text-zinc-400 mt-2">
+            Próximo treino amanhã às 18h.
+          </p>
+        </div>
 
-/* Gráficos e Dados */
-.big-data {
-  font-size: 3rem;
-  font-weight: 900;
-  line-height: 1;
-  margin-bottom: 10px;
-}
+        <div className="bg-zinc-900 p-6 rounded-3xl">
+          <Users />
+          <h2 className="mt-3 text-xl font-bold">
+            Comunidade
+          </h2>
 
-.data-unit {
-  font-size: 1.2rem;
-  color: var(--text-muted);
-}
+          <p className="text-zinc-400 mt-2">
+            3 amigos treinaram hoje.
+          </p>
+        </div>
 
-.trend-up {
-  color: var(--fitness-green);
-  font-size: 0.9rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
+        <div className="bg-zinc-900 p-6 rounded-3xl">
+          <Trophy />
+          <h2 className="mt-3 text-xl font-bold">
+            Conquistas
+          </h2>
 
-/* Treino do Dia (Hero Card) */
-.workout-hero {
-  background: linear-gradient(135deg, rgba(0, 255, 163, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
-  border: 1px solid rgba(0, 255, 163, 0.2);
-  position: relative;
-  overflow: hidden;
-}
+          <p className="text-zinc-400 mt-2">
+            Medalha de 15 dias desbloqueada.
+          </p>
+        </div>
 
-.workout-hero::after {
-  content: '';
-  position: absolute;
-  top: 0; right: 0; width: 50%; height: 100%;
-  background: url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop') center/cover;
-  opacity: 0.15;
-  mask-image: linear-gradient(to left, black, transparent);
-  -webkit-mask-image: linear-gradient(to left, black, transparent);
-}
+      </div>
 
-.btn-primary {
-  background: var(--text-main);
-  color: var(--bg-void);
-  border: none;
-  padding: 16px 32px;
-  border-radius: 50px;
-  font-size: 1rem;
-  font-weight: 800;
-  cursor: pointer;
-  margin-top: 20px;
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 2;
-}
-
-.btn-primary:hover {
-  background: var(--fitness-green);
-  box-shadow: 0 0 25px rgba(0, 255, 163, 0.4);
-  transform: scale(1.02);
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 1024px) {
-  .span-4, .span-8 { grid-column: span 12; }
-  .app-container { flex-direction: column; }
-  .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; padding: 15px; border-right: none; border-bottom: 1px solid var(--border-glass); }
-  .nav-item { margin-bottom: 0; padding: 10px; }
-  .main-content { padding: 20px; }
+    </div>
+  );
 }
