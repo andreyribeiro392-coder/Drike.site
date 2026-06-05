@@ -1,153 +1,133 @@
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
+import React, { useEffect, useRef } from "react";
 
-export function Exercise3D({ exerciseName = 'Flexão' }) {
-  const containerRef = useRef(null);
-  const sceneRef = useRef(null);
-  const cameraRef = useRef(null);
-  const rendererRef = useRef(null);
+export default function Exercise3D({ exerciseName }) {
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!canvasRef.current) return;
 
-    // Scene setup
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x18181b);
-    sceneRef.current = scene;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      containerRef.current.clientWidth / containerRef.current.clientHeight,
-      0.1,
-      1000
-    );
-    camera.position.z = 3;
-    cameraRef.current = camera;
+    // Configurar canvas
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    renderer.shadowMap.enabled = true;
-    containerRef.current.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
+    // Limpar canvas
+    ctx.fillStyle = "#18181b";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
+    // Desenhar figura humana simples
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(5, 10, 7);
-    directionalLight.castShadow = true;
-    scene.add(directionalLight);
+    // Cabeça
+    ctx.fillStyle = "#06b6d4";
+    ctx.beginPath();
+    ctx.arc(centerX, centerY - 80, 30, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Create simple body model (stick figure)
-    const bodyGroup = new THREE.Group();
-    
-    // Head
-    const headGeometry = new THREE.SphereGeometry(0.3, 32, 32);
-    const headMaterial = new THREE.MeshPhongMaterial({ color: 0xffcc99 });
-    const head = new THREE.Mesh(headGeometry, headMaterial);
-    head.position.y = 1.5;
-    head.castShadow = true;
-    bodyGroup.add(head);
+    // Corpo
+    ctx.strokeStyle = "#a855f7";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY - 50);
+    ctx.lineTo(centerX, centerY + 40);
+    ctx.stroke();
 
-    // Torso
-    const torsoGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.8, 32);
-    const torsoMaterial = new THREE.MeshPhongMaterial({ color: 0x00d4ff });
-    const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
-    torso.position.y = 0.7;
-    torso.castShadow = true;
-    bodyGroup.add(torso);
+    // Braços
+    ctx.beginPath();
+    ctx.moveTo(centerX - 40, centerY - 20);
+    ctx.lineTo(centerX + 40, centerY - 20);
+    ctx.stroke();
 
-    // Left arm
-    const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.8, 32);
-    const armMaterial = new THREE.MeshPhongMaterial({ color: 0xffcc99 });
-    
-    const leftArm = new THREE.Mesh(armGeometry, armMaterial);
-    leftArm.position.set(-0.5, 1, 0);
-    leftArm.rotation.z = Math.PI / 4;
-    leftArm.castShadow = true;
-    bodyGroup.add(leftArm);
+    // Pernas
+    ctx.beginPath();
+    ctx.moveTo(centerX - 20, centerY + 40);
+    ctx.lineTo(centerX - 20, centerY + 100);
+    ctx.stroke();
 
-    // Right arm
-    const rightArm = new THREE.Mesh(armGeometry, armMaterial);
-    rightArm.position.set(0.5, 1, 0);
-    rightArm.rotation.z = -Math.PI / 4;
-    rightArm.castShadow = true;
-    bodyGroup.add(rightArm);
+    ctx.beginPath();
+    ctx.moveTo(centerX + 20, centerY + 40);
+    ctx.lineTo(centerX + 20, centerY + 100);
+    ctx.stroke();
 
-    // Left leg
-    const legGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.8, 32);
-    const legMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
-    
-    const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
-    leftLeg.position.set(-0.2, -0.5, 0);
-    leftLeg.castShadow = true;
-    bodyGroup.add(leftLeg);
+    // Texto
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "24px bold";
+    ctx.textAlign = "center";
+    ctx.fillText(exerciseName || "Exercício", centerX, canvas.height - 30);
 
-    // Right leg
-    const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
-    rightLeg.position.set(0.2, -0.5, 0);
-    rightLeg.castShadow = true;
-    bodyGroup.add(rightLeg);
-
-    scene.add(bodyGroup);
-
-    // Ground
-    const groundGeometry = new THREE.PlaneGeometry(10, 10);
-    const groundMaterial = new THREE.MeshPhongMaterial({ color: 0x27272a });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -1.5;
-    ground.receiveShadow = true;
-    scene.add(ground);
-
-    // Animation loop
-    let animationId;
+    // Animação de rotação
+    let rotation = 0;
     const animate = () => {
-      animationId = requestAnimationFrame(animate);
+      rotation += 0.02;
 
-      // Rotate body
-      bodyGroup.rotation.y += 0.01;
+      ctx.fillStyle = "#18181b";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Animate arms (simulating exercise)
-      leftArm.rotation.z = Math.PI / 4 + Math.sin(Date.now() * 0.003) * 0.5;
-      rightArm.rotation.z = -Math.PI / 4 - Math.sin(Date.now() * 0.003) * 0.5;
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(rotation);
+      ctx.translate(-centerX, -centerY);
 
-      renderer.render(scene, camera);
+      // Cabeça
+      ctx.fillStyle = "#06b6d4";
+      ctx.beginPath();
+      ctx.arc(centerX, centerY - 80, 30, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Corpo
+      ctx.strokeStyle = "#a855f7";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY - 50);
+      ctx.lineTo(centerX, centerY + 40);
+      ctx.stroke();
+
+      // Braços
+      ctx.beginPath();
+      ctx.moveTo(centerX - 40, centerY - 20);
+      ctx.lineTo(centerX + 40, centerY - 20);
+      ctx.stroke();
+
+      // Pernas
+      ctx.beginPath();
+      ctx.moveTo(centerX - 20, centerY + 40);
+      ctx.lineTo(centerX - 20, centerY + 100);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(centerX + 20, centerY + 40);
+      ctx.lineTo(centerX + 20, centerY + 100);
+      ctx.stroke();
+
+      ctx.restore();
+
+      // Texto
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "24px bold";
+      ctx.textAlign = "center";
+      ctx.fillText(exerciseName || "Exercício", centerX, canvas.height - 30);
+
+      requestAnimationFrame(animate);
     };
+
     animate();
-
-    // Handle window resize
-    const handleResize = () => {
-      if (!containerRef.current) return;
-      const width = containerRef.current.clientWidth;
-      const height = containerRef.current.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    };
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationId);
-      renderer.dispose();
-      if (containerRef.current && renderer.domElement.parentNode === containerRef.current) {
-        containerRef.current.removeChild(renderer.domElement);
-      }
-    };
   }, [exerciseName]);
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-96 rounded-2xl border-2 border-zinc-800 overflow-hidden"
-      style={{ background: '#18181b' }}
-    />
+    <div className="w-full bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
+      <canvas
+        ref={canvasRef}
+        className="w-full h-96"
+        style={{ display: "block" }}
+      />
+      <div className="p-4 bg-zinc-800">
+        <p className="text-zinc-300 text-center">
+          Visualização 3D animada de {exerciseName || "exercício"}
+        </p>
+      </div>
+    </div>
   );
 }
-
-export default Exercise3D;
