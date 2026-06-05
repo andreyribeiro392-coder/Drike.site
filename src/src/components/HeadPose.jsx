@@ -10,12 +10,16 @@ export default function HeadPose() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
+    if (!ctx) return;
+
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
     let rotation = 0;
 
     const animate = () => {
+      if (!ctx) return;
+
       rotation += 0.02;
 
       // Limpar canvas
@@ -76,7 +80,7 @@ export default function HeadPose() {
       ctx.font = "18px bold";
       ctx.textAlign = "center";
       ctx.fillText(
-        `Rotação: ${Math.round((rotation * 180) / Math.PI)}°`,
+        `Rotação: ${Math.round((rotation * 180) / Math.PI) % 360}°`,
         centerX,
         canvas.height - 20
       );
