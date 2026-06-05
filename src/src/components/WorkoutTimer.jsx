@@ -1,142 +1,166 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Play, Pause, RotateCcw } from "lucide-react";
 
-export function WorkoutTimer() {
-  const [minutes, setMinutes] = useState(0);
+export default function WorkoutTimer() {
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [totalSeconds, setTotalSeconds] = useState(0);
+  const [inputMinutes, setInputMinutes] = useState("1");
 
   useEffect(() => {
     let interval;
-
-    if (isRunning && totalSeconds > 0) {
+    if (isRunning && seconds > 0) {
       interval = setInterval(() => {
-        setTotalSeconds((prev) => {
-          if (prev <= 1) {
-            setIsRunning(false);
-            return 0;
-          }
-          return prev - 1;
-        });
+        setSeconds((prev) => prev - 1);
       }, 1000);
+    } else if (seconds === 0 && isRunning) {
+      setIsRunning(false);
+      // Tocar som de conclusão
+      playSound();
     }
-
     return () => clearInterval(interval);
-  }, [isRunning, totalSeconds]);
+  }, [isRunning, seconds]);
 
-  useEffect(() => {
+  const playSound = () => {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 800;
+    oscillator.type = "sine";
+
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+  };
+
+  const formatTime = (totalSeconds) => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
-    setMinutes(mins);
-    setSeconds(secs);
-  }, [totalSeconds]);
-
-  const handleStart = () => {
-    if (totalSeconds > 0) {
-      setIsRunning(!isRunning);
-    }
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleReset = () => {
-    setIsRunning(false);
-    setTotalSeconds(0);
-    setMinutes(0);
+  const startTimer = (minutes) => {
+    setSeconds(minutes * 60);
+    setIsRunning(true);
+  };
+
+  const toggleTimer = () => {
+    setIsRunning(!isRunning);
+  };
+
+  const resetTimer = () => {
     setSeconds(0);
-  };
-
-  const handleSetTime = (mins) => {
     setIsRunning(false);
-    setTotalSeconds(mins * 60);
   };
 
   return (
-    <div className="p-8 h-full flex flex-col items-center justify-center bg-zinc-950">
-      <h1 className="text-4xl font-black mb-12">⏱️ Cronômetro</h1>
+    <div className="w-full p-8">
+      <h1 className="text-4xl font-black mb-8">Cronômetro de Treino</h1>
 
-      {/* Timer Display */}
-      <div className="mb-12 text-center">
-        <div className="text-8xl font-black mb-4 font-mono">
-          {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+      <div className="max-w-md mx-auto">
+        <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800 text-center">
+          {/* Display do Tempo */}
+          <div className="text-7xl font-black font-mono mb-8 text-cyan-400">
+            {formatTime(seconds)}
+          </div>
+
+          {/* Botões Presets */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <button
+              onClick={() => startTimer(1)}
+              disabled={isRunning}
+              className="bg-purple-500 hover:bg-purple-600 disabled:bg-zinc-700 p-4 rounded-xl font-bold transition"
+            >
+              1 min
+            </button>
+            <button
+              onClick={() => startTimer(3)}
+              disabled={isRunning}
+              className="bg-purple-500 hover:bg-purple-600 disabled:bg-zinc-700 p-4 rounded-xl font-bold transition"
+            >
+              3 min
+            </button>
+            <button
+              onClick={() => startTimer(5)}
+              disabled={isRunning}
+              className="bg-purple-500 hover:bg-purple-600 disabled:bg-zinc-700 p-4 rounded-xl font-bold transition"
+            >
+              5 min
+            </button>
+            <button
+              onClick={() => startTimer(10)}
+              disabled={isRunning}
+              className="bg-purple-500 hover:bg-purple-600 disabled:bg-zinc-700 p-4 rounded-xl font-bold transition"
+            >
+              10 min
+            </button>
+          </div>
+
+          {/* Input Customizado */}
+          <div className="flex gap-2 mb-6">
+            <input
+              type="number"
+              value={inputMinutes}
+              onChange={(e) => setInputMinutes(e.target.value)}
+              min="0"
+              max="60"
+              className="flex-1 bg-zinc-800 px-4 py-2 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-zinc-700"
+              placeholder="Minutos"
+            />
+            <button
+              onClick={() => startTimer(parseInt(inputMinutes) || 1)}
+              disabled={isRunning}
+              className="bg-cyan-500 hover:bg-cyan-600 disabled:bg-zinc-700 px-6 py-2 rounded-xl font-bold transition"
+            >
+              Iniciar
+            </button>
+          </div>
+
+          {/* Controles */}
+          <div className="flex gap-4">
+            <button
+              onClick={toggleTimer}
+              className={`flex-1 p-4 rounded-xl font-bold transition flex items-center justify-center gap-2 ${
+                isRunning
+                  ? "bg-yellow-500 hover:bg-yellow-600"
+                  : "bg-green-500 hover:bg-green-600"
+              }`}
+            >
+              {isRunning ? (
+                <>
+                  <Pause size={20} /> Pausar
+                </>
+              ) : (
+                <>
+                  <Play size={20} /> Retomar
+                </>
+              )}
+            </button>
+            <button
+              onClick={resetTimer}
+              className="flex-1 bg-red-500 hover:bg-red-600 p-4 rounded-xl font-bold transition flex items-center justify-center gap-2"
+            >
+              <RotateCcw size={20} /> Resetar
+            </button>
+          </div>
+
+          {/* Info */}
+          <div className="mt-6 bg-zinc-800 p-4 rounded-xl">
+            <p className="text-zinc-300 text-sm">
+              {seconds === 0
+                ? "Selecione um tempo para começar"
+                : isRunning
+                ? "Cronômetro em execução..."
+                : "Cronômetro pausado"}
+            </p>
+          </div>
         </div>
-        <p className="text-zinc-400">Tempo de treino</p>
-      </div>
-
-      {/* Quick Set Buttons */}
-      <div className="grid grid-cols-2 gap-4 mb-12 w-full max-w-md">
-        <button
-          onClick={() => handleSetTime(1)}
-          className="bg-zinc-900 hover:bg-zinc-800 p-4 rounded-xl font-bold transition border border-zinc-800"
-        >
-          1 min
-        </button>
-        <button
-          onClick={() => handleSetTime(3)}
-          className="bg-zinc-900 hover:bg-zinc-800 p-4 rounded-xl font-bold transition border border-zinc-800"
-        >
-          3 min
-        </button>
-        <button
-          onClick={() => handleSetTime(5)}
-          className="bg-zinc-900 hover:bg-zinc-800 p-4 rounded-xl font-bold transition border border-zinc-800"
-        >
-          5 min
-        </button>
-        <button
-          onClick={() => handleSetTime(10)}
-          className="bg-zinc-900 hover:bg-zinc-800 p-4 rounded-xl font-bold transition border border-zinc-800"
-        >
-          10 min
-        </button>
-      </div>
-
-      {/* Manual Input */}
-      <div className="mb-12 w-full max-w-md">
-        <label className="block text-sm font-bold mb-2">Tempo customizado (minutos)</label>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            min="0"
-            max="60"
-            value={minutes}
-            onChange={(e) => setTotalSeconds(parseInt(e.target.value) * 60)}
-            className="flex-1 bg-zinc-900 px-4 py-3 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-zinc-800"
-          />
-          <button
-            onClick={() => setTotalSeconds(minutes * 60)}
-            className="bg-cyan-500 hover:bg-cyan-600 px-6 py-3 rounded-xl font-bold transition"
-          >
-            Definir
-          </button>
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="flex gap-4 w-full max-w-md">
-        <button
-          onClick={handleStart}
-          disabled={totalSeconds === 0}
-          className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 disabled:opacity-50 p-4 rounded-xl font-bold transition flex items-center justify-center gap-2"
-        >
-          {isRunning ? (
-            <>
-              <Pause size={20} /> Pausar
-            </>
-          ) : (
-            <>
-              <Play size={20} /> Iniciar
-            </>
-          )}
-        </button>
-        <button
-          onClick={handleReset}
-          className="bg-red-500 hover:bg-red-600 p-4 rounded-xl font-bold transition flex items-center gap-2"
-        >
-          <RotateCcw size={20} />
-        </button>
       </div>
     </div>
   );
 }
-
-export default WorkoutTimer;
