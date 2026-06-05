@@ -1,161 +1,111 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2 } from 'lucide-react';
+import React, { useState } from "react";
+import { Send } from "lucide-react";
 
-export function AICoach() {
+export default function AICoach() {
   const [messages, setMessages] = useState([
     {
-      id: 1,
-      role: 'assistant',
-      content: 'Olá! Sou seu AI Coach. Posso ajudar com dúvidas sobre exercícios, nutrição, treino e muito mais. Como posso te ajudar?',
+      role: "assistant",
+      content: "Olá! Sou seu IA Coach. Como posso ajudá-lo com seus treinos hoje? 💪",
     },
   ]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef(null);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const getAIResponse = (userMessage) => {
+    const lower = userMessage.toLowerCase();
+
+    const responses = {
+      flexão: "Flexão é ótimo para peito e tríceps! Faça 3 séries de 10-15 repetições com boa forma. Mantenha o corpo reto e desça até quase tocar o chão.",
+      agachamento: "Agachamento trabalha pernas e glúteos. Mantenha os pés na largura dos ombros e desça até 90 graus. Não deixe os joelhos ultrapassarem muito a ponta dos pés.",
+      água: "Beba 2-3 litros de água por dia. Mais se estiver treinando! Hidratação é essencial para o desempenho.",
+      nutrição: "Coma proteína em cada refeição. Frango, ovos, peixe e legumes são ótimas opções. Mantenha um déficit calórico se quer emagrecer.",
+      treino: "Treine 3-4 vezes por semana com descanso entre os dias. Varie os exercícios para trabalhar diferentes grupos musculares.",
+      dor: "Se sentir dor durante o exercício, pare imediatamente! Dor é sinal de que algo está errado. Consulte um profissional se persistir.",
+      recuperação: "Durma 7-8 horas por noite. A recuperação é quando os músculos crescem! Também descanse entre séries.",
+      cardio: "Cardio é importante para saúde cardiovascular. Faça 150 minutos por semana de atividade moderada ou 75 minutos de intensa.",
+      default: "Ótima pergunta! Para mais detalhes específicos, consulte um profissional de fitness certificado.",
+    };
+
+    for (const [key, value] of Object.entries(responses)) {
+      if (lower.includes(key)) {
+        return value;
+      }
+    }
+
+    return responses.default;
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const sendMessage = async (e) => {
-    e.preventDefault();
+  const handleSendMessage = async () => {
     if (!input.trim()) return;
 
     // Adicionar mensagem do usuário
-    const userMessage = {
-      id: messages.length + 1,
-      role: 'user',
-      content: input,
-    };
+    const userMessage = { role: "user", content: input };
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
+    setInput("");
+    setLoading(true);
 
-    try {
-      // Chamar API de IA (você precisa de uma chave de API)
-      const response = await fetch('/api/ai-coach', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: input,
-          context: 'fitness',
-        }),
-      });
-
-      if (!response.ok) throw new Error('Erro ao conectar com IA');
-
-      const data = await response.json();
-
-      // Adicionar resposta da IA
-      const assistantMessage = {
-        id: messages.length + 2,
-        role: 'assistant',
-        content: data.message || 'Desculpe, não consegui processar sua pergunta.',
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error('Erro:', error);
-      
-      // Resposta padrão se a API não estiver disponível
-      const fallbackMessage = {
-        id: messages.length + 2,
-        role: 'assistant',
-        content: getDefaultResponse(input),
-      };
-      setMessages((prev) => [...prev, fallbackMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+    // Simular delay da IA
+    setTimeout(() => {
+      const aiResponse = getAIResponse(input);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: aiResponse },
+      ]);
+      setLoading(false);
+    }, 500);
   };
 
   return (
-    <div className="h-full flex flex-col bg-zinc-950">
-      {/* Header */}
-      <div className="p-6 border-b border-zinc-800">
-        <h1 className="text-3xl font-black">🤖 IA Coach</h1>
-        <p className="text-zinc-400 text-sm">Seu assistente de fitness pessoal</p>
-      </div>
-
-      {/* Messages */}
+    <div className="w-full h-screen flex flex-col bg-zinc-950">
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {messages.map((msg) => (
+        {messages.map((msg, i) => (
           <div
-            key={msg.id}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            key={i}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-md p-4 rounded-2xl ${
-                msg.role === 'user'
-                  ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white'
-                  : 'bg-zinc-900 text-zinc-200 border border-zinc-800'
+              className={`max-w-xs lg:max-w-md p-4 rounded-2xl ${
+                msg.role === "user"
+                  ? "bg-cyan-500 text-white rounded-br-none"
+                  : "bg-zinc-800 text-zinc-100 rounded-bl-none"
               }`}
             >
-              <p className="text-sm leading-relaxed">{msg.content}</p>
+              {msg.content}
             </div>
           </div>
         ))}
-        {isLoading && (
+        {loading && (
           <div className="flex justify-start">
-            <div className="bg-zinc-900 text-zinc-200 border border-zinc-800 p-4 rounded-2xl">
-              <Loader2 className="animate-spin" size={20} />
+            <div className="bg-zinc-800 text-zinc-100 p-4 rounded-2xl rounded-bl-none">
+              <div className="flex gap-2">
+                <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                <div className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+              </div>
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <div className="p-6 border-t border-zinc-800">
-        <form onSubmit={sendMessage} className="flex gap-2">
+        <div className="flex gap-3">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Faça uma pergunta..."
+            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+            placeholder="Faça uma pergunta sobre exercícios, nutrição ou treino..."
             className="flex-1 bg-zinc-900 px-4 py-3 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-zinc-800"
-            disabled={isLoading}
           />
           <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 disabled:opacity-50 px-6 py-3 rounded-xl font-bold transition flex items-center gap-2"
+            onClick={handleSendMessage}
+            disabled={loading || !input.trim()}
+            className="bg-cyan-500 hover:bg-cyan-600 disabled:bg-zinc-700 p-3 rounded-xl transition"
           >
-            {isLoading ? (
-              <Loader2 size={20} className="animate-spin" />
-            ) : (
-              <Send size={20} />
-            )}
+            <Send size={20} />
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );
 }
-
-// Respostas padrão enquanto a API não está configurada
-function getDefaultResponse(userMessage) {
-  const lowerMessage = userMessage.toLowerCase();
-
-  const responses = {
-    flexão: 'Flexão é um ótimo exercício para peito, tríceps e ombros. Mantenha o corpo reto, desça até quase tocar o chão e suba. Faça 3 séries de 10-15 repetições.',
-    agachamento: 'Agachamento trabalha pernas e glúteos. Mantenha os pés na largura dos ombros, desça dobrando os joelhos e suba. Faça 3 séries de 15-20 repetições.',
-    nutrição: 'Para ganhar massa, coma proteína em cada refeição (frango, ovos, peixe). Para perder peso, crie um déficit calórico comendo menos calorias do que gasta.',
-    água: 'Beba pelo menos 2-3 litros de água por dia. Mais se estiver treinando intensamente.',
-    descanso: 'Durma 7-9 horas por noite. O descanso é essencial para recuperação muscular.',
-    default: 'Ótima pergunta! Para mais detalhes, consulte um profissional de fitness ou nutricionista. Estou aqui para ajudar com dicas gerais!',
-  };
-
-  for (const [key, value] of Object.entries(responses)) {
-    if (key !== 'default' && lowerMessage.includes(key)) {
-      return value;
-    }
-  }
-
-  return responses.default;
-}
-
-export default AICoach;
