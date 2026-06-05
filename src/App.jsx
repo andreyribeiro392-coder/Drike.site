@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, LogOut, Home, Dumbbell, Brain, Droplets, Trophy, User, Settings, Clock, Eye, Head2, TrendingUp, Zap, Heart, Flame, Target, Award, BookOpen, MessageCircle, Send, Play, Pause, RotateCcw, Plus, Minus, Volume2, Bell, Share2, Download, ChevronRight, ChevronLeft, Star, Lock, Unlock } from 'lucide-react';
-import { HashRouter, Route, Switch, useLocation } from 'wouter';
+import { Router, Route, useLocation } from 'wouter';
+import { useHashLocation } from 'wouter/use-hash-location';
 
 // ============ LANDING PAGE COM CAPA DINÂMICA ============
 function LandingPage({ onEnter }) {
@@ -1167,7 +1168,7 @@ export default function App() {
   ];
 
   return (
-    <HashRouter>
+    <Router hook={useHashLocation}>
       <div className="flex h-screen bg-zinc-900">
         {/* Sidebar */}
         <div
@@ -1226,20 +1227,18 @@ export default function App() {
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
-            <Switch>
-              <Route path="/" component={Dashboard} />
-              <Route path="/academy" component={AcademyWorkouts} />
-              <Route path="/home" component={HomeWorkouts} />
-              <Route path="/coach" component={AICoach} />
-              <Route path="/timer" component={WorkoutTimer} />
-              <Route path="/hydration" component={Hydration} />
-              <Route path="/achievements" component={Achievements} />
-              <Route path="/profile" component={Profile} />
-              <Route path="/settings" component={SettingsPage} />
-            </Switch>
+            <Route path="/" component={Dashboard} />
+            <Route path="/academy" component={AcademyWorkouts} />
+            <Route path="/home" component={HomeWorkouts} />
+            <Route path="/coach" component={AICoach} />
+            <Route path="/timer" component={WorkoutTimer} />
+            <Route path="/hydration" component={Hydration} />
+            <Route path="/achievements" component={Achievements} />
+            <Route path="/profile" component={Profile} />
+            <Route path="/settings" component={SettingsPage} />
           </div>
         </div>
       </div>
-    </HashRouter>
+    </Router>
   );
 }
