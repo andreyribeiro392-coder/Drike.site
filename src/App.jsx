@@ -1,10 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import { Activity, Dumbbell, Brain, Droplets, Trophy, User, Sliders, Home, LogOut, Menu, X, CheckCircle, AlertCircle } from "lucide-react";
+import { Activity, Dumbbell, Brain, Droplets, Trophy, User, Sliders, Home, LogOut, Menu, X, CheckCircle, AlertCircle, Play, Pause, Eye, Head } from "lucide-react";
+
+// ======================================
+// IMPORTS DE COMPONENTES
+// ======================================
 import Exercise3D from "./components/Exercise3D";
 import PoseDetector from "./components/PoseDetector";
 import AICoach from "./components/AICoach";
 import WorkoutTimer from "./components/WorkoutTimer";
+import EyeTracking from "./components/EyeTracking";
+import HeadPose from "./components/HeadPose";
 import { expandedExerciseDatabase } from "./ExpandedExerciseDB";
 
 // ======================================
@@ -34,6 +40,10 @@ function AuthProvider({ children }) {
   });
 
   const signup = (email, password) => {
+    if (!email || !password) {
+      alert("Por favor, preencha todos os campos");
+      return false;
+    }
     const newUser = { email, id: Date.now() };
     setUser(newUser);
     setIsAuthenticated(true);
@@ -43,6 +53,10 @@ function AuthProvider({ children }) {
   };
 
   const login = (email, password) => {
+    if (!email || !password) {
+      alert("Por favor, preencha todos os campos");
+      return false;
+    }
     const newUser = { email, id: Date.now() };
     setUser(newUser);
     setIsAuthenticated(true);
@@ -85,13 +99,16 @@ function AppProvider({ children }) {
 
   const [darkMode, setDarkMode] = useState(true);
   const [toast, setToast] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [workoutHistory, setWorkoutHistory] = useState([]);
   const [achievements, setAchievements] = useState([
     { id: 1, title: "Primeiro Treino", description: "Complete seu primeiro treino", icon: "🏋️", unlocked: true, unlockedDate: "2024-01-15" },
     { id: 2, title: "Hidratado", description: "Beba 2L de água", icon: "💧", unlocked: false, progress: 75 },
     { id: 3, title: "Campeão", description: "Atinja nível 20", icon: "🏆", unlocked: false, progress: 60 },
+    { id: 4, title: "Mestre 3D", description: "Complete 10 exercícios com visualização 3D", icon: "🎯", unlocked: false, progress: 30 },
+    { id: 5, title: "Detector de Forma", description: "Use detecção de pose 5 vezes", icon: "📹", unlocked: false, progress: 40 },
   ]);
-  const [notifications, setNotifications] = useState([]);
 
   const addWater = (amount) => {
     setUser((prev) => ({
@@ -110,18 +127,9 @@ function AppProvider({ children }) {
     setToast({ message: `+${amount} XP! 🎉`, type: "success" });
   };
 
-  const sendMessage = (content) => {
-    const userMsg = { id: Date.now(), role: "user", content };
-    setMessages((prev) => [...prev, userMsg]);
-
-    setTimeout(() => {
-      const aiMsg = {
-        id: Date.now() + 1,
-        role: "assistant",
-        content: getAIResponse(content),
-      };
-      setMessages((prev) => [...prev, aiMsg]);
-    }, 500);
+  const addWorkout = (exercise) => {
+    setWorkoutHistory([...workoutHistory, { ...exercise, date: new Date() }]);
+    addXP(50);
   };
 
   return (
@@ -133,12 +141,16 @@ function AppProvider({ children }) {
         setDarkMode,
         toast,
         setToast,
-        messages,
-        sendMessage,
-        achievements,
-        notifications,
         addWater,
         addXP,
+        timerSeconds,
+        setTimerSeconds,
+        timerRunning,
+        setTimerRunning,
+        workoutHistory,
+        addWorkout,
+        achievements,
+        setAchievements,
       }}
     >
       {children}
@@ -157,8 +169,7 @@ function LoginPage() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (email && password) {
-      login(email, password);
+    if (login(email, password)) {
       navigate("/");
     }
   };
@@ -229,8 +240,7 @@ function SignUpPage() {
 
   const handleSignUp = (e) => {
     e.preventDefault();
-    if (email && password) {
-      signup(email, password);
+    if (signup(email, password)) {
       navigate("/");
     }
   };
@@ -291,10 +301,10 @@ function SignUpPage() {
 }
 
 // ======================================
-// PAGES
+// DASHBOARD PAGE
 // ======================================
 function Dashboard() {
-  const { user, addXP } = useApp();
+  const { user, addXP, workoutHistory } = useApp();
   const xpPercent = (user.xp % 200) / 2;
 
   return (
@@ -316,8 +326,8 @@ function Dashboard() {
           <p className="text-4xl font-black">{user.waterToday}ml</p>
         </div>
         <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-          <p className="text-zinc-400 text-sm mb-2">Peso</p>
-          <p className="text-4xl font-black">{user.weight}kg</p>
+          <p className="text-zinc-400 text-sm mb-2">Treinos</p>
+          <p className="text-4xl font-black">{workoutHistory.length}</p>
         </div>
       </div>
 
@@ -339,15 +349,25 @@ function Dashboard() {
   );
 }
 
+// ======================================
+// WORKOUTS PAGE
+// ======================================
 function Workouts() {
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [showPoseDetector, setShowPoseDetector] = useState(false);
+  const [show3D, setShow3D] = useState(false);
+  const { addWorkout } = useApp();
   const exercises = expandedExerciseDatabase.academia;
 
   if (selectedExercise) {
     return (
       <div className="p-8">
         <button
-          onClick={() => setSelectedExercise(null)}
+          onClick={() => {
+            setSelectedExercise(null);
+            setShowPoseDetector(false);
+            setShow3D(false);
+          }}
           className="mb-6 text-cyan-400 hover:text-cyan-300 font-bold"
         >
           ← Voltar
@@ -355,44 +375,89 @@ function Workouts() {
 
         <h1 className="text-4xl font-black mb-8">{selectedExercise.name}</h1>
 
-        {/* Modelo 3D */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Visualização 3D</h2>
-          <Exercise3D exerciseName={selectedExercise.name} />
+        {/* Abas */}
+        <div className="flex gap-4 mb-8 flex-wrap">
+          <button
+            onClick={() => { setShow3D(false); setShowPoseDetector(false); }}
+            className="bg-cyan-500 hover:bg-cyan-600 px-6 py-2 rounded-xl font-bold transition"
+          >
+            Informações
+          </button>
+          <button
+            onClick={() => { setShow3D(true); setShowPoseDetector(false); }}
+            className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded-xl font-bold transition"
+          >
+            Visualização 3D
+          </button>
+          <button
+            onClick={() => { setShowPoseDetector(true); setShow3D(false); }}
+            className="bg-green-500 hover:bg-green-600 px-6 py-2 rounded-xl font-bold transition"
+          >
+            Detecção de Forma
+          </button>
+          <button
+            onClick={() => {
+              addWorkout(selectedExercise);
+              alert("Treino registrado! +50 XP");
+            }}
+            className="bg-yellow-500 hover:bg-yellow-600 px-6 py-2 rounded-xl font-bold transition"
+          >
+            Registrar Treino
+          </button>
         </div>
 
-        {/* Detecção de Pose */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Detecção de Forma</h2>
-          <PoseDetector exerciseName={selectedExercise.name} />
-        </div>
+        {/* Conteúdo */}
+        {show3D ? (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Visualização 3D</h2>
+            <Exercise3D exerciseName={selectedExercise.name} />
+          </div>
+        ) : showPoseDetector ? (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Detecção de Forma</h2>
+            <PoseDetector exerciseName={selectedExercise.name} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-xl font-bold mb-4">Forma Correta</h3>
+              <ul className="space-y-2 text-zinc-400">
+                {selectedExercise.correctForm.points.map((point, i) => (
+                  <li key={i} className="flex gap-2">
+                    <CheckCircle size={20} className="text-green-500 flex-shrink-0" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-        {/* Informações */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <h3 className="text-xl font-bold mb-4">Forma Correta</h3>
+            <div>
+              <h3 className="text-xl font-bold mb-4">Cuidados</h3>
+              <ul className="space-y-2 text-zinc-400">
+                {selectedExercise.precautions.map((precaution, i) => (
+                  <li key={i} className="flex gap-2">
+                    <AlertCircle size={20} className="text-yellow-500 flex-shrink-0" />
+                    {precaution}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {!show3D && !showPoseDetector && (
+          <div className="mt-8">
+            <h3 className="text-xl font-bold mb-4">Lesões Possíveis</h3>
             <ul className="space-y-2 text-zinc-400">
-              {selectedExercise.correctForm.points.map((point, i) => (
+              {selectedExercise.injuries.map((injury, i) => (
                 <li key={i} className="flex gap-2">
-                  <CheckCircle size={20} className="text-green-500 flex-shrink-0" />
-                  {point}
+                  <AlertCircle size={20} className="text-red-500 flex-shrink-0" />
+                  {injury}
                 </li>
               ))}
             </ul>
           </div>
-
-          <div>
-            <h3 className="text-xl font-bold mb-4">Cuidados</h3>
-            <ul className="space-y-2 text-zinc-400">
-              {selectedExercise.precautions.map((precaution, i) => (
-                <li key={i} className="flex gap-2">
-                  <AlertCircle size={20} className="text-yellow-500 flex-shrink-0" />
-                  {precaution}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        )}
       </div>
     );
   }
@@ -420,15 +485,25 @@ function Workouts() {
   );
 }
 
+// ======================================
+// HOME WORKOUTS PAGE
+// ======================================
 function HomeWorkouts() {
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [showPoseDetector, setShowPoseDetector] = useState(false);
+  const [show3D, setShow3D] = useState(false);
+  const { addWorkout } = useApp();
   const exercises = expandedExerciseDatabase.casa;
 
   if (selectedExercise) {
     return (
       <div className="p-8">
         <button
-          onClick={() => setSelectedExercise(null)}
+          onClick={() => {
+            setSelectedExercise(null);
+            setShowPoseDetector(false);
+            setShow3D(false);
+          }}
           className="mb-6 text-cyan-400 hover:text-cyan-300 font-bold"
         >
           ← Voltar
@@ -436,44 +511,89 @@ function HomeWorkouts() {
 
         <h1 className="text-4xl font-black mb-8">{selectedExercise.name}</h1>
 
-        {/* Modelo 3D */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Visualização 3D</h2>
-          <Exercise3D exerciseName={selectedExercise.name} />
+        {/* Abas */}
+        <div className="flex gap-4 mb-8 flex-wrap">
+          <button
+            onClick={() => { setShow3D(false); setShowPoseDetector(false); }}
+            className="bg-cyan-500 hover:bg-cyan-600 px-6 py-2 rounded-xl font-bold transition"
+          >
+            Informações
+          </button>
+          <button
+            onClick={() => { setShow3D(true); setShowPoseDetector(false); }}
+            className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded-xl font-bold transition"
+          >
+            Visualização 3D
+          </button>
+          <button
+            onClick={() => { setShowPoseDetector(true); setShow3D(false); }}
+            className="bg-green-500 hover:bg-green-600 px-6 py-2 rounded-xl font-bold transition"
+          >
+            Detecção de Forma
+          </button>
+          <button
+            onClick={() => {
+              addWorkout(selectedExercise);
+              alert("Treino registrado! +50 XP");
+            }}
+            className="bg-yellow-500 hover:bg-yellow-600 px-6 py-2 rounded-xl font-bold transition"
+          >
+            Registrar Treino
+          </button>
         </div>
 
-        {/* Detecção de Pose */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Detecção de Forma</h2>
-          <PoseDetector exerciseName={selectedExercise.name} />
-        </div>
+        {/* Conteúdo */}
+        {show3D ? (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Visualização 3D</h2>
+            <Exercise3D exerciseName={selectedExercise.name} />
+          </div>
+        ) : showPoseDetector ? (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Detecção de Forma</h2>
+            <PoseDetector exerciseName={selectedExercise.name} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-xl font-bold mb-4">Forma Correta</h3>
+              <ul className="space-y-2 text-zinc-400">
+                {selectedExercise.correctForm.points.map((point, i) => (
+                  <li key={i} className="flex gap-2">
+                    <CheckCircle size={20} className="text-green-500 flex-shrink-0" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-        {/* Informações */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <h3 className="text-xl font-bold mb-4">Forma Correta</h3>
+            <div>
+              <h3 className="text-xl font-bold mb-4">Cuidados</h3>
+              <ul className="space-y-2 text-zinc-400">
+                {selectedExercise.precautions.map((precaution, i) => (
+                  <li key={i} className="flex gap-2">
+                    <AlertCircle size={20} className="text-yellow-500 flex-shrink-0" />
+                    {precaution}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {!show3D && !showPoseDetector && (
+          <div className="mt-8">
+            <h3 className="text-xl font-bold mb-4">Lesões Possíveis</h3>
             <ul className="space-y-2 text-zinc-400">
-              {selectedExercise.correctForm.points.map((point, i) => (
+              {selectedExercise.injuries.map((injury, i) => (
                 <li key={i} className="flex gap-2">
-                  <CheckCircle size={20} className="text-green-500 flex-shrink-0" />
-                  {point}
+                  <AlertCircle size={20} className="text-red-500 flex-shrink-0" />
+                  {injury}
                 </li>
               ))}
             </ul>
           </div>
-
-          <div>
-            <h3 className="text-xl font-bold mb-4">Cuidados</h3>
-            <ul className="space-y-2 text-zinc-400">
-              {selectedExercise.precautions.map((precaution, i) => (
-                <li key={i} className="flex gap-2">
-                  <AlertCircle size={20} className="text-yellow-500 flex-shrink-0" />
-                  {precaution}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        )}
       </div>
     );
   }
@@ -501,10 +621,16 @@ function HomeWorkouts() {
   );
 }
 
+// ======================================
+// AI COACH PAGE
+// ======================================
 function Coach() {
   return <AICoach />;
 }
 
+// ======================================
+// HYDRATION PAGE
+// ======================================
 function Hydration() {
   const { user, addWater } = useApp();
   const waterPercent = (user.waterToday / user.waterGoal) * 100;
@@ -540,6 +666,9 @@ function Hydration() {
   );
 }
 
+// ======================================
+// ACHIEVEMENTS PAGE
+// ======================================
 function Achievements() {
   const { achievements } = useApp();
 
@@ -574,6 +703,9 @@ function Achievements() {
   );
 }
 
+// ======================================
+// PROFILE PAGE
+// ======================================
 function Profile() {
   const { user } = useApp();
 
@@ -609,6 +741,9 @@ function Profile() {
   );
 }
 
+// ======================================
+// SETTINGS PAGE
+// ======================================
 function SettingsPage() {
   const { darkMode, setDarkMode } = useApp();
 
@@ -635,10 +770,40 @@ function SettingsPage() {
   );
 }
 
+// ======================================
+// TIMER PAGE
+// ======================================
 function Timer() {
   return <WorkoutTimer />;
 }
 
+// ======================================
+// EYE TRACKING PAGE
+// ======================================
+function EyeTrackingPage() {
+  return (
+    <div className="p-8">
+      <h1 className="text-4xl font-black mb-8">Eye Tracking</h1>
+      <EyeTracking />
+    </div>
+  );
+}
+
+// ======================================
+// HEAD POSE PAGE
+// ======================================
+function HeadPosePage() {
+  return (
+    <div className="p-8">
+      <h1 className="text-4xl font-black mb-8">Head Pose Detection</h1>
+      <HeadPose />
+    </div>
+  );
+}
+
+// ======================================
+// NOT FOUND PAGE
+// ======================================
 function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -651,7 +816,7 @@ function NotFound() {
 }
 
 // ======================================
-// LAYOUT
+// MAIN LAYOUT
 // ======================================
 function MainLayout({ children }) {
   const navigate = useNavigate();
@@ -667,13 +832,14 @@ function MainLayout({ children }) {
     { icon: Trophy, title: "Conquistas", path: "/achievements" },
     { icon: User, title: "Perfil", path: "/profile" },
     { icon: Sliders, title: "Configurações", path: "/settings" },
-    { icon: Timer, title: "Cronômetro", path: "/timer" },
+    { icon: Activity, title: "Cronômetro", path: "/timer" },
+    { icon: Eye, title: "Eye Tracking", path: "/eye-tracking" },
+    { icon: Head, title: "Head Pose", path: "/head-pose" },
   ];
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex">
-      {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:relative w-72 min-h-screen border-r border-zinc-800 p-5 transition-transform duration-300 z-30 bg-zinc-950 flex flex-col`}>
+      <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:relative w-72 min-h-screen border-r border-zinc-800 p-5 transition-transform duration-300 z-30 bg-zinc-950 flex flex-col overflow-y-auto`}>
         <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent mb-10">
           Aura Fitness
         </h1>
@@ -691,7 +857,7 @@ function MainLayout({ children }) {
                 className="flex items-center gap-3 p-4 rounded-xl hover:bg-zinc-900 transition-all text-left"
               >
                 <Icon size={20} />
-                <span>{item.title}</span>
+                <span className="text-sm">{item.title}</span>
               </button>
             );
           })}
@@ -709,9 +875,7 @@ function MainLayout({ children }) {
         </button>
       </aside>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
         <header className="h-20 border-b border-zinc-800 flex items-center justify-between px-8">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -725,13 +889,11 @@ function MainLayout({ children }) {
           </div>
         </header>
 
-        {/* Content */}
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>
 
-      {/* Overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 md:hidden z-20"
@@ -860,21 +1022,33 @@ function AppRouter() {
           )
         }
       />
+      <Route
+        path="/eye-tracking"
+        element={
+          isAuthenticated ? (
+            <MainLayout>
+              <EyeTrackingPage />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route
+        path="/head-pose"
+        element={
+          isAuthenticated ? (
+            <MainLayout>
+              <HeadPosePage />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
-}
-
-// ======================================
-// AI RESPONSE
-// ======================================
-function getAIResponse(message) {
-  const lower = message.toLowerCase();
-  if (lower.includes("flexão")) return "Flexão é ótimo para peito e tríceps. Faça 3 séries de 10-15 repetições com boa forma!";
-  if (lower.includes("agachamento")) return "Agachamento trabalha pernas e glúteos. Mantenha os pés na largura dos ombros e desça até 90 graus.";
-  if (lower.includes("água")) return "Beba 2-3 litros de água por dia. Mais se estiver treinando!";
-  if (lower.includes("nutrição")) return "Coma proteína em cada refeição. Frango, ovos e peixe são ótimas opções!";
-  return "Ótima pergunta! Para mais detalhes, consulte um profissional de fitness.";
 }
 
 // ======================================
